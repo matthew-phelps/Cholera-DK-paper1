@@ -12,14 +12,18 @@ ifelse(grepl("wrz741", getwd()),
 setwd(data.path)
 
 aalborg_day <- read.csv('Aalborg_daily_1853.csv') 
-korsoer_day <- read.csv('Korsoer_daily_1857.csv')
 cph_day <- read.csv('CPH_daily_1853.csv')
+korsoer_day <- read.csv('Korsoer_daily_1857.csv')
 
 
-korsoer_day$month <- sprintf("%02d", korsoer_day$month) # pad with leading zeros
-korsoer_day$date <- paste(korsoer_day$years, korsoer_day$month, korsoer_day$day, sep = "-")
-korsoer_day$date <- as.Date(korsoer_day$date)
-korsoer_day$years <- korsoer_day$month <- korsoer_day$day <- NULL
+# Population numbers from Lone's excel: "Cholera daily cases in 3 cities.xlsx
+aalborg_pop <- 2236
+cph_pop <- 143591
+korsoer_pop <- 7745
+
+
+
+# DATE PREPERATION --------------------------------------------------------
 
 aalborg_day$month <- sprintf("%02d", aalborg_day$month) # pad with leading zeros
 aalborg_day$date <- paste(aalborg_day$years, aalborg_day$month, aalborg_day$day, sep = "-")
@@ -31,4 +35,27 @@ cph_day$date <- paste(cph_day$years, cph_day$month, cph_day$day, sep = "-")
 cph_day$date <- as.Date(cph_day$date)
 cph_day$years <- cph_day$month <- cph_day$day <- NULL
 
+korsoer_day$month <- sprintf("%02d", korsoer_day$month) # pad with leading zeros
+korsoer_day$date <- paste(korsoer_day$years, korsoer_day$month, korsoer_day$day, sep = "-")
+korsoer_day$date <- as.Date(korsoer_day$date)
+korsoer_day$years <- korsoer_day$month <- korsoer_day$day <- NULL
+
+
+
+# NORMALIZING DATA --------------------------------------------------------
+
+aalborg_day$cases_norm <- aalborg_day$cases/aalborg_pop * 10000
+aalborg_day$deaths_norm <- aalborg_day$deaths/aalborg_pop * 10000
+
+cph_day$cases_norm <- cph_day$cases/cph_pop * 10000
+cph_day$deaths_norm <- cph_day$deaths/cph_pop * 10000
+
+korsoer_day$cases_norm <- korsoer_day$cases/korsoer_pop * 10000
+korsoer_day$deaths_norm <- korsoer_day$deaths/korsoer_pop * 10000
+
+
+
+# SAVE --------------------------------------------------------------------
+
 save(aalborg_day, cph_day, korsoer_day, file = "date2_cities_daily.Rdata")
+
