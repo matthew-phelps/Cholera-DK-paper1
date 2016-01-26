@@ -6,20 +6,20 @@
 ## Intro
 rm(list = ls())
 ifelse(grepl("wrz741", getwd()),
-       data.path <- "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Cholera-DK-paper1\\data",
-       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data")
+       data.path <- "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Cholera-DK-paper1",
+       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1a")
 
 setwd(data.path)
 
-aalborg_day <- read.csv('Aalborg_daily_1853.csv') 
-cph_day <- read.csv('CPH_daily_1853.csv')
-korsoer_day <- read.csv('Korsoer_daily_1857.csv')
+aalborg_day <- read.csv('data\\Aalborg_daily_1853.csv') 
+cph_day <- read.csv('data\\CPH_daily_1853.csv')
+korsoer_day <- read.csv('data\\Korsoer_daily_1857.csv')
 
 
 # Population numbers from Lone's excel: "Cholera daily cases in 3 cities.xlsx
-aalborg_pop <- 2236
+aalborg_pop <- 7745
 cph_pop <- 143591
-korsoer_pop <- 7745
+korsoer_pop <- 2236 
 
 
 
@@ -28,16 +28,19 @@ korsoer_pop <- 7745
 aalborg_day$month <- sprintf("%02d", aalborg_day$month) # pad with leading zeros
 aalborg_day$date <- paste(aalborg_day$years, aalborg_day$month, aalborg_day$day, sep = "-")
 aalborg_day$date <- as.Date(aalborg_day$date)
+aalborg_day$city <- "aalborg"
 aalborg_day$years <- aalborg_day$month <- aalborg_day$day <- NULL
 
 cph_day$month <- sprintf("%02d", cph_day$month) # pad with leading zeros
 cph_day$date <- paste(cph_day$years, cph_day$month, cph_day$day, sep = "-")
 cph_day$date <- as.Date(cph_day$date)
+cph_day$city <- "cph"
 cph_day$years <- cph_day$month <- cph_day$day <- NULL
 
 korsoer_day$month <- sprintf("%02d", korsoer_day$month) # pad with leading zeros
 korsoer_day$date <- paste(korsoer_day$years, korsoer_day$month, korsoer_day$day, sep = "-")
 korsoer_day$date <- as.Date(korsoer_day$date)
+korsoer_day$city <- "korsoer"
 korsoer_day$years <- korsoer_day$month <- korsoer_day$day <- NULL
 
 
@@ -57,5 +60,5 @@ korsoer_day$deaths_norm <- korsoer_day$deaths/korsoer_pop * 10000
 
 # SAVE --------------------------------------------------------------------
 
-save(aalborg_day, cph_day, korsoer_day, file = "date2_cities_daily.Rdata")
+save(aalborg_day, cph_day, korsoer_day, file = "Rdata\\Data-2_cities-daily.Rdata")
 

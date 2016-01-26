@@ -9,8 +9,8 @@ ifelse(grepl("wrz741", getwd()),
        data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/CPH")
 
 ifelse(grepl("wrz741", getwd()),
-       save.path <- "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Cholera-DK-paper1\\Rdata\\Data-1_transfer-from-CPH-project",
-       save.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Rdata/Data-1_transfer-from-CPH-project")
+       save.path <- "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Cholera-DK-paper1\\Rdata\\Data-1_transfer-from-CPH-project.Rdata",
+       save.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Rdata/Data-1_transfer-from-CPH-project.Rdata")
 
 setwd(data.path)
 
