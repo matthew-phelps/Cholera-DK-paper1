@@ -30,18 +30,21 @@ aalborg_day$date <- paste(aalborg_day$years, aalborg_day$month, aalborg_day$day,
 aalborg_day$date <- as.Date(aalborg_day$date)
 aalborg_day$city <- "aalborg"
 aalborg_day$years <- aalborg_day$month <- aalborg_day$day <- NULL
+aalborg_day$day_index_norm <- aalborg_day$day_index / max(aalborg_day$day_index)
 
 cph_day$month <- sprintf("%02d", cph_day$month) # pad with leading zeros
 cph_day$date <- paste(cph_day$years, cph_day$month, cph_day$day, sep = "-")
 cph_day$date <- as.Date(cph_day$date)
 cph_day$city <- "cph"
 cph_day$years <- cph_day$month <- cph_day$day <- NULL
+cph_day$day_index_norm <- cph_day$day_index / max(cph_day$day_index)
 
 korsoer_day$month <- sprintf("%02d", korsoer_day$month) # pad with leading zeros
 korsoer_day$date <- paste(korsoer_day$years, korsoer_day$month, korsoer_day$day, sep = "-")
 korsoer_day$date <- as.Date(korsoer_day$date)
 korsoer_day$city <- "korsoer"
 korsoer_day$years <- korsoer_day$month <- korsoer_day$day <- NULL
+korsoer_day$day_index_norm <- korsoer_day$day_index / max(korsoer_day$day_index)
 
 
 
