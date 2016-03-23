@@ -29,24 +29,29 @@ aalborg_day$month <- sprintf("%02d", aalborg_day$month) # pad with leading zeros
 aalborg_day$date <- paste(aalborg_day$years, aalborg_day$month, aalborg_day$day, sep = "-")
 aalborg_day$date <- as.Date(aalborg_day$date)
 aalborg_day$city <- "aalborg"
-aalborg_day$years <- aalborg_day$month <- aalborg_day$day <- NULL
+
 aalborg_day$day_index_norm <- aalborg_day$day_index / max(aalborg_day$day_index)
 
 cph_day$month <- sprintf("%02d", cph_day$month) # pad with leading zeros
 cph_day$date <- paste(cph_day$years, cph_day$month, cph_day$day, sep = "-")
 cph_day$date <- as.Date(cph_day$date)
 cph_day$city <- "cph"
-cph_day$years <- cph_day$month <- cph_day$day <- NULL
 cph_day$day_index_norm <- cph_day$day_index / max(cph_day$day_index)
 
 korsoer_day$month <- sprintf("%02d", korsoer_day$month) # pad with leading zeros
 korsoer_day$date <- paste(korsoer_day$years, korsoer_day$month, korsoer_day$day, sep = "-")
 korsoer_day$date <- as.Date(korsoer_day$date)
 korsoer_day$city <- "korsoer"
-korsoer_day$years <- korsoer_day$month <- korsoer_day$day <- NULL
+
 korsoer_day$day_index_norm <- korsoer_day$day_index / max(korsoer_day$day_index)
 
 
+brandholm_daily_data$month <- sprintf("%02d", brandholm_daily_data$month) # pad with leading zeros
+brandholm_daily_data$date <- paste(brandholm_daily_data$years, brandholm_daily_data$month, brandholm_daily_data$day, sep = "-")
+brandholm_daily_data$date <- as.Date(brandholm_daily_data$date)
+brandholm_daily_data$city <- "brandholm"
+brandholm_daily_data$years <- brandholm_daily_data$month <- brandholm_daily_data$day <- NULL
+brandholm_daily_data$day_index_norm <- brandholm_daily_data$day_index / max(brandholm_daily_data$day_index)
 
 # NORMALIZING DATA --------------------------------------------------------
 
@@ -63,5 +68,5 @@ korsoer_day$deaths_norm <- korsoer_day$deaths/korsoer_pop * 10000
 
 # SAVE --------------------------------------------------------------------
 
-save(aalborg_day, cph_day, korsoer_day, file = "Rdata\\Data-2_cities-daily.Rdata")
+save(aalborg_day, cph_day, korsoer_day, brandholm_day, file = "Rdata\\Data-2_cities-daily.Rdata")
 

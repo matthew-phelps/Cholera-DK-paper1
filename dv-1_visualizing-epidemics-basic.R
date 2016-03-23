@@ -11,31 +11,40 @@ ifelse(grepl("wrz741", getwd()),
        data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1")
 
 setwd(data.path)
-
+devtools::install_github('matthew-phelps/CholeraDataDK')
 
 library(ggplot2)
 library(ggmap)
 library(dplyr)
 library(grid)
 library(tidyr)
+library(CholeraDataDK)
 
 
 
 # LOAD & PREP--------------------------------------------------------------------
 
-load("Rdata\\Data-2_cities-daily.Rdata")
-all_cases <- rbind(aalborg_day, cph_day, korsoer_day)
+all_cases_temp <- cholera_daily_data
 
 
+all_cases_temp$season <- paste("100",
+                               all_cases_temp$month,
+                               all_cases_temp$day,
+                               sep = "-")
+all_cases_temp$season <- as.Date(all_cases_temp$season)
+all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
 
 # INCIDENCE PER 10K ----------------------------------------------------
 
-incidence_10k_plot <- ggplot(data = all_cases, aes(x = day_index, y = cases_norm, group = city, color = city)) +
-  geom_line(size = 1.2) +
+incidence_10k_plot <- ggplot(data = all_cases, aes(x = day_index,
+                                                   y = cases_norm,
+                                                   group = city)) +
+  geom_line(size = 1.2,
+            aes(color = city)) +
   xlab("Day index") +
   ylab("Incidence per 10,000") +
   xlim(0, 80) +
-  ggtitle ("Daily incidence \nper 10,000 people") +
+  ggtitle ("Daily incidence") +
   theme_classic() +
   theme(legend.title = element_blank(),
         legend.position = c(0.7, 0.5),
@@ -44,13 +53,13 @@ incidence_10k_plot <- ggplot(data = all_cases, aes(x = day_index, y = cases_norm
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
         axis.title.y = element_text(size = 18, face = "bold"),
-        plot.title = element_text(size = 28, face="bold"),
+        plot.title = element_text(size = 20, face="bold"),
         plot.margin = unit(c(0,0,0.5,0), 'lines')) +
   coord_cartesian(xlim = c(0, 80), ylim = c(5,max(all_cases$cases_norm)+15)) +
-    scale_color_discrete(breaks = c('aalborg', 'cph', 'korsoer'),
+    scale_color_discrete(breaks = c('aalborg', 'copenhagen', 'korsoer'),
                          labels = c('Aalborg', 'Copenhagen', 'Korsør'))
 incidence_10k_plot
-ggsave(filename = 'Output\\incidence-per-10k.jpg',
+ggsave(filename = 'Output\\F1-incidence-per-10k.jpg',
        plot = incidence_10k_plot,
        width = 26,
        height = 20,
@@ -73,14 +82,14 @@ number_cases_plot <- ggplot(data = all_cases, aes(x = day_index, y = cases, grou
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
         axis.title.y = element_text(size = 18, face = "bold"),
-        plot.title = element_text(size = 28, face="bold"),
+        plot.title = element_text(size = 20, face="bold"),
         plot.margin = unit(c(0,0,0.5,0), 'lines')) +
   coord_cartesian(xlim = c(0, 80), ylim = c(5,max(all_cases$cases)-5)) +
   scale_color_discrete(breaks = c('aalborg', 'cph', 'korsoer'),
                        labels = c('Aalborg', 'Copenhagen', 'Korsør'))
 number_cases_plot
 
-ggsave(filename = 'Output\\daily-incidence-absolute.jpg',
+ggsave(filename = 'Output\\F2-daily-incidence-absolute.jpg',
        plot = number_cases_plot,
        width = 26,
        height = 20,
@@ -90,12 +99,12 @@ ggsave(filename = 'Output\\daily-incidence-absolute.jpg',
 
 # INCIDENCE OVER NORMALIZED DAY_INDEX -------------------------------------
 
-norm_cases_plot <- ggplot(data = all_cases, aes(x = day_index_norm, y = cases_norm, group = city, color = city)) +
+norm_cases_plot <- ggplot(data = all_cases, aes(x = day_norm, y = cases_norm, group = city, color = city)) +
   geom_line(size = 1.2) +
   xlab("Normalized day index") +
   ylab("Incidence per 10,000") +
   xlim(0, 1) +
-  ggtitle ("Incidence per 10k people over\nnormalized time index\n") +
+  ggtitle ("Incidence per 10k people with\nnormalized time index\n") +
   theme_classic() +
   theme(legend.title = element_blank(),
         legend.position = c(0.9, 0.5),
@@ -104,15 +113,67 @@ norm_cases_plot <- ggplot(data = all_cases, aes(x = day_index_norm, y = cases_no
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
         axis.title.y = element_text(size = 18, face = "bold"),
-        plot.title = element_text(size = 28, face="bold"),
+        plot.title = element_text(size = 20, face="bold"),
         plot.margin = unit(c(0,0,0.5,0), 'lines')) +
   coord_cartesian(xlim = c(0, 1), ylim = c(5,max(all_cases$cases_norm)-5)) +
   scale_color_discrete(breaks = c('aalborg', 'cph', 'korsoer'),
                        labels = c('Aalborg', 'Copenhagen', 'Korsør'))
 norm_cases_plot
 
-ggsave(filename = 'Output\\incidence-norm-time.jpg',
+ggsave(filename = 'Output\\F3-incidence-norm-time.jpg',
        plot = norm_cases_plot,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 300)
+
+
+
+# BRANDHOLM ---------------------------------------------------------------
+ggplot(data = all_cases_temp[all_cases_temp$city == "brandholm", ],
+       aes(x = date, y = cases)) +
+  geom_line(size = 1.2) +
+  xlab("Date") +
+  ylab("Number of cases")+
+  ggtitle ("Daily cases in Brandholm 1850") +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
+        axis.title.y = element_text(size = 18, face = "bold"),
+        plot.title = element_text(size = 20, face="bold"),
+        plot.margin = unit(c(0,0,0.5,0), 'lines'))
+
+
+# TIME OF YEAR ------------------------------------------------------------
+
+
+plot_season <- ggplot(data = all_cases,
+       aes(x = season, y = cases_norm, group = city, color = city)) +
+  geom_line(size= 1.2) +
+  xlab("Date") +
+  ylab("Incidence per 10,000") +
+  ggtitle ("Seasonality of cholera") +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        legend.position = c(0.2, 0.5),
+        legend.text = element_text(size = 17),
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
+        axis.title.y = element_text(size = 18, face = "bold"),
+        plot.title = element_text(size = 20, face="bold"),
+        plot.margin = unit(c(0,0,0.5,0), 'lines')) +
+  coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
+  scale_color_discrete(breaks = c('aalborg', 'copenhagen', 'korsoer'),
+                       labels = c('Aalborg (1853)', 'Copenhagen (1853)', 'Korsør (1857)'))
+  
+plot_season
+
+
+ggsave(filename = 'Output\\F4-seasonality.jpg',
+       plot = plot_season,
        width = 26,
        height = 20,
        units = 'cm',
