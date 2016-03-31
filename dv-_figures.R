@@ -26,8 +26,10 @@ mort <- cph_mort_rates_10yr
 counts <- cph_counts_age
 pop <- cph_pop1853_10yr
 attack <- cph_age_attack_rate
+cases <- cholera_daily_data_towns
 
-  # Re-order levels of factor so that plotting works: http://goo.gl/CD2fEC
+
+# Re-order levels of factor so that plotting works: http://goo.gl/CD2fEC
 age_char <- as.character(mort$age_range)
 mort$age_range <- factor(age_char, levels = c(age_char))
 
@@ -89,7 +91,7 @@ rr$up95 <- exp(log(rr$rr) + z_crit * se)
 limits = aes(ymax = up95, ymin = low95)
 
 
-title <- "How did cholera mortality vary between genders?"
+title <- "Relative risk of cholera mortality"
 sub_title <- "male is reference group"
 
 
@@ -177,19 +179,14 @@ cho_pct <- matrix(nrow = nrow(counts))
 cho_pct <- data.frame(cho_pct)
 cho_pct[,1] <- counts$age_range 
 colnames(cho_pct) <- "age_range" # rename var1
-cho_pct$male <- counts$male_dead2 / counts$male_all_cause
-cho_pct$female <- counts$female_dead2 / counts$female_all_cause
-
-# Convert to long and rename variables for plotting
-cho_pct_lng <- gather(cho_pct, key = age_range, value = deaths )
-colnames(cho_pct_lng) <- c("age_range", "gender", "percent_cholera")
+cho_pct$mortality <- (counts$male_dead2 + counts$female_dead2) / (counts$male_all_cause + counts$female_all_cause)
 
 # plot
 
-plot_chol_pct <- ggplot(data = cho_pct_lng, aes(group = gender)) +
-  geom_line(aes(x = age_range, y = percent_cholera, color = gender),
+plot_chol_pct <- ggplot(data = cho_pct) +
+  geom_line(aes(x = age_range, y = mortality, group = 1),
             size = 1.5) +
-  geom_point(aes(x = age_range, y = percent_cholera, color = gender),
+  geom_point(aes(x = age_range, y = mortality),
              size = 3.5) +
   xlab("Age group") +
   ylab("% of all deaths attributed to cholera") +
@@ -213,3 +210,11 @@ ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Chol
        height = 20,
        units = 'cm',
        dpi = 600)
+
+
+
+# Frederikshavn -----------------------------------------------------------
+frederikshavn <- cases[cases$location == "frederikshavn",]
+nyk <- cases[cases$location == "nykoebing",]
+plot(frederikshavn$value, type = 'l')
+plot(nyk$value, col="red", type ='l')
