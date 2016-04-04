@@ -35,8 +35,10 @@ mort$age_range <- factor(age_char, levels = c(age_char))
 
 # To long format data
 mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
-                      key = age_range, value = deaths )
-colnames(mort_gender) <- c("age_range", "gender", "mort_rate")
+                      key = gender,
+                      value = mort_rate,
+                      c(male_mort2, female_mort2))
+
 
 
 # AGE MORTALITY BY GENDER -------------------------------------------------------------------
@@ -174,7 +176,7 @@ ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Chol
        dpi = 600)
 
 
-# Cholera of total deaths -------------------------------------------------
+# Cholera Deaths -------------------------------------------------
 cho_pct <- matrix(nrow = nrow(counts))
 cho_pct <- data.frame(cho_pct)
 cho_pct[,1] <- counts$age_range 
@@ -182,17 +184,25 @@ colnames(cho_pct) <- "age_range" # rename var1
 cho_pct$mortality <- (counts$male_dead2 + counts$female_dead2) / (counts$male_all_cause + counts$female_all_cause)
 
 # plot
+# DF with cholera mort as % of total mort & cholera mort rates in 1 df
+mort_df <- cbind(cho_pct, mort[, "total_mort_2"])
+colnames(mort_df) <- c("age_range", "pct_of_tot_mort", "chol_mort_rate") 
+mort_df <- tidyr::gather(mort_df, key = "variable", value = "value", 2:3)
 
-plot_chol_pct <- ggplot(data = cho_pct) +
-  geom_line(aes(x = age_range, y = mortality, group = 1),
+plot_chol_pct <- ggplot(data = mort_df) +
+  geom_line( aes(x = age_range, y = value,group = variable, color = variable),
             size = 1.5) +
-  geom_point(aes(x = age_range, y = mortality),
+  geom_point( aes(x = age_range, y = value, color = variable),
              size = 3.5) +
   xlab("Age group") +
-  ylab("% of all deaths attributed to cholera") +
-  ggtitle ("Cholera mortality as % of total mortality\n") +
+  ylab("Percentages") +
+  scale_color_discrete(breaks = c("pct_of_tot_mort", "chol_mort_rate"),
+                       labels = c("% of deaths attributed \n to cholera in 1853\n",
+                                  "% of population deaths \n due cholera in 1853")) +
+  ggtitle ("Cholera mortality in Copenhagen\n") +
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
+  theme(legend.title = element_blank(),
+        axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18,
                                     face = "bold",
