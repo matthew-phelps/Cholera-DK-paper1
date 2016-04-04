@@ -40,29 +40,29 @@ mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
                       c(male_mort2, female_mort2))
 
 
-
-# AGE MORTALITY BY GENDER -------------------------------------------------------------------
-ggplot(data = mort_gender, aes(group = gender)) +
-  geom_bar(aes(x = age_range, y = mort_rate, fill = gender),
-           stat = "identity",
-           position = "dodge") +
-  xlab("Age group") +
-  ylab("Mortality rate") +
-  ggtitle ("How did mortality vary with age? \n") +
-  scale_y_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30)) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(size = 18, angle = 45, vjust = 0.4),
-        axis.text.y = element_text(size = 18),
-        axis.title.x = element_text(size = 22,
-                                    face = "bold",
-                                    vjust = -0.1),
-        axis.title.y = element_text(size = 22,
-                                    face = "bold",
-                                    vjust = 1.3),
-        plot.title = element_text(size = 28, face="bold"),
-        plot.margin = unit(c(0,0.5,0.5,0.3), 'lines'))
-
-age_mortality_plot
+# 
+# # AGE MORTALITY BY GENDER -------------------------------------------------------------------
+# ggplot(data = mort_gender, aes(group = gender)) +
+#   geom_bar(aes(x = age_range, y = mort_rate, fill = gender),
+#            stat = "identity",
+#            position = "dodge") +
+#   xlab("Age group") +
+#   ylab("Mortality rate") +
+#   ggtitle ("How did mortality vary with age? \n") +
+#   scale_y_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30)) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(size = 18, angle = 45, vjust = 0.4),
+#         axis.text.y = element_text(size = 18),
+#         axis.title.x = element_text(size = 22,
+#                                     face = "bold",
+#                                     vjust = -0.1),
+#         axis.title.y = element_text(size = 22,
+#                                     face = "bold",
+#                                     vjust = 1.3),
+#         plot.title = element_text(size = 28, face="bold"),
+#         plot.margin = unit(c(0,0.5,0.5,0.3), 'lines'))
+# 
+# age_mortality_plot
 
 
 
@@ -183,23 +183,14 @@ cho_pct[,1] <- counts$age_range
 colnames(cho_pct) <- "age_range" # rename var1
 cho_pct$mortality <- (counts$male_dead2 + counts$female_dead2) / (counts$male_all_cause + counts$female_all_cause)
 
-# plot
-# DF with cholera mort as % of total mort & cholera mort rates in 1 df
-mort_df <- cbind(cho_pct, mort[, "total_mort_2"])
-colnames(mort_df) <- c("age_range", "pct_of_tot_mort", "chol_mort_rate") 
-mort_df <- tidyr::gather(mort_df, key = "variable", value = "value", 2:3)
-
-plot_chol_pct <- ggplot(data = mort_df) +
-  geom_line( aes(x = age_range, y = value,group = variable, color = variable),
+plot_chol_pct <- ggplot(data = cho_pct) +
+  geom_line( aes(x = age_range, y = mortality, group = 1),
             size = 1.5) +
-  geom_point( aes(x = age_range, y = value, color = variable),
+  geom_point( aes(x = age_range, y = mortality),
              size = 3.5) +
   xlab("Age group") +
-  ylab("Percentages") +
-  scale_color_discrete(breaks = c("pct_of_tot_mort", "chol_mort_rate"),
-                       labels = c("% of deaths attributed \n to cholera in 1853\n",
-                                  "% of population deaths \n due cholera in 1853")) +
-  ggtitle ("Cholera mortality in Copenhagen\n") +
+  ylab("% of all deaths attributed to cholera") +
+  ggtitle ("Portion of all mortality \ndue to cholera") +
   theme_minimal() +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
@@ -222,6 +213,36 @@ ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Chol
        dpi = 600)
 
 
+# Total mortality due to cholera ------------------------------------------
+# DF with cholera mort as % of total mort & cholera mort rates in 1 df
+chol_mort <- mort[, c("age_range", "total_mort_2")]
+plot_chol_mort <- ggplot(data = chol_mort) +
+  geom_line( aes(x = age_range, y = total_mort_2, group = 1),
+             size = 1.5) +
+  geom_point( aes(x = age_range, y = total_mort_2),
+              size = 3.5) +
+  xlab("Age group") +
+  ylab("Mortality rate \n per 100 people") +
+  ggtitle ("Cholera mortality rate \n") +
+  theme_minimal() +
+  theme(legend.title = element_blank(),
+        axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18,
+                                    face = "bold",
+                                    vjust = 0),
+        axis.title.y = element_text(size = 18,
+                                    face = "bold"),
+        plot.title = element_text(size = 18, face="bold"),
+        plot.margin = unit(c(0,0,0.5,0.5), 'lines'))
+plot_chol_mort
+
+ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Cholera-DK-paper1\\Output\\F8-cholera-mort-rate.jpg",
+       plot = plot_chol_mort,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
 
 # Frederikshavn -----------------------------------------------------------
 frederikshavn <- cases[cases$location == "frederikshavn",]
