@@ -27,6 +27,7 @@ counts <- cph_counts_age
 pop <- cph_pop1853_10yr
 attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
+cen <- census
 
 
 # Re-order levels of factor so that plotting works: http://goo.gl/CD2fEC
@@ -247,5 +248,10 @@ ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Chol
 # Frederikshavn -----------------------------------------------------------
 frederikshavn <- cases[cases$location == "frederikshavn",]
 nyk <- cases[cases$location == "nykoebing",]
-plot(frederikshavn$value, type = 'l')
+plot(frederikshavn$value/2000*10000, type = 'l')
 plot(nyk$value, col="red", type ='l')
+
+
+# Aalborg age-stratified mortality rates ----------------------------------
+
+aal <- census[census$place == 'aalborg' & census$year == 1853, ]
