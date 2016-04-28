@@ -104,7 +104,7 @@ plot_mort <- ggplot(data = rr,
   geom_errorbar(limits, width = 0.2) +
   geom_hline(yintercept = 1) +
   xlab("Age group") +
-  ylab("Relative risks of death vs. male") +
+  ylab("How mortality due to cholera varried by gender") +
   annotate("text", x = 7, y = 1.9, label = notes) +
   ggtitle (bquote(atop(.(title), atop(italic(.(sub_title)), ""))))  +
   theme_minimal() +
@@ -145,7 +145,7 @@ rr$up95 <- exp(log(rr$rr) + z_crit * se)
 # set limits for error bars: http://goo.gl/4QE74U
 limits = aes(ymax = up95, ymin = low95)
 
-title <- "How did attack rates vary between genders?"
+title <- "How attack rates varried between genders?"
 sub_title <- "male is reference group"
 
 plot_attack <- ggplot(data = rr,
@@ -154,7 +154,7 @@ plot_attack <- ggplot(data = rr,
   geom_errorbar(limits, width = 0.2) +
   geom_hline(yintercept = 1) +
   xlab("Age group") +
-  ylab("Relative risk of infection vs. male") +
+  ylab("Relative risk of infection") +
   annotate("text", x = 7, y = 1.229*max(rr$rr), label = notes) +
   ggtitle (bquote(atop(.(title), atop(italic(.(sub_title)), ""))))  +
   theme_minimal() +
@@ -191,7 +191,7 @@ plot_chol_pct <- ggplot(data = cho_pct) +
              size = 3.5) +
   xlab("Age group") +
   ylab("% of all deaths attributed to cholera") +
-  ggtitle ("Portion of all mortality \ndue to cholera") +
+  ggtitle ("Portion of all mortality \ndue to cholera by age") +
   theme_minimal() +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
@@ -224,7 +224,7 @@ plot_chol_mort <- ggplot(data = chol_mort) +
               size = 3.5) +
   xlab("Age group") +
   ylab("Mortality rate \n per 100 people") +
-  ggtitle ("Cholera mortality rate \n") +
+  ggtitle ("Cholera mortality rate \n by age") +
   theme_minimal() +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),

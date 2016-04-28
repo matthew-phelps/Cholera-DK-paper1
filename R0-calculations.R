@@ -1,4 +1,6 @@
 rm(list = ls())
+library(devtools)
+install_github("matthew-phelps/CholeraDataDK")
 library(CholeraDataDK)
 library(R0)
 library(ggplot2)
@@ -172,7 +174,7 @@ arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
 
 # R0 plots for cities -----------------------------------------------------
 pd <- position_dodge(0.4)
-ggplot(data = r0,aes(x = city, y = pe, color = method)) +
+R0 <- ggplot(data = r0,aes(x = city, y = pe, color = method)) +
   geom_point(position = pd,
              size = 2) +
   geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
@@ -183,6 +185,7 @@ ggplot(data = r0,aes(x = city, y = pe, color = method)) +
   ylab(expression(R[0])) +
   theme_minimal() +
   theme(legend.title = element_blank(),
+        legend.position = c(0.15, 0.85),
         axis.text.x = element_text(size = 14, angle = 0, vjust = 0.9),
         axis.text.y = element_text(size = 14),
         axis.title.x = element_blank(),
@@ -192,5 +195,14 @@ ggplot(data = r0,aes(x = city, y = pe, color = method)) +
         plot.title = element_text(size = 18, face="bold")) +
   scale_color_discrete(breaks = c("EG", "ML", "TD"),
                       labels = c("Exponential \nGrowth\n",
-                                 "Maximum \nLikelighood\n",
+                                 "Maximum \n Likelihood \n",
                                  "Time-dependent"))
+R0
+
+
+ggsave(filename = "/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F9 - R0.jpg",
+       plot = R0,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
