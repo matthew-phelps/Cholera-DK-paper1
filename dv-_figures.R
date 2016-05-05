@@ -94,7 +94,7 @@ rr$up95 <- exp(log(rr$rr) + z_crit * se)
 limits = aes(ymax = up95, ymin = low95)
 
 
-title <- "Relative risk of cholera mortality"
+title <- "How mortality due to cholera varried by gender"
 sub_title <- "male is reference group"
 
 
@@ -104,7 +104,7 @@ plot_mort <- ggplot(data = rr,
   geom_errorbar(limits, width = 0.2) +
   geom_hline(yintercept = 1) +
   xlab("Age group") +
-  ylab("How mortality due to cholera varried by gender") +
+  ylab("Relative risk of cholera death") +
   annotate("text", x = 7, y = 1.9, label = notes) +
   ggtitle (bquote(atop(.(title), atop(italic(.(sub_title)), ""))))  +
   theme_minimal() +
@@ -113,10 +113,10 @@ plot_mort <- ggplot(data = rr,
         axis.title.x = element_text(size = 16,
                                     face = "bold",
                                     vjust = -0.1),
-        axis.title.y = element_text(size = 18,
+        axis.title.y = element_text(size = 16,
                                     face = "bold",
                                     vjust = 1.3),
-        plot.title = element_text(size = 18, face="bold"))
+        plot.title = element_text(size = 16, face="bold"))
 plot_mort
 
 ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Cholera-DK-paper1\\Output\\F5-RR-mortality.jpg",
@@ -126,11 +126,31 @@ ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Chol
        units = 'cm',
        dpi = 600)
 
-# ATTACK RELATIVE RISK -----------------------------------------------------------
+
+
+# CITY-WIDE GENDER ATTACK RELATIVE RISK  --------------------------------------------------------
+
+fem_chol <- sum(counts$female_sick)
+men_chol <- sum(counts$male_sick)
+fem_pop <- sum(pop$women1853)
+men_pop <- sum(pop$men1853)
+
+fem_risk <- fem_chol / fem_pop
+men_risk <- men_chol / men_pop
+
+
+rr_gender <- fem_risk / men_risk
+
+# 95% CI: https://goo.gl/JE6C4t
+se <- sqrt(1/fem_chol + 1/men_chol - 1/men_pop - 1/fem_pop)
+rr_gender_l <- exp(log(rr_gender) - 1.96 * se)
+rr_gender_u <- exp(log(rr_gender) + 1.96 * se)
+
+# CITY-WIDE GENDER ATTACK RELATIVE RISK  --------------------------------------------------------
+
 # Male is reference. If >1 risk is higher for females
 rr <- matrix(NA, nrow = length(mort$age_range))
 rr <- data.frame(rr)
-rr$age_range <- mort$age_range
 rr$rr <- attack$male_attack_rate / attack$female_attack_rate
 m_d <- counts$male_sick
 f_d <- counts$female_sick
@@ -142,14 +162,22 @@ se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
 rr$low95 <- exp(log(rr$rr) - z_crit * se)
 rr$up95 <- exp(log(rr$rr) + z_crit * se)
 
+# Attach city-wide data:
+rr <- rbind(c(rr_gender, rr_gender_l, rr_gender_u), rr)
+rr$age_range <- factor(c("Total", age_char))
+rr$age_range <- relevel(rr$age_range, "Total")
+rr$plotting_var <- factor(c(0,1))
+rr$plotting_var[2:10] <- factor(0)
+rr$plotting_var[1] <- factor(1)
 # set limits for error bars: http://goo.gl/4QE74U
 limits = aes(ymax = up95, ymin = low95)
 
-title <- "How attack rates varried between genders?"
+title <- "How attack rates varried between genders"
 sub_title <- "male is reference group"
 
 plot_attack <- ggplot(data = rr,
-       aes(x = age_range, y = rr)) +
+       aes(x = age_range, y = rr, color = plotting_var)) +
+  scale_color_manual(values=c("black", "red")) +
   geom_point() +
   geom_errorbar(limits, width = 0.2) +
   geom_hline(yintercept = 1) +
@@ -158,7 +186,8 @@ plot_attack <- ggplot(data = rr,
   annotate("text", x = 7, y = 1.229*max(rr$rr), label = notes) +
   ggtitle (bquote(atop(.(title), atop(italic(.(sub_title)), ""))))  +
   theme_minimal() +
-  theme(axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
+  theme(legend.position = "none", 
+        axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
         axis.text.y = element_text(size = 14),
         axis.title.x = element_text(size = 16,
                                     face = "bold",
@@ -175,6 +204,8 @@ ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Chol
        height = 20,
        units = 'cm',
        dpi = 600)
+
+
 
 
 # Cholera Deaths -------------------------------------------------
