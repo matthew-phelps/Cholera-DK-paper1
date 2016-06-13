@@ -31,7 +31,7 @@ towns <- dk@data
 towns$cholera <- ifelse(towns$cholera == 3 | towns$cholera == 0, 0, 1)
 
 # # Set towns with "unkown" port status to have a port
-# towns$Port <- ifelse(towns$Port == 3, 1, 0)
+towns$Port <- ifelse(towns$Port == 3, 1, 0)
 
 
 # Remove towns with unknown "Port" status

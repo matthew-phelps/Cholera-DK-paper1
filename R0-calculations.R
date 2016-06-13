@@ -200,7 +200,7 @@ R0 <- ggplot(data = r0,aes(x = city, y = pe, color = method)) +
 R0
 
 
-ggsave(filename = "/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F9 - R0.jpg",
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F9 - R0.jpg",
        plot = R0,
        width = 26,
        height = 20,
