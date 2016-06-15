@@ -11,7 +11,7 @@ ifelse(grepl("wrz741", getwd()),
        data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1")
 
 setwd(data.path)
-devtools::install_github('matthew-phelps/CholeraDataDK')
+devtools::install_github('matthew-phelps/CholeraDataDK', force = T)
 
 library(ggplot2)
 library(ggmap)
@@ -25,8 +25,24 @@ library(CholeraDataDK)
 # LOAD & PREP--------------------------------------------------------------------
 
 all_cases_temp <- cholera_daily_data
+cases <- cholera_daily_data_towns
 
 
+
+# RATES FOR SMALL TOWNS
+pop <- dk_population
+pop <- pop[!is.na(pop$year),]
+pop <- pop[pop$year=="1853" | pop$year == "1857" | pop$city == "nykoebing", ]
+colnames(cases) <- c("date", "cases", "day_index", "city")
+
+cases$cases_norm[cases$city=="nykoebing"] <- cases$cases[cases$city=="nykoebing"] / pop$pop[pop$city == "nykoebing"]
+cases$cases_norm[cases$city=="frederikshavn"] <- cases$cases[cases$city=="frederikshavn"] / pop$pop[pop$city == "frederikshavn"]
+
+
+all_cases_temp <- merge(all_cases_temp, cases, all = T)
+all_cases_temp <- all_cases_temp[order(all_cases_temp$city, all_cases_temp$date), ]
+
+# To plot all epidemics on same calendar year - put them on a "dummy" year
 all_cases_temp$season <- paste("100",
                                all_cases_temp$month,
                                all_cases_temp$day,
@@ -36,11 +52,12 @@ all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
 
 # INCIDENCE PER 10K ----------------------------------------------------
 
-incidence_10k_plot <- ggplot(data = all_cases, aes(x = day_index,
-                                                   y = cases_norm,
-                                                   group = city)) +
+incidence_10k_plot <- ggplot(data = all_cases) +
   geom_line(size = 1.2,
-            aes(color = city)) +
+            aes(x = day_index,
+                y = cases_norm,
+                group = city,
+                color = city)) +
   xlab("Day index") +
   ylab("Incidence per 10,000") +
   xlim(0, 80) +
@@ -59,6 +76,8 @@ incidence_10k_plot <- ggplot(data = all_cases, aes(x = day_index,
     scale_color_discrete(breaks = c('aalborg', 'copenhagen', 'korsoer'),
                          labels = c('Aalborg', 'Copenhagen', 'Korsør'))
 incidence_10k_plot
+
+
 ggsave(filename = 'Output\\F1-incidence-per-10k.jpg',
        plot = incidence_10k_plot,
        width = 26,
