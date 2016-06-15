@@ -43,3 +43,7 @@ pop3$gender[10:18] <- "m"
 pop3$gender[19:27] <- "u"
 pop3$group <- pop3$age <- NULL
 row.names(pop3) <- NULL
+pop3$labels[pop3$labels == "80 - 89"] <- "80+"
+# Manually add the ppl above 89 - easier than trying to code it
+pop3$Freq[pop3$gender == "f" & pop3$labels=="80+"] <- 45 + 2
+pop3$Freq[pop3$gender == "m" & pop3$labels=="80+"] <- 14 + 2
