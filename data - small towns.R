@@ -52,6 +52,11 @@ nyk <- merge(nyk_int, nyk_3, all = T)
 fred <- merge(fred_int, fred_3, all = T)
 
 nyk$Freq[is.na(nyk$Freq)] <- 0
+nyk$city <- "nykoebing"
 fred$Freq[is.na(fred$Freq)] <- 0
+fred$city <- "frederikshavn"
+
+small_towns <- rbind(nyk, fred)
+colnames(small_towns) <- c("date", "cases", "city")
 
 ggplot()

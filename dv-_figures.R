@@ -260,10 +260,12 @@ plot_chol_mort <- ggplot(data = chol_burden) +
              size = 1.5) +
   geom_point( aes(x = age_range, y = value, group = outcome, color = outcome),
               size = 3.5) +
-  scale_color_manual(values = c("black", "grey")) +
+  scale_color_manual(values = c("#999999", "black"),
+                     breaks = c('total_attack', 'total_mort_rate'),
+                     labels = c('Attack rate', 'Mortality rate')) +
   xlab("Age group") +
-  ylab("Mortality rate \n per 100 people") +
-  ggtitle ("Cholera mortality rate \n by age") +
+  ylab("Rate per 100 people\n") +
+  ggtitle ("Cholera morbidity and mortality rate \n by age in Copenhagen") +
   theme_minimal() +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
