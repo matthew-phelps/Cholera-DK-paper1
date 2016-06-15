@@ -40,6 +40,8 @@ mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
                       value = mort_rate,
                       c(male_mort2, female_mort2))
 
+# Make new variables:
+counts$total_sick <- counts$male_sick + counts$female_sick
 
 # 
 # # AGE MORTALITY BY GENDER -------------------------------------------------------------------
@@ -245,14 +247,20 @@ ggsave(filename = "C:\\Users\\wrz741\\Google Drive\\Copenhagen\\DK Cholera\\Chol
        dpi = 600)
 
 
-# Total mortality due to cholera ------------------------------------------
+# Total mortality & total attack rate due to cholera -----------------------------------------
 # DF with cholera mort as % of total mort & cholera mort rates in 1 df
-chol_mort <- mort[, c("age_range", "total_mort_2")]
-plot_chol_mort <- ggplot(data = chol_mort) +
-  geom_line( aes(x = age_range, y = total_mort_2, group = 1),
+chol_burden <- mort[, c("age_range", "total_mort_rate")]
+chol_burden$total_attack <- counts$total_sick / pop$total1853
+
+chol_burden <- gather(chol_burden, outcome, value, 2:3)
+
+
+plot_chol_mort <- ggplot(data = chol_burden) +
+  geom_line( aes(x = age_range, y = value, group = outcome, color = outcome),
              size = 1.5) +
-  geom_point( aes(x = age_range, y = total_mort_2),
+  geom_point( aes(x = age_range, y = value, group = outcome, color = outcome),
               size = 3.5) +
+  scale_color_manual(values = c("black", "grey")) +
   xlab("Age group") +
   ylab("Mortality rate \n per 100 people") +
   ggtitle ("Cholera mortality rate \n by age") +
