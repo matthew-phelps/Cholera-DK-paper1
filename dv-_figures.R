@@ -258,9 +258,13 @@ chol_burden <- gather(chol_burden, outcome, value, 2:3)
 plot_chol_mort <- ggplot(data = chol_burden) +
   geom_line( aes(x = age_range, y = value, group = outcome, color = outcome),
              size = 1.5) +
-  geom_point( aes(x = age_range, y = value, group = outcome, color = outcome),
-              size = 3.5) +
+  geom_point( aes(x = age_range, y = value, group = outcome, color = outcome,
+                  shape = outcome),
+              size = 3.1) +
   scale_color_manual(values = c("#999999", "black"),
+                     breaks = c('total_attack', 'total_mort_rate'),
+                     labels = c('Attack rate', 'Mortality rate')) +
+  scale_shape_manual(values = c(19, 17),
                      breaks = c('total_attack', 'total_mort_rate'),
                      labels = c('Attack rate', 'Mortality rate')) +
   xlab("Age group") +

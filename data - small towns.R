@@ -20,43 +20,19 @@ library(tidyr)
 library(CholeraDataDK)
 library(epitools)
 
-cases <- case_records
+all_cases_temp <- cholera_daily_data
+cases <- cholera_daily_data_towns
 
-nyk_1 <- cases[cases$location == "nykoebing", ]
-fred_1 <- cases[cases$location == "frederikshavn", ]
 
-nyk_2 <- data.frame(table(nyk_1$date_admission))
-fred_2 <- data.frame(table(fred_1$date_admission))
 
-# Convert back to date formate
-nyk_2$Var1 <- as.Date(nyk_2$Var1)
-fred_2$Var1 <- as.Date(fred_2$Var1)
+# RATES FOR SMALL TOWNS
+pop <- dk_population
+pop <- pop[!is.na(pop$year),]
+pop <- pop[pop$year=="1853" | pop$year == "1857" | pop$city == "nykoebing", ]
+colnames(cases) <- c("date", "cases", "day_index", "city")
 
-# Order by date
-nyk_3 <- nyk_2[order(nyk_2$Var1), ]
-fred_3 <- fred_2[order(fred_2$Var1), ]
+cases$cases_norm[cases$city=="nykoebing"] <- cases$cases[cases$city=="nykoebing"] / pop$pop[pop$city == "nykoebing"]
+cases$cases_norm[cases$city=="frederikshavn"] <- cases$cases[cases$city=="frederikshavn"] / pop$pop[pop$city == "frederikshavn"]
 
-nyk_min <- min(nyk_3$Var1)
-nyk_max <- max(nyk_3$Var1)
-fred_min <- min(fred_3$Var1)
-fred_max <- max(fred_3$Var1)
-
-# Generate time seq of 1 day within interval
-nyk_int <- seq(nyk_min, nyk_max, by = "day")
-fred_int <- seq(fred_min, fred_max, by = "day")
-
-nyk_int <- data.frame(Var1 = nyk_int)
-fred_int <- data.frame(Var1 = fred_int)
-
-nyk <- merge(nyk_int, nyk_3, all = T)
-fred <- merge(fred_int, fred_3, all = T)
-
-nyk$Freq[is.na(nyk$Freq)] <- 0
-nyk$city <- "nykoebing"
-fred$Freq[is.na(fred$Freq)] <- 0
-fred$city <- "frederikshavn"
-
-small_towns <- rbind(nyk, fred)
-colnames(small_towns) <- c("date", "cases", "city")
 
 ggplot()
