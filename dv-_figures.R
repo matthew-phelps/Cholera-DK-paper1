@@ -70,27 +70,7 @@ counts$total_sick <- counts$male_sick + counts$female_sick
 
 
 # DEATH RELATIVE RISK -----------------------------------------------------------
-# Male is reference. If >1 risk is higher for females
-rr <- matrix(NA, nrow = length(mort$age_range))
-rr <- data.frame(rr)
-rr$age_range <- mort$age_range
-rr$rr <- mort$male_mort2 / mort$female_mort2
 
-m_d <- counts$male_dead2
-f_d <- counts$female_dead2
-m_pop <- pop$men1853
-f_pop <- pop$women1853
-
-# Bonferonni correction for multiple testing: http://goo.gl/Drhjly (pdf)
-alpha <- 0.05
-n <- 9 # number of "test", in this case, age groups being compared
-bonf_c <- alpha / n
-z_crit <- qnorm(1 - (bonf_c/2)) # critical z-value from: http://goo.gl/BXDBFL
-notes <- "*95%CI corrected for multiple tests\n using Bonferroni correction"
-# 95% CI: https://goo.gl/JE6C4t
-se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
-rr$low95 <- exp(log(rr$rr) - z_crit * se)
-rr$up95 <- exp(log(rr$rr) + z_crit * se)
 
 # set limits for error bars: http://goo.gl/4QE74U
 limits = aes(ymax = up95, ymin = low95)
