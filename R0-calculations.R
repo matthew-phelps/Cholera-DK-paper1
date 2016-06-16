@@ -174,7 +174,8 @@ arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
 
 # R0 plots for cities -----------------------------------------------------
 pd <- position_dodge(0.4)
-R0 <- ggplot(data = r0,aes(x = city, y = pe, color = method)) +
+R0 <- ggplot(data = r0,
+             aes(x = city, y = pe, color = method)) +
   geom_point(position = pd,
              size = 2) +
   geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
