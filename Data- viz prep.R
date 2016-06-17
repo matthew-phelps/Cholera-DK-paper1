@@ -201,3 +201,36 @@ cph_rr_sic$city <- "cph"
 
 rr_sic <- rbind(cph_rr_sic, aal_rr_sic)
 save(rr_sic, file = "rr_sic.Rdata")
+
+
+
+
+
+
+
+
+# AGE-STRAITIFED MORT MORB --------------------------------------------
+# CPH
+counts$total_sick <- counts$male_sick + counts$female_sick
+chol_burden <- mort[, c("age_range", "total_mort_rate")]
+chol_burden$total_attack <- counts$total_sick / cph_pop$total1853
+chol_burden$city <- "cph"
+
+# Aalborg
+aal_burden <- aal_chol[, c("age_group", "tot_mort_rt", "tot_attck_rt")]
+aal_burden$city <- "aalborg"
+colnames(aal_burden) <- c(colnames(chol_burden))
+
+# Group CPH and Aalborg together
+chol_burden <- rbind(chol_burden, aal_burden)
+chol_burden <- gather(chol_burden, outcome, value, 2:3)
+chol_burden <- chol_burden[order(chol_burden$city, chol_burden$outcome), ]
+rownames(chol_burden) <- NULL
+
+chol_burden$plot_var <- interaction(chol_burden$city, chol_burden$outcome, lex.order = T)
+
+chol_burden$plot_var <- relevel(chol_burden$plot_var, c(""))
+
+(levels(chol_burden$plot_var))
+save(chol_burden, file = "chol_burden.Rdata")
+

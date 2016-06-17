@@ -28,6 +28,7 @@ library(epitools)
 
 load("rr_mrt.Rdata")
 load("rr_sic.Rdata")
+load("chol_burden.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
 counts <- cph_counts_age
@@ -47,10 +48,7 @@ mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
                       value = mort_rate,
                       c(male_mort2, female_mort2))
 
-# Make new variables:
-counts$total_sick <- counts$male_sick + counts$female_sick
-
-# 
+ 
 # # AGE MORTALITY BY GENDER -------------------------------------------------------------------
 # ggplot(data = mort_gender, aes(group = gender)) +
 #   geom_bar(aes(x = age_range, y = mort_rate, fill = gender),
@@ -189,7 +187,7 @@ plot_attack <- ggplot(data = rr_sic,
   ggtitle (bquote(atop(.(title), atop(italic(.(sub_title)), ""))))  +
   theme_minimal() +
   theme(legend.title = element_blank(),
-        legend.position = c(x = 0.45, y = .90),
+        legend.position = c(x = 0.5, y = .95),
         axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
         axis.text.y = element_text(size = 14),
         axis.title.x = element_text(size = 16,
@@ -199,7 +197,7 @@ plot_attack <- ggplot(data = rr_sic,
                                     face = "bold",
                                     vjust = 1.3),
         plot.title = element_text(size = 18, face="bold"))
-plot_attack☺
+plot_attack
 
 ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F6-RR-attack.jpg",
        plot = plot_attack,
@@ -250,29 +248,33 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 
 # Total mortality & total attack rate due to cholera -----------------------------------------
 # DF with cholera mort as % of total mort & cholera mort rates in 1 df
-chol_burden <- mort[, c("age_range", "total_mort_rate")]
-chol_burden$total_attack <- counts$total_sick / pop$total1853
 
-chol_burden <- gather(chol_burden, outcome, value, 2:3)
 
 
 plot_chol_mort <- ggplot(data = chol_burden) +
-  geom_line( aes(x = age_range, y = value, group = outcome, color = outcome),
-             size = 1.5) +
-  geom_point( aes(x = age_range, y = value, group = outcome, color = outcome,
-                  shape = outcome),
+  geom_line( aes(x = age_range, y = value, group = plot_var, color = plot_var),
+             size = 0.9) +
+  geom_point( aes(x = age_range, y = value, group = plot_var, color = plot_var,
+                  shape = plot_var),
               size = 3.1) +
-  scale_color_manual(values = c("#999999", "black"),
-                     breaks = c('total_attack', 'total_mort_rate'),
-                     labels = c('Attack rate', 'Mortality rate')) +
-  scale_shape_manual(values = c(19, 17),
-                     breaks = c('total_attack', 'total_mort_rate'),
-                     labels = c('Attack rate', 'Mortality rate')) +
+  scale_color_manual(values = c("darkorange",  "darkorange4",
+                                "steelblue1" , "royalblue4"),
+                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+                                'cph.total_attack', 'cph.total_mort_rate'),
+                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                                'CPH Attack rate ', 'CPH Mortality rate')) +
+  scale_shape_manual(values = c(17, 19, 17, 19),
+                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+                                'cph.total_attack', 'cph.total_mort_rate'),
+                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                                'CPH Attack rate ', 'CPH Mortality rate')) +
   xlab("Age group") +
   ylab("Rate per 100 people\n") +
-  ggtitle ("Cholera morbidity and mortality rate \n by age in Copenhagen") +
+  ggtitle ("Cholera morbidity and \nmortality rate by age") +
   theme_minimal() +
   theme(legend.title = element_blank(),
+        legend.position = c(x = 0.25, y = .80),
+        axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18,
@@ -291,13 +293,4 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
        units = 'cm',
        dpi = 600)
 
-# Frederikshavn -----------------------------------------------------------
-frederikshavn <- cases[cases$location == "frederikshavn",]
-nyk <- cases[cases$location == "nykoebing",]
-plot(frederikshavn$value/2000*10000, type = 'l')
-plot(nyk$value, col="red", type ='l')
 
-
-# Aalborg age-stratified mortality rates ----------------------------------
-
-aal <- census[census$place == 'aalborg' & census$year == 1853, ]
