@@ -36,15 +36,17 @@ attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
 cen <- census
 
-aal_pop <- aalborg_1850_census
+aal_1850 <- aalborg_1850_census
+aal_1855 <- aalborg_1855_census
 aal_chol <- aalborg_age_gender
 
 
 
-
 # AALBORG-GENDER-AGE ------------------------------------------------------
-# Group census data
-pop <- data.frame(table(aal_pop))
+# Group census data 1850
+pop <- data.frame(table(aal_1850))
+
+
 pop$age <- as.numeric(as.character(pop$age))
 pop$age[pop$age=="98"] <- 94
 pop2 <- pop[pop$age < 90, ]
@@ -55,9 +57,9 @@ pop_grp <- lapply(pop_ls, group2, 10, age_labels = T)
 
 # Re-group into 1 df
 pop3 <- do.call(rbind.data.frame, pop_grp)
-pop3$gender[1:9] <- "f" # Re-label since labels got messed up in group2
-pop3$gender[10:18] <- "m"
-pop3$gender[19:27] <- "u"
+pop3$gender[1:9] <- "f50" # Re-label since labels got messed up in group2
+pop3$gender[10:18] <- "m50"
+pop3$gender[19:27] <- "u50"
 pop3$group <- pop3$age <- NULL # Remove un-used variables
 row.names(pop3) <- NULL
 
@@ -66,10 +68,53 @@ aal_age_pop <- pop3
 aal_age_pop <- spread(aal_age_pop, gender, Freq)
 aal_age_pop$total <- aal_age_pop$f + aal_age_pop$m + aal_age_pop$u
 rm(pop, pop2, pop3, pop_grp, pop_ls)
+aal_age_pop$year <- 1850 # add year for when datasets are merged
+
 
 # Remove oldest age group - there's not enough data = huge 95%CI
 aal_age_pop <- aal_age_pop[aal_age_pop$labels != "80 - 89", ]
 aal_chol <- aal_chol[aal_chol$age_group != "80+", ]
+
+
+# Do the same for 1855 census
+pop1855 <- data.frame(table(aal_1855))
+pop1855 <- pop1855[complete.cases(pop1855),]
+
+pop1855$age <- as.numeric(as.character(pop1855$age))
+pop1855$age[pop1855$age=="98"] <- 94
+
+# Remove oldest age group - there's not enough data = huge 95%CI
+pop1855_2 <- pop1855[pop1855$age < 80, ]
+
+# Split into gender groups and apply group2 fn to each gender
+pop1855_ls <- split(pop1855_2, f = pop1855_2$gender)
+pop1855_grp <- lapply(pop1855_ls, group2, 10, age_labels = T)
+
+# Re-group into 1 df
+pop1855_3 <- do.call(rbind.data.frame, pop1855_grp)
+pop1855_3$gender[1:8] <- "f55" # Re-label since labels got messed up in group2
+pop1855_3$gender[9:16] <- "m55"
+pop1855_3$gender[17:24] <- "u55"
+pop1855_3$group <- pop1855_3$age <- NULL # Remove un-used variables
+row.names(pop1855_3) <- NULL
+colnames(pop1855_3) <- c("gender", "Freq", "lable1855") 
+
+# Turn data to wide for easy reading 
+aal_age_pop1855 <- pop1855_3
+aal_age_pop1855 <- spread(aal_age_pop1855, gender, Freq)
+aal_age_pop1855$total1855 <- aal_age_pop1855$f + aal_age_pop1855$m + aal_age_pop1855$u
+rm(pop1855, pop1855_2, pop1855_3, pop1855_grp, pop1855_ls)
+
+
+# Impute 1853:
+aal_comb <- cbind(aal_age_pop, aal_age_pop1855)
+aal_comb$f1853 <- (aal_comb$f55 - aal_comb$f50) / 5 * 3 + aal_comb$f50
+aal_comb$m1853 <- (aal_comb$m55 - aal_comb$m50) / 5 * 3 + aal_comb$m50
+aal_comb$u1853 <- (aal_comb$u55 - aal_comb$u50) / 5 * 3 + aal_comb$u50
+aal_comb$total1853 <- aal_comb$f1853 + aal_comb$m1853 + aal_comb$u1853
+
+aal_age_pop <- dplyr::select(aal_comb, f1853, m1853, u1853, total1853)
+colnames(aal_age_pop) <- c("f", "m", "u", "total")
 
 # Save
 setwd(data.path)
@@ -213,13 +258,17 @@ save(rr_sic, file = "rr_sic.Rdata")
 # CPH
 counts$total_sick <- counts$male_sick + counts$female_sick
 chol_burden <- mort[, c("age_range", "total_mort_rate")]
-chol_burden$total_attack <- counts$total_sick / cph_pop$total1853
+chol_burden$total_attack <- counts$total_sick / cph_pop$total1853 * 100
+chol_burden$total_mort_rate <- chol_burden$total_mort_rate * 100
 chol_burden$city <- "cph"
 
 # Aalborg
 aal_burden <- aal_chol[, c("age_group", "tot_mort_rt", "tot_attck_rt")]
 aal_burden$city <- "aalborg"
+aal_burden$tot_mort_rt <- aal_burden$tot_mort_rt * 100
+aal_burden$tot_attck_rt <- aal_burden$tot_attck_rt * 100
 colnames(aal_burden) <- c(colnames(chol_burden))
+
 
 # Group CPH and Aalborg together
 chol_burden <- rbind(chol_burden, aal_burden)
@@ -229,8 +278,5 @@ rownames(chol_burden) <- NULL
 
 chol_burden$plot_var <- interaction(chol_burden$city, chol_burden$outcome, lex.order = T)
 
-chol_burden$plot_var <- relevel(chol_burden$plot_var, c(""))
-
 (levels(chol_burden$plot_var))
 save(chol_burden, file = "chol_burden.Rdata")
-
