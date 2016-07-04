@@ -13,9 +13,9 @@ korsoer <- cases[cholera_daily_data$city == "korsoer", ]
 cph <- cases[cholera_daily_data$city == "copenhagen", ]
 
 # Get generation time: 10.1371/journal.pntd.0001901
-mGT <- generation.time("lognorm", c(5, 2))
+mGT <- generation.time("lognormal", c(2.4, 2))
 # Check generation time
-plot(mGT)
+# plot(mGT)
 
 
 
@@ -23,11 +23,11 @@ plot(mGT)
 # Sensitivity
 sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
                                  est.method = c("EG", "ML"), sa.type = "time")
- plot(sens_time)
+# plot(sens_time)
  sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
                                   est.method = "ML", sa.type = "time")
  
-plot(sens_time, what = "criterion")
+# plot(sens_time, what = "criterion")
 
 aal <- estimate.R(aalborg$cases, GT = mGT, t = aalborg$day_index, begin = 1, end = 16, methods = c("EG", "ML", "TD"), nsim = 1500)
 
@@ -53,22 +53,22 @@ sens_GT <-sensitivity.analysis(aalborg$cases,
                              GT.sd.range = 2,
                              begin = 1, end = 17,
                              est.method = "EG",
-                             sa.type = "GT")
-plot(x=sens_GT[,"GT.Mean"],
-     xlab="mean GT (days)",
-     y=sens_GT[,"R"],
-     ylim=c(1.2, 4.1),
-     ylab="R0 (95% CI)",
-     type="p", pch=19,
-     col="black",
-     main="Sensitivity of R0 to mean Generation Time")
-arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
-       y0=as.numeric(sens_GT[,"CI.lower"]),
-       y1=as.numeric(sens_GT[,"CI.upper"]),
-       angle=90,
-       code=3,
-       col="black",
-       length=0.05)
+                              sa.type = "GT")
+# plot(x=sens_GT[,"GT.Mean"],
+#      xlab="mean GT (days)",
+#      y=sens_GT[,"R"],
+#      ylim=c(1.2, 4.1),
+#      ylab="R0 (95% CI)",
+#      type="p", pch=19,
+#      col="black",
+#      main="Sensitivity of R0 to mean Generation Time")
+# arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
+#        y0=as.numeric(sens_GT[,"CI.lower"]),
+#        y1=as.numeric(sens_GT[,"CI.upper"]),
+#        angle=90,
+#        code=3,
+#        col="black",
+#        length=0.05)
 
 
 # KORSOER -----------------------------------------------------------------
@@ -78,7 +78,7 @@ sens_time <-sensitivity.analysis(korsoer$cases, mGT, begin = 1:5, end = 14:18,
 # plot(sens_time)
 kor <- estimate.R(korsoer$cases, GT = mGT, t = korsoer$day_index, begin = 1, end = 15, methods = c("EG", "ML", "TD"), nsim = 1500)
 
-plot(kor)
+# plot(kor)
 pe <- c(kor$estimates$EG$R, kor$estimates$ML$R, mean(kor$estimates$TD$R))
 ci_l<- c(kor$estimates$EG$conf.int[1],
          kor$estimates$ML$conf.int[1],
@@ -104,32 +104,32 @@ sens_GT <-sensitivity.analysis(korsoer$cases,
                                begin = 1, end = 17,
                                est.method = "EG",
                                sa.type = "GT")
-plot(x=sens_GT[,"GT.Mean"],
-     xlab="mean GT (days)",
-     y=sens_GT[,"R"],
-     ylim=c(1.2, 7.1),
-     ylab="R0 (95% CI)",
-     type="p", pch=19,
-     col="black",
-     main="Sensitivity of R0 to mean Generation Time")
-arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
-       y0=as.numeric(sens_GT[,"CI.lower"]),
-       y1=as.numeric(sens_GT[,"CI.upper"]),
-       angle=90,
-       code=3,
-       col="black",
-       length=0.05)
+# plot(x=sens_GT[,"GT.Mean"],
+#      xlab="mean GT (days)",
+#      y=sens_GT[,"R"],
+#      ylim=c(1.2, 7.1),
+#      ylab="R0 (95% CI)",
+#      type="p", pch=19,
+#      col="black",
+#      main="Sensitivity of R0 to mean Generation Time")
+# arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
+#        y0=as.numeric(sens_GT[,"CI.lower"]),
+#        y1=as.numeric(sens_GT[,"CI.upper"]),
+#        angle=90,
+#        code=3,
+#        col="black",
+#        length=0.05)
 
 # CPH -----------------------------------------------------------------
 
 sens_time <-sensitivity.analysis(cph$cases, mGT, begin = 1:11, end = 30:40,
                                  est.method = "EG", sa.type = "time")
-plot(sens_time)
+# plot(sens_time)
 # Because the sensitivity matrix is not so clear, look at deviance R-sq data
-plot(sens_time, what = "criterion")
+# plot(sens_time, what = "criterion")
 
 cph_r0 <- estimate.R(cph$cases, GT = mGT, t = cph$day_index, begin = 1, end = 39, methods = c("EG", "ML", "TD"), nsim = 1500)
-plotfit(cph_r0)
+# plotfit(cph_r0)
 pe <- c(cph_r0$estimates$EG$R, cph_r0$estimates$ML$R, mean(cph_r0$estimates$TD$R))
 ci_l<- c(cph_r0$estimates$EG$conf.int[1],
          cph_r0$estimates$ML$conf.int[1],
@@ -154,26 +154,29 @@ sens_GT <-sensitivity.analysis(korsoer$cases,
                                begin = 1, end = 17,
                                est.method = "EG",
                                sa.type = "GT")
-plot(x=sens_GT[,"GT.Mean"],
-     xlab="mean GT (days)",
-     y=sens_GT[,"R"],
-     ylim=c(1.2, 4.1),
-     ylab="R0 (95% CI)",
-     type="p", pch=19,
-     col="black",
-     main="Sensitivity of R0 to mean Generation Time")
-arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
-       y0=as.numeric(sens_GT[,"CI.lower"]),
-       y1=as.numeric(sens_GT[,"CI.upper"]),
-       angle=90,
-       code=3,
-       col="black",
-       length=0.05)
+# plot(x=sens_GT[,"GT.Mean"],
+#      xlab="mean GT (days)",
+#      y=sens_GT[,"R"],
+#      ylim=c(1.2, 4.1),
+#      ylab="R0 (95% CI)",
+#      type="p", pch=19,
+#      col="black",
+#      main="Sensitivity of R0 to mean Generation Time")
+# arrows(x0=as.numeric(sens_GT[,"GT.Mean"]),
+#        y0=as.numeric(sens_GT[,"CI.lower"]),
+#        y1=as.numeric(sens_GT[,"CI.upper"]),
+#        angle=90,
+#        code=3,
+#        col="black",
+#        length=0.05)
 
 
 
 # R0 plots for cities -----------------------------------------------------
 pd <- position_dodge(0.4)
+
+# Remove time-dependent
+r0 <- r0[r0$method != "TD", ]
 R0 <- ggplot(data = r0,
              aes(x = city, y = pe, color = method)) +
   geom_point(position = pd,
@@ -194,11 +197,13 @@ R0 <- ggplot(data = r0,
                                     face = "bold",
                                     vjust = 1.3),
         plot.title = element_text(size = 18, face="bold")) +
-  scale_color_discrete(breaks = c("EG", "ML", "TD"),
-                      labels = c("Exponential \nGrowth\n",
-                                 "Maximum \n Likelihood \n",
-                                 "Time-dependent"))
+  scale_y_continuous(limits = c(1, max(r0$ci_u))) +
+  scale_color_manual(values = c("orange", "royalblue2"),
+                       breaks = c("EG", "ML"),
+                       labels = c("Exponential \nGrowth\n",
+                                 "Maximum \n Likelihood"))
 R0
+
 
 
 ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F9 - R0.jpg",

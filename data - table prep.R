@@ -35,4 +35,9 @@ cen <- census
 
 
 aal <- cen[cen$place=="aalborg" & cen$year == 1853, ]
-aal_pop <- aal_pop$male
+aal <- sum(aal$total)
+cph <- sum(cph_pop$total1853)
+kor <- 2000
+
+cph_sick <- sum(counts$male_sick) + sum(counts$female_sick)
+cph_dead <- sum(counts$male_dead) + sum(counts$female_dead)

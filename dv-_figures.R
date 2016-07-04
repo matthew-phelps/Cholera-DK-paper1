@@ -94,6 +94,7 @@ plot_mort <- ggplot(data = rr_mrt,
                 width = 0.3,
                 size = 0.8,
                 position = pd) +
+  coord_cartesian(ylim = c(0, 4)) +
   scale_color_manual(values = c("orange", "royalblue2"),
                      breaks = c('aalborg', 'cph'),
                      labels = c('Aalborg', 'Copenhagen')) +
@@ -103,11 +104,11 @@ plot_mort <- ggplot(data = rr_mrt,
   geom_hline(yintercept = 1) +
   xlab("Age group") +
   ylab("Relative risk of cholera death") +
-  annotate("text", x = 7, y = 2.4, label = notes) +
+  annotate("text", x = 7, y = 3.8, label = notes) +
   ggtitle (bquote(atop(.(title), atop(italic(.(sub_title)), ""))))  +
   theme_minimal() +
   theme(legend.title = element_blank(),
-        legend.position = c(x = 0.7, y = .75),
+        legend.position = c(x = 0.7, y = .8),
         axis.text.x = element_text(size = 14, angle = 45, vjust = 0.4),
         axis.text.y = element_text(size = 14),
         axis.title.x = element_text(size = 16,
@@ -174,6 +175,7 @@ plot_attack <- ggplot(data = rr_sic,
                 width = 0.3,
                 size = 0.8,
                 position = pd) +
+  coord_cartesian(ylim = c(0, 4)) +
   scale_color_manual(values = c("orange", "royalblue2"),
                      breaks = c('aalborg', 'cph'),
                      labels = c('Aalborg', 'Copenhagen')) +
@@ -183,11 +185,11 @@ plot_attack <- ggplot(data = rr_sic,
   geom_hline(yintercept = 1) +
   xlab("Age group") +
   ylab("Relative risk of infection") +
-  annotate("text", x = 2.5, y = 1.9*max(rr_sic$rr), label = notes) +
+  annotate("text", x = 7, y = 3.8, label = notes) +
   ggtitle (bquote(atop(.(title), atop(italic(.(sub_title)), ""))))  +
   theme_minimal() +
   theme(legend.title = element_blank(),
-        legend.position = c(x = 0.5, y = .95),
+        legend.position = c(x = 0.7, y = .80),
         axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
         axis.text.y = element_text(size = 14),
         axis.title.x = element_text(size = 16,
@@ -222,8 +224,8 @@ plot_chol_pct <- ggplot(data = cho_pct) +
   geom_point( aes(x = age_range, y = mortality),
              size = 3.5) +
   xlab("Age group") +
-  ylab("% of all deaths attributed to cholera") +
-  ggtitle ("Portion of all mortality \ndue to cholera by age") +
+  ylab("Proportion of all 1853 deaths\n attributed to cholera") +
+  ggtitle ("Middle-aged ") +
   theme_minimal() +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
@@ -252,18 +254,22 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 
 
 plot_chol_mort <- ggplot(data = chol_burden) +
-  geom_line( aes(x = age_range, y = value, group = plot_var, color = plot_var),
-             size = 0.9) +
+  geom_line( aes(x = age_range, y = value, group = plot_var, color = plot_var,
+                 linetype = plot_var), size = 0.9) +
   geom_point( aes(x = age_range, y = value, group = plot_var, color = plot_var,
-                  shape = plot_var),
-              size = 3.1) +
-  scale_color_manual(values = c("darkorange",  "darkorange4",
+                  shape = plot_var),  size = 3.1) +
+  scale_color_manual(values = c("red2",  "red4",
                                 "steelblue1" , "royalblue4"),
                      breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
                                 'cph.total_attack', 'cph.total_mort_rate'),
                      labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
                                 'CPH Attack rate ', 'CPH Mortality rate')) +
   scale_shape_manual(values = c(17, 19, 17, 19),
+                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+                                'cph.total_attack', 'cph.total_mort_rate'),
+                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                                'CPH Attack rate ', 'CPH Mortality rate')) +
+  scale_linetype_manual(values = c(5,5,1,1),
                      breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
                                 'cph.total_attack', 'cph.total_mort_rate'),
                      labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
