@@ -26,9 +26,7 @@ library(epitools)
 
 # LOAD --------------------------------------------------------------------
 
-load("rr_mrt.Rdata")
-load("rr_sic.Rdata")
-load("chol_burden.Rdata")
+load("data-viz-prep.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
 counts <- cph_counts_age
@@ -148,14 +146,14 @@ rr_gender_l <- exp(log(rr_gender) - 1.96 * se)
 rr_gender_u <- exp(log(rr_gender) + 1.96 * se)
 
 # CITY-WIDE GENDER ATTACK RELATIVE RISK  -----------------------------------------------------
-
-# Attach city-wide data:
-rr <- rbind(c(rr_gender, rr_gender_l, rr_gender_u), rr)
-rr$age_range <- factor(c("Total", age_char))
-rr$age_range <- relevel(rr$age_range, "Total")
-rr$plotting_var <- factor(c(0,1))
-rr$plotting_var[2:10] <- factor(0)
-rr$plotting_var[1] <- factor(1)
+# 
+# # Attach city-wide data:
+# rr <- rbind(c(rr_gender, rr_gender_l, rr_gender_u), rr)
+# rr$age_range <- factor(c("Total", age_char))
+# rr$age_range <- relevel(rr$age_range, "Total")
+# rr$plotting_var <- factor(c(0,1))
+# rr$plotting_var[2:10] <- factor(0)
+# rr$plotting_var[1] <- factor(1)
 # set limits for error bars: http://goo.gl/4QE74U
 limits = aes(ymax = up95, ymin = low95)
 
@@ -248,16 +246,24 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
        dpi = 600)
 
 
+
+
 # Total mortality & total attack rate due to cholera -----------------------------------------
 # DF with cholera mort as % of total mort & cholera mort rates in 1 df
+chol_burden$lower95
 
-
+limits <- aes(ymax = upper95, ymin = lower95,
+              x= age_range, color = plot_var)
+dodge <- position_dodge(width=-0.35)
 
 plot_chol_mort <- ggplot(data = chol_burden) +
-  geom_line( aes(x = age_range, y = value, group = plot_var, color = plot_var,
-                 linetype = plot_var), size = 0.9) +
-  geom_point( aes(x = age_range, y = value, group = plot_var, color = plot_var,
+  geom_line(position = dodge,
+            aes(x = age_range, y = pe, group = plot_var, color = plot_var,
+                 linetype = plot_var), size = 0.9, alpha = 0.3) +
+  geom_point(position = dodge,
+             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
                   shape = plot_var),  size = 3.1) +
+  geom_errorbar(limits, position = dodge, width = 0.4) +
   scale_color_manual(values = c("red2",  "red4",
                                 "steelblue1" , "royalblue4"),
                      breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',

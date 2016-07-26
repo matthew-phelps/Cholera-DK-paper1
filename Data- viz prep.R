@@ -25,7 +25,7 @@ library(tidyr)
 library(CholeraDataDK)
 library(epitools)
 library(grouping)
-
+source("functions.R")
 
 # LOAD --------------------------------------------------------------------
 all_cases_temp <- cholera_daily_data
@@ -247,7 +247,9 @@ cph_rr_sic$city <- "cph"
 rr_sic <- rbind(cph_rr_sic, aal_rr_sic)
 save(rr_sic, file = "rr_sic.Rdata")
 
-
+rm(n, alpha, bonf_c, f_d, f_pop, m_d, m_pop, notes, se, z_crit, aal_rr_sic,
+   aal_rr_mrt, aal_1855, aal_1850, aal_age_pop1855, aal_comb, all_cases_temp, cen,
+   cases, cph_rr_sic, cph_rr_mrt)
 
 
 
@@ -270,13 +272,66 @@ aal_burden$tot_attck_rt <- aal_burden$tot_attck_rt * 100
 colnames(aal_burden) <- c(colnames(chol_burden))
 
 
-# Group CPH and Aalborg together
+# 95% CI based on pdf here: http://goo.gl/lKozQq (pdf)
+
+
+
+# # 95%CI for Aalborg
+# aal_burden$attack_lower95 <- ci.rate(rate_unit = 100, 
+#                                      pop = aal_age_pop$total,
+#                                      num_cases =  aal_chol$total_sick, F)
+#   
+# aal_burden$attack_upper95 <- ci.rate(rate_unit = 100, 
+#                                      pop = aal_age_pop$total,
+#                                      num_cases =  aal_chol$total_sick, T)
+# 
+# aal_burden$mort_lower95 <- ci.rate(rate_unit = 100, 
+#                                      pop = aal_age_pop$total,
+#                                      num_cases =  aal_chol$total_dead, F)
+# 
+# aal_burden$mort_upper95 <- ci.rate(rate_unit = 100, 
+#                                    pop = aal_age_pop$total,
+#                                    num_cases =  aal_chol$total_dead, T)
+# 
+# # 95% CI for CPH
+
+
+# Bind CPH and Aalborg together
+aal_burden$pop <- aal_age_pop$total
+aal_burden$num_dead <- aal_chol$total_dead
+aal_burden$num_sick <- aal_chol$total_sick
+chol_burden$pop <- cph_pop$total1853
+chol_burden$num_dead <- counts$total_dead
+chol_burden$num_sick <- counts$total_sick
+
 chol_burden <- rbind(chol_burden, aal_burden)
-chol_burden <- gather(chol_burden, outcome, value, 2:3)
+chol_burden <- gather(chol_burden, outcome, pe, c(2,3))
+
+
+
+chol_burden$lower95  <- ifelse(chol_burden$outcome=="total_mort_rate",
+                               ci.rate(rate_unit = 100, pop = chol_burden$pop,
+                                       num_cases =  chol_burden$num_dead, upper = F),
+                               ci.rate(rate_unit = 100, pop = chol_burden$pop,
+                                       num_cases =  chol_burden$num_sick, upper = F))
+
+chol_burden$upper95  <- ifelse(chol_burden$outcome=="total_mort_rate",
+                               ci.rate(rate_unit = 100, pop = chol_burden$pop,
+                                       num_cases =  chol_burden$num_dead, upper = T),
+                               ci.rate(rate_unit = 100, pop = chol_burden$pop,
+                                       num_cases =  chol_burden$num_sick, upper = T))
+
+
 chol_burden <- chol_burden[order(chol_burden$city, chol_burden$outcome), ]
 rownames(chol_burden) <- NULL
+chol_burden$num_dead <- chol_burden$num_sick <- chol_burden$pop <- NULL
 
 chol_burden$plot_var <- interaction(chol_burden$city, chol_burden$outcome, lex.order = T)
 
-(levels(chol_burden$plot_var))
-save(chol_burden, file = "chol_burden.Rdata")
+
+
+
+# SAVE --------------------------------------------------------------------
+
+save(chol_burden, aal_age_pop, rr_mrt, rr_sic,
+     file = "data-viz-prep.Rdata")
