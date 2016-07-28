@@ -28,13 +28,11 @@ library(grouping)
 source("functions.R")
 
 # LOAD --------------------------------------------------------------------
-all_cases_temp <- cholera_daily_data
-mort <- cph_mort_rates_10yr
+
 counts <- cph_counts_age
 cph_pop <- cph_pop1853_10yr
 attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
-cen <- census
 
 aal_1850 <- aalborg_1850_census
 aal_1855 <- aalborg_1855_census
@@ -42,7 +40,7 @@ aal_chol <- aalborg_age_gender
 
 
 
-# AALBORG-GENDER-AGE ------------------------------------------------------
+# AALBORG-POPULATION-GENDER-AGE ------------------------------------------------------
 # Group census data 1850
 pop <- data.frame(table(aal_1850))
 
@@ -103,7 +101,7 @@ colnames(pop1855_3) <- c("gender", "Freq", "lable1855")
 aal_age_pop1855 <- pop1855_3
 aal_age_pop1855 <- spread(aal_age_pop1855, gender, Freq)
 aal_age_pop1855$total1855 <- aal_age_pop1855$f + aal_age_pop1855$m + aal_age_pop1855$u
-rm(pop1855, pop1855_2, pop1855_3, pop1855_grp, pop1855_ls)
+rm(pop1855, pop1855_2, pop1855_3, pop1855_grp, pop1855_ls, aal_1855, aal_1850)
 
 
 # Impute 1853:
@@ -112,14 +110,14 @@ aal_comb$f1853 <- (aal_comb$f55 - aal_comb$f50) / 5 * 3 + aal_comb$f50
 aal_comb$m1853 <- (aal_comb$m55 - aal_comb$m50) / 5 * 3 + aal_comb$m50
 aal_comb$u1853 <- (aal_comb$u55 - aal_comb$u50) / 5 * 3 + aal_comb$u50
 aal_comb$total1853 <- aal_comb$f1853 + aal_comb$m1853 + aal_comb$u1853
+rm(aal_age_pop1855)
+aal_age_pop <- dplyr::select(aal_comb, labels, f1853, m1853, u1853, total1853)
+colnames(aal_age_pop) <- c("age_group","f", "m", "u", "total")
 
-aal_age_pop <- dplyr::select(aal_comb, f1853, m1853, u1853, total1853)
-colnames(aal_age_pop) <- c("f", "m", "u", "total")
+# City-wide summations using my funtionc from "functions.R"
 
-# Save
-setwd(data.path)
-save(aal_age_pop, file = "aal_age_pop.Rdata")
-
+aal_age_pop <- citywide(x = aal_age_pop) 
+aal_chol <- citywide(x = aal_chol)
 
 # AALBORG MORT AND MORB RATES ---------------------------------------------
 
@@ -142,17 +140,36 @@ z_crit <- qnorm(1 - (bonf_c/2)) # critical z-value from: http://goo.gl/BXDBFL
 
 
 
+
+# CITYWIDE POPULATION, CASES AND DEATHS -----------------------------------
+cph_pop <- citywide(cph_pop)
+counts <- citywide(counts)
+
+
+
+# CPH MORBIDITY & MORTALITY RATES -----------------------------------------
+# This was calculated in CholeraDataDK, but need to tweek it
+cph_chol <- data.frame(matrix(cph_pop$age_range, nrow = nrow(cph_pop)))
+colnames(cph_chol) <- "age_range"
+cph_chol$male_mort_rate <- counts$male_dead / cph_pop$men1853
+cph_chol$female_mort_rate <- counts$female_dead / cph_pop$women1853
+cph_chol$male_attack_rate <- counts$male_sick / cph_pop$men1853
+cph_chol$female_attack_rate <- counts$female_sick / cph_pop$women1853
+cph_chol$total_mort_rate <- counts$total_dead / cph_pop$total1853
+
+
+
 # CPH DEATH RR -----------------------------------------------------------------------
 
 # Male is reference. If >1 risk is higher for females
-cph_rr_mrt <- matrix(NA, nrow = length(mort$age_range))
+cph_rr_mrt <- matrix(NA, nrow = length(cph_chol$age_range))
 cph_rr_mrt <- data.frame(cph_rr_mrt)
 colnames(cph_rr_mrt) <- "rr"
-cph_rr_mrt$age_range <- mort$age_range
-cph_rr_mrt$rr <- mort$male_mort2 / mort$female_mort2
+cph_rr_mrt$age_range <- cph_pop$age_range
+cph_rr_mrt$rr <- cph_chol$male_mort_rate / cph_chol$female_mort_rate
 
-m_d <- counts$male_dead2
-f_d <- counts$female_dead2
+m_d <- counts$male_dead
+f_d <- counts$female_dead
 m_pop <- cph_pop$men1853
 f_pop <- cph_pop$women1853
 
@@ -194,7 +211,7 @@ aal_rr_mrt$up95 <- exp(log(aal_rr_mrt$rr) + z_crit * se)
 aal_rr_mrt$city <- "aalborg"
 cph_rr_mrt$city <- "cph"
 rr_mrt <- rbind(cph_rr_mrt, aal_rr_mrt)
-save(rr_mrt, file = "rr_mrt.Rdata")
+
 
 
 
@@ -204,11 +221,11 @@ save(rr_mrt, file = "rr_mrt.Rdata")
 # CPH RR ATTACK RATE ---------------------------------------------------------
 
 # Male is reference. If >1 risk is higher for females
-cph_rr_sic <- matrix(NA, nrow = length(mort$age_range))
+cph_rr_sic <- matrix(NA, nrow = length(cph_chol$age_range))
 cph_rr_sic <- data.frame(cph_rr_sic)
 colnames(cph_rr_sic) <- "rr"
-cph_rr_sic$age_range <- mort$age_range
-cph_rr_sic$rr <- attack$male_attack_rate / attack$female_attack_rate
+cph_rr_sic$age_range <- cph_chol$age_range
+cph_rr_sic$rr <- cph_chol$male_attack_rate / cph_chol$female_attack_rate
 m_d <- counts$male_sick
 f_d <- counts$female_sick
 m_pop <- cph_pop$men1853
@@ -245,11 +262,10 @@ aal_rr_sic$city <- "aalborg"
 cph_rr_sic$city <- "cph"
 
 rr_sic <- rbind(cph_rr_sic, aal_rr_sic)
-save(rr_sic, file = "rr_sic.Rdata")
+
 
 rm(n, alpha, bonf_c, f_d, f_pop, m_d, m_pop, notes, se, z_crit, aal_rr_sic,
-   aal_rr_mrt, aal_1855, aal_1850, aal_age_pop1855, aal_comb, all_cases_temp, cen,
-   cases, cph_rr_sic, cph_rr_mrt)
+   aal_rr_mrt, aal_comb, cases, cph_rr_sic, cph_rr_mrt)
 
 
 
@@ -259,7 +275,7 @@ rm(n, alpha, bonf_c, f_d, f_pop, m_d, m_pop, notes, se, z_crit, aal_rr_sic,
 # AGE-STRAITIFED MORT MORB --------------------------------------------
 # CPH
 counts$total_sick <- counts$male_sick + counts$female_sick
-chol_burden <- mort[, c("age_range", "total_mort_rate")]
+chol_burden <- cph_chol[, c("age_range", "total_mort_rate")]
 chol_burden$total_attack <- counts$total_sick / cph_pop$total1853 * 100
 chol_burden$total_mort_rate <- chol_burden$total_mort_rate * 100
 chol_burden$city <- "cph"
@@ -271,32 +287,9 @@ aal_burden$tot_mort_rt <- aal_burden$tot_mort_rt * 100
 aal_burden$tot_attck_rt <- aal_burden$tot_attck_rt * 100
 colnames(aal_burden) <- c(colnames(chol_burden))
 
+# Calculate 95% CI
 
-# 95% CI based on pdf here: http://goo.gl/lKozQq (pdf)
-
-
-
-# # 95%CI for Aalborg
-# aal_burden$attack_lower95 <- ci.rate(rate_unit = 100, 
-#                                      pop = aal_age_pop$total,
-#                                      num_cases =  aal_chol$total_sick, F)
-#   
-# aal_burden$attack_upper95 <- ci.rate(rate_unit = 100, 
-#                                      pop = aal_age_pop$total,
-#                                      num_cases =  aal_chol$total_sick, T)
-# 
-# aal_burden$mort_lower95 <- ci.rate(rate_unit = 100, 
-#                                      pop = aal_age_pop$total,
-#                                      num_cases =  aal_chol$total_dead, F)
-# 
-# aal_burden$mort_upper95 <- ci.rate(rate_unit = 100, 
-#                                    pop = aal_age_pop$total,
-#                                    num_cases =  aal_chol$total_dead, T)
-# 
-# # 95% CI for CPH
-
-
-# Bind CPH and Aalborg together
+# Bind CPH and Aalborg together so can do 95%CI vectorized on 1 df
 aal_burden$pop <- aal_age_pop$total
 aal_burden$num_dead <- aal_chol$total_dead
 aal_burden$num_sick <- aal_chol$total_sick
@@ -308,7 +301,7 @@ chol_burden <- rbind(chol_burden, aal_burden)
 chol_burden <- gather(chol_burden, outcome, pe, c(2,3))
 
 
-
+# 95% CI based on pdf here: http://goo.gl/lKozQq (pdf)
 chol_burden$lower95  <- ifelse(chol_burden$outcome=="total_mort_rate",
                                ci.rate(rate_unit = 100, pop = chol_burden$pop,
                                        num_cases =  chol_burden$num_dead, upper = F),
@@ -327,7 +320,7 @@ rownames(chol_burden) <- NULL
 chol_burden$num_dead <- chol_burden$num_sick <- chol_burden$pop <- NULL
 
 chol_burden$plot_var <- interaction(chol_burden$city, chol_burden$outcome, lex.order = T)
-
+x <- chol_burden
 
 
 

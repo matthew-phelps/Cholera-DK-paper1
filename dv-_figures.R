@@ -254,16 +254,16 @@ chol_burden$lower95
 
 limits <- aes(ymax = upper95, ymin = lower95,
               x= age_range, color = plot_var)
-dodge <- position_dodge(width=-0.35)
+dodge <- position_dodge(width=- 0.2)
 
 plot_chol_mort <- ggplot(data = chol_burden) +
   geom_line(position = dodge,
             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
-                 linetype = plot_var), size = 0.9, alpha = 0.3) +
+                 linetype = plot_var), size = 0.9, alpha = 0.5) +
   geom_point(position = dodge,
              aes(x = age_range, y = pe, group = plot_var, color = plot_var,
                   shape = plot_var),  size = 3.1) +
-  geom_errorbar(limits, position = dodge, width = 0.4) +
+  geom_errorbar(limits, position = dodge, width = 0.1) +
   scale_color_manual(values = c("red2",  "red4",
                                 "steelblue1" , "royalblue4"),
                      breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
