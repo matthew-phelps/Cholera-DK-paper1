@@ -18,6 +18,6 @@ citywide <- function(x){
   nobs <- nrow(x)
   x[, 1] <- as.character(x[, 1])
   x[nobs+1, 2:nvar] <- colSums(x[, 2:nvar])
-  x[nobs + 1, 1] <- "total"
+  x[nobs + 1, 1] <- "Total"
   return(x)
 }

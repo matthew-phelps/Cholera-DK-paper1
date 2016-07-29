@@ -64,7 +64,7 @@ row.names(pop3) <- NULL
 # Remove oldest age group because 
 aal_age_pop <- pop3
 aal_age_pop <- spread(aal_age_pop, gender, Freq)
-aal_age_pop$total <- aal_age_pop$f + aal_age_pop$m + aal_age_pop$u
+aal_age_pop$Total <- aal_age_pop$f + aal_age_pop$m + aal_age_pop$u
 rm(pop, pop2, pop3, pop_grp, pop_ls)
 aal_age_pop$year <- 1850 # add year for when datasets are merged
 
@@ -112,7 +112,7 @@ aal_comb$u1853 <- (aal_comb$u55 - aal_comb$u50) / 5 * 3 + aal_comb$u50
 aal_comb$total1853 <- aal_comb$f1853 + aal_comb$m1853 + aal_comb$u1853
 rm(aal_age_pop1855)
 aal_age_pop <- dplyr::select(aal_comb, labels, f1853, m1853, u1853, total1853)
-colnames(aal_age_pop) <- c("age_group","f", "m", "u", "total")
+colnames(aal_age_pop) <- c("age_group","f", "m", "u", "Total")
 
 # City-wide summations using my funtionc from "functions.R"
 
@@ -123,11 +123,11 @@ aal_chol <- citywide(x = aal_chol)
 
 aal_chol$m_attck_rt <- aal_chol$male_sick / aal_age_pop$m
 aal_chol$f_attck_rt <- aal_chol$female_sick / aal_age_pop$f
-aal_chol$tot_attck_rt <- aal_chol$total_sick / aal_age_pop$total
+aal_chol$tot_attck_rt <- aal_chol$total_sick / aal_age_pop$Total
 
 aal_chol$m_mort_rt <- aal_chol$male_dead / aal_age_pop$m
 aal_chol$f_mort_rt <- aal_chol$female_dead / aal_age_pop$f
-aal_chol$tot_mort_rt <- aal_chol$total_dead / aal_age_pop$total
+aal_chol$tot_mort_rt <- aal_chol$total_dead / aal_age_pop$Total
 
 
 
@@ -290,7 +290,7 @@ colnames(aal_burden) <- c(colnames(chol_burden))
 # Calculate 95% CI
 
 # Bind CPH and Aalborg together so can do 95%CI vectorized on 1 df
-aal_burden$pop <- aal_age_pop$total
+aal_burden$pop <- aal_age_pop$Total
 aal_burden$num_dead <- aal_chol$total_dead
 aal_burden$num_sick <- aal_chol$total_sick
 chol_burden$pop <- cph_pop$total1853
@@ -320,11 +320,9 @@ rownames(chol_burden) <- NULL
 chol_burden$num_dead <- chol_burden$num_sick <- chol_burden$pop <- NULL
 
 chol_burden$plot_var <- interaction(chol_burden$city, chol_burden$outcome, lex.order = T)
-x <- chol_burden
-
 
 
 # SAVE --------------------------------------------------------------------
-
+setwd(data.path)
 save(chol_burden, aal_age_pop, rr_mrt, rr_sic,
      file = "data-viz-prep.Rdata")
