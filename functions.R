@@ -21,3 +21,15 @@ citywide <- function(x){
   x[nobs + 1, 1] <- "Total"
   return(x)
 }
+
+row.merge <- function (x){
+  # Merges & sums the last two rows (excluding the first colum) and relabels the
+  # final row "70+"
+  x[, 1] <- as.character(x[, 1])
+  nobs <- nrow(x)
+  nvar <- ncol(x)
+  x[nobs-1, 2:nvar] <- x[nobs, 2:nvar] + x[nobs-1, 2:nvar]
+  x <- x[-nobs, ]
+  x[nobs-1, 1] <- "70+"
+  return(x)
+}

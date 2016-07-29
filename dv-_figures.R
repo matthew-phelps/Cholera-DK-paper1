@@ -29,7 +29,6 @@ library(epitools)
 load("data-viz-prep.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
-counts <- cph_counts_age
 pop <- cph_pop1853_10yr
 attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
@@ -75,22 +74,35 @@ mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
 # DEATH RELATIVE RISK -----------------------------------------------------------
 
 # set limits for error bars: http://goo.gl/4QE74U
-limits = aes(ymax = up95, ymin = low95)
-
+limits = aes(ymax = up95, ymin = low95, x = age_range, color = city)
 notes <- "*95%CI corrected for multiple tests\n using Bonferroni correction"
 title <- "How mortality due to cholera varried by gender"
 sub_title <- "male is reference group"
 pd <- position_dodge(0.4)
 
-plot_mort <- ggplot(data = rr_mrt,
-                    aes(x = age_range,
-                        y = rr,
-                        color = city,
-                        shape = city)) +
-  geom_point(position = pd, size = 2.2) +
-  geom_errorbar(limits,
+plot_mort <- ggplot() +
+  geom_point(data = rr_mrt[rr_mrt$age_range != "Total", ],
+             aes(x = age_range,
+                 y = rr,
+                 color = city,
+                 shape = city),
+             position = pd, size = 2.2) +
+  geom_errorbar(data = rr_mrt[rr_mrt$age_range != "Total", ],
+                limits,
                 width = 0.3,
                 size = 0.8,
+                position = pd) +
+  # Separate series for the "Total" RR so that it can have different styling
+  geom_point(data = rr_mrt[rr_mrt$age_range == "Total", ],
+             aes(x = age_range,
+                 y = rr,
+                 color = city,
+                 shape = city),
+             position = pd, size = 3.0) +
+  geom_errorbar(data = rr_mrt[rr_mrt$age_range == "Total", ],
+                limits,
+                width = 0.4,
+                size = 1.3,
                 position = pd) +
   coord_cartesian(ylim = c(0, 4)) +
   scale_color_manual(values = c("orange", "royalblue2"),
@@ -155,23 +167,39 @@ rr_gender_u <- exp(log(rr_gender) + 1.96 * se)
 # rr$plotting_var[2:10] <- factor(0)
 # rr$plotting_var[1] <- factor(1)
 # set limits for error bars: http://goo.gl/4QE74U
-limits = aes(ymax = up95, ymin = low95)
 
+limits = aes(ymax = up95, ymin = low95, color = city, x = age_range)
 title <- "How attack rates varried between genders"
 sub_title <- "male is reference group"
 notes <- "*95%CI corrected for multiple tests\n using Bonferroni correction"
 
 
-plot_attack <- ggplot(data = rr_sic,
-       aes(x = age_range,
-           y = rr,
-           color = city,
-           shape = city)) +
-  geom_point(position = pd,
+plot_attack <- ggplot() +
+  geom_point(data = rr_sic[rr_sic$age_range !="Total", ],
+             aes(x = age_range,
+                 y = rr,
+                 color = city,
+                 shape = city),
+             position = pd,
              size = 2.3) +
-  geom_errorbar(limits,
+
+  geom_errorbar(data = rr_sic[rr_sic$age_range !="Total", ],
+                limits,
                 width = 0.3,
                 size = 0.8,
+                position = pd) +
+  # Separate series for the "Total" RR so that it can have different styling
+  geom_point(data = rr_sic[rr_sic$age_range =="Total", ],
+             aes(x = age_range,
+                 y = rr,
+                 color = city,
+                 shape = city),
+             position = pd,
+             size = 3.0) +
+  geom_errorbar(data = rr_sic[rr_sic$age_range =="Total", ],
+                limits,
+                width = 0.4,
+                size = 1.3,
                 position = pd) +
   coord_cartesian(ylim = c(0, 4)) +
   scale_color_manual(values = c("orange", "royalblue2"),
@@ -216,11 +244,13 @@ cho_pct[,1] <- counts$age_range
 colnames(cho_pct) <- "age_range" # rename var1
 cho_pct$mortality <- (counts$male_dead2 + counts$female_dead2) / (counts$male_all_cause + counts$female_all_cause)
 
-plot_chol_pct <- ggplot(data = cho_pct) +
-  geom_line( aes(x = age_range, y = mortality, group = 1),
+plot_chol_pct <- ggplot() +
+  geom_line(data = cho_pct[1:8, ], aes(x = age_range, y = mortality, group = 1),
             size = 1.5) +
-  geom_point( aes(x = age_range, y = mortality),
+  geom_point(data = cho_pct[1:8, ], aes(x = age_range, y = mortality),
              size = 3.5) +
+  geom_point(data = cho_pct[9, ], aes(x = age_range, y = mortality),
+             size = 3.5, color = "dark red") +
   xlab("Age group") +
   ylab("Proportion of all 1853 deaths\n attributed to cholera") +
   ggtitle ("Middle-aged ") +

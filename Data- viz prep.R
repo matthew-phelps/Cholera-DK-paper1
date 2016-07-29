@@ -40,59 +40,64 @@ aal_chol <- aalborg_age_gender
 
 
 
+
+# MERGE AGE GROUPS - CPH & AALBORG -----------------------------------------------
+# Merge the last two age groups into a 70+ category
+aal_chol <- row.merge(aal_chol)
+cph_pop <- row.merge(cph_pop)
+counts <- row.merge(counts)
+
+
+
+
 # AALBORG-POPULATION-GENDER-AGE ------------------------------------------------------
+
+# Since largest age group == 70+, set everyone >79 to be 79 for ease of
+# processing
+aal_1850$age[aal_1850$age > 79] <- 79
+
 # Group census data 1850
 pop <- data.frame(table(aal_1850))
-
-
 pop$age <- as.numeric(as.character(pop$age))
-pop$age[pop$age=="98"] <- 94
-pop2 <- pop[pop$age < 90, ]
 
 # Split into gender groups and apply group2 fn to each gender
-pop_ls <- split(pop2, f = pop2$gender)
+pop_ls <- split(pop, f = pop$gender)
 pop_grp <- lapply(pop_ls, group2, 10, age_labels = T)
+rm(pop_ls)
 
 # Re-group into 1 df
 pop3 <- do.call(rbind.data.frame, pop_grp)
-pop3$gender[1:9] <- "f50" # Re-label since labels got messed up in group2
-pop3$gender[10:18] <- "m50"
-pop3$gender[19:27] <- "u50"
+pop3$gender[pop3$gender==10] <- "f50" # Re-label since labels got messed up in group2
+pop3$gender[pop3$gender==20] <- "m50"
+pop3$gender[pop3$gender==30] <-"u50"
 pop3$group <- pop3$age <- NULL # Remove un-used variables
 row.names(pop3) <- NULL
 
-# Remove oldest age group because 
+
 aal_age_pop <- pop3
 aal_age_pop <- spread(aal_age_pop, gender, Freq)
 aal_age_pop$Total <- aal_age_pop$f + aal_age_pop$m + aal_age_pop$u
-rm(pop, pop2, pop3, pop_grp, pop_ls)
+rm(pop, pop3, pop_grp)
 aal_age_pop$year <- 1850 # add year for when datasets are merged
 
 
-# Remove oldest age group - there's not enough data = huge 95%CI
-aal_age_pop <- aal_age_pop[aal_age_pop$labels != "80 - 89", ]
-aal_chol <- aal_chol[aal_chol$age_group != "80+", ]
-
 
 # Do the same for 1855 census
+aal_1855$age[aal_1855$age > 79] <- 79
 pop1855 <- data.frame(table(aal_1855))
 pop1855 <- pop1855[complete.cases(pop1855),]
 
 pop1855$age <- as.numeric(as.character(pop1855$age))
-pop1855$age[pop1855$age=="98"] <- 94
-
-# Remove oldest age group - there's not enough data = huge 95%CI
-pop1855_2 <- pop1855[pop1855$age < 80, ]
 
 # Split into gender groups and apply group2 fn to each gender
-pop1855_ls <- split(pop1855_2, f = pop1855_2$gender)
+pop1855_ls <- split(pop1855, f = pop1855$gender)
 pop1855_grp <- lapply(pop1855_ls, group2, 10, age_labels = T)
-
+rm(pop1855_ls)
 # Re-group into 1 df
 pop1855_3 <- do.call(rbind.data.frame, pop1855_grp)
-pop1855_3$gender[1:8] <- "f55" # Re-label since labels got messed up in group2
-pop1855_3$gender[9:16] <- "m55"
-pop1855_3$gender[17:24] <- "u55"
+pop1855_3$gender[pop1855_3$gender==10] <- "f55" # Re-label:group2() labeled wrong
+pop1855_3$gender[pop1855_3$gender==20] <- "m55"
+pop1855_3$gender[pop1855_3$gender==30] <- "u55"
 pop1855_3$group <- pop1855_3$age <- NULL # Remove un-used variables
 row.names(pop1855_3) <- NULL
 colnames(pop1855_3) <- c("gender", "Freq", "lable1855") 
@@ -101,7 +106,7 @@ colnames(pop1855_3) <- c("gender", "Freq", "lable1855")
 aal_age_pop1855 <- pop1855_3
 aal_age_pop1855 <- spread(aal_age_pop1855, gender, Freq)
 aal_age_pop1855$total1855 <- aal_age_pop1855$f + aal_age_pop1855$m + aal_age_pop1855$u
-rm(pop1855, pop1855_2, pop1855_3, pop1855_grp, pop1855_ls, aal_1855, aal_1850)
+rm(pop1855, pop1855_3, pop1855_grp, aal_1855, aal_1850)
 
 
 # Impute 1853:
@@ -324,5 +329,5 @@ chol_burden$plot_var <- interaction(chol_burden$city, chol_burden$outcome, lex.o
 
 # SAVE --------------------------------------------------------------------
 setwd(data.path)
-save(chol_burden, aal_age_pop, rr_mrt, rr_sic,
+save(chol_burden, aal_age_pop, rr_mrt, rr_sic, counts,
      file = "data-viz-prep.Rdata")
