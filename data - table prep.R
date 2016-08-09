@@ -68,3 +68,29 @@ u5 <- data.frame(outcome = c("attac", "mort"),
 
 u5$lower95 <- ci.rate(100, cph_pop_u5, u5$counts, upper = F)
 u5$upper95 <- ci.rate(100, cph_pop_u5, u5$counts, upper = T)
+
+
+
+# TOTAL INFECTIONS INCLUDING ASYPMTOMATIC ---------------------------------
+cph <- 0.052
+aal <- 0.088
+kor <- 0.112
+
+mid <- 0.242
+low <- 0.407
+hi <- 0.144
+
+
+cph / mid
+cph/low
+cph/hi
+
+aal / mid
+aal/low
+aal/hi
+
+kor/mid
+kor/low
+kor/hi
+5/10
+5/9
