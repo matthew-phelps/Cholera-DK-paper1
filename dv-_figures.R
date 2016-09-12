@@ -365,7 +365,7 @@ dk_long$area <- "All other cities"
 cph_allcause_long$area <- "Copenhagen"
 
 all_monthly_mort <- rbind(cph_allcause_long, dk_long)
-
+all_monthly_mort$age <- ifelse(all_monthly_mort$age == ">50", "50+", all_monthly_mort$age)
 # To shade 1853, need a rectangle that covers only this year for all y
 all_monthly_mort$year <- format(all_monthly_mort$date, "%Y")
 yrng <- range(all_monthly_mort$mortality)
@@ -374,7 +374,10 @@ end_53 <- as.Date("1853-12-31") # End of shading
 
 # Re-level factor to make CPH plot first
 all_monthly_mort$area <- as.factor(all_monthly_mort$area)
+all_monthly_mort$age <- as.factor(all_monthly_mort$age)
 all_monthly_mort$area <- relevel(all_monthly_mort$area, ref = "Copenhagen")
+levels(all_monthly_mort$age)
+
 
 allcause_plot <- ggplot(data = all_monthly_mort) +
   geom_line(size = 1,
@@ -390,11 +393,12 @@ allcause_plot <- ggplot(data = all_monthly_mort) +
   ylab("Mortality") +
   scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
   
-  scale_color_discrete(name = "Age group",
-                       breaks = c("<10", "10-25", "26-50", ">50"))+
+  scale_color_manual(name = "Age group",
+                       breaks = c("<10", "10-25", "26-50", "50+"),
+                       values = c("red2", "black", "green4", "blue3" ))+
   scale_linetype_manual(name = "Age group",
-                       breaks = c("<10", "10-25", "26-50", ">50"),
-                       values = c("longdash","twodash" , "dotted", "solid"  ))+
+                       breaks = c("<10", "10-25", "26-50", "50+"),
+                       values = c("longdash",  "dotted", "solid", "twodash" ))+
   #ggtitle ("Monthly all-cause mortality") +
   theme_classic() +
   theme(legend.title = element_text(size = 16),
