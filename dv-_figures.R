@@ -395,7 +395,7 @@ allcause_plot <- ggplot(data = all_monthly_mort) +
   
   scale_color_manual(name = "Age group",
                        breaks = c("<10", "10-25", "26-50", "50+"),
-                       values = c("red2", "black", "green4", "blue3" ))+
+                       values = c("red2", "black", "blue2", "green3" ))+
   scale_linetype_manual(name = "Age group",
                        breaks = c("<10", "10-25", "26-50", "50+"),
                        values = c("longdash",  "dotted", "solid", "twodash" ))+
