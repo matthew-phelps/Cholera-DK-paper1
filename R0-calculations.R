@@ -13,7 +13,7 @@ korsoer <- cases[cholera_daily_data$city == "korsoer", ]
 cph <- cases[cholera_daily_data$city == "copenhagen", ]
 
 # Get generation time: 10.1371/journal.pntd.0001901
-mGT <- generation.time("lognormal", c(2.4, 2))
+mGT <- generation.time("weibull", c(3.1, 2))
 # Check generation time
 # plot(mGT)
 
@@ -23,7 +23,7 @@ mGT <- generation.time("lognormal", c(2.4, 2))
 # Sensitivity
 sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
                                  est.method = c("EG", "ML"), sa.type = "time")
-# plot(sens_time)
+ plot(sens_time)
  sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
                                   est.method = "ML", sa.type = "time")
  

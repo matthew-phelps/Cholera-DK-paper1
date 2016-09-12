@@ -20,6 +20,7 @@ library(mixdist)
 
 si <- c(2, 2, 9, 1, 1, 1, 3, 2, 5, 4, 4)
 mean(si)
+median(si)
 hist(si)
 plot(density(si))
 
@@ -92,5 +93,5 @@ mu <- sapply(1:1000, function(i) {
   mu <- as.matrix(mu[[1]])
 }
 )
-
+mean(mu)
 mu_range <- quantile(mu,  c(0.025, 0.975))

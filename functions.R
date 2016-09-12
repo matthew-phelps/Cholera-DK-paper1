@@ -1,5 +1,6 @@
 ci.rate <- function(rate_unit, pop, num_cases, upper = T){
   # calculates upper and lower 95%CI for crude rates
+  # from: http://goo.gl/vLe54m
   if(upper){
     result <- rate_unit / pop * (num_cases + 1.96 * sqrt(num_cases))
   } else {

@@ -25,6 +25,7 @@ library(tidyr)
 library(CholeraDataDK)
 library(epitools)
 library(grouping)
+library(xlsx)
 source("functions.R")
 
 
@@ -69,6 +70,7 @@ u5 <- data.frame(outcome = c("attac", "mort"),
 u5$lower95 <- ci.rate(100, cph_pop_u5, u5$counts, upper = F)
 u5$upper95 <- ci.rate(100, cph_pop_u5, u5$counts, upper = T)
 
+u5_mort_rate/u5_attack
 
 
 # TOTAL INFECTIONS INCLUDING ASYPMTOMATIC ---------------------------------
@@ -94,3 +96,19 @@ kor/low
 kor/hi
 5/10
 5/9
+
+
+
+# KORSOER SES CI ----------------------------------------------------------
+setwd(main.path)
+x <- read.xlsx2("output/Table 2 - SES Korsoer.xlsx", sheetIndex = 1,
+                colClasses = c("character", "numeric","numeric", "numeric",
+                               "numeric", "numeric", "numeric", "numeric",
+                               "numeric"))
+ci.rate(100, x$Population, num_cases = x$Number.of.cases, upper = T) /100
+ci.rate(100, x$Population, num_cases = x$Number.of.cases, upper = F)/100
+
+ci.rate(100, x$Population, num_cases = x$Number.of.deaths, upper = T) /100
+ci.rate(100, x$Population, num_cases = x$Number.of.deaths, upper = F)/100
+
+
