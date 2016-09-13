@@ -327,7 +327,24 @@ chol_burden$num_dead <- chol_burden$num_sick <- chol_burden$pop <- NULL
 chol_burden$plot_var <- interaction(chol_burden$city, chol_burden$outcome, lex.order = T)
 
 
+# PERCENTAGE OF DEATHS DUE TO CHOLERA -------------------------------------
+
+cho_pct <- matrix(nrow = nrow(counts))
+cho_pct <- data.frame(cho_pct)
+cho_pct[,1] <- counts$age_range 
+colnames(cho_pct) <- "age_range" # rename var1
+cho_pct$n <- counts$male_dead2 + counts$female_dead2
+cho_pct$mortality <- cho_pct$n / (counts$male_all_cause + counts$female_all_cause)
+
+# 95% CI
+#http://goo.gl/icCnS9
+
+z <- 1.96
+se <- z * sqrt(cho_pct$mortality * (1 - cho_pct$mortality) / cho_pct$n)
+cho_pct$low95 <- cho_pct$mortality - se
+cho_pct$hi95 <- cho_pct$mortality + se
+
 # SAVE --------------------------------------------------------------------
 setwd(data.path)
-save(chol_burden, aal_age_pop, rr_mrt, rr_sic, counts,
+save(chol_burden, aal_age_pop, rr_mrt, rr_sic, counts, cho_pct,
      file = "data-viz-prep.Rdata")

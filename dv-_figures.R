@@ -241,22 +241,27 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 
 
 # Cholera Deaths -------------------------------------------------
-cho_pct <- matrix(nrow = nrow(counts))
-cho_pct <- data.frame(cho_pct)
-cho_pct[,1] <- counts$age_range 
-colnames(cho_pct) <- "age_range" # rename var1
-cho_pct$mortality <- (counts$male_dead2 + counts$female_dead2) / (counts$male_all_cause + counts$female_all_cause)
+limits = aes(ymax = hi95, ymin = low95, x = age_range)
 
 plot_chol_pct <- ggplot() +
   geom_line(data = cho_pct[1:8, ], aes(x = age_range, y = mortality, group = 1),
-            size = 1.5) +
+            size = 1.1) +
   geom_point(data = cho_pct[1:8, ], aes(x = age_range, y = mortality),
-             size = 3.5) +
+             size = 3.1) +
+  geom_errorbar(data = cho_pct[cho_pct$age_range !="Total", ],
+                limits,
+                width = 0.3,
+                size = 0.8) +
   geom_point(data = cho_pct[9, ], aes(x = age_range, y = mortality),
              size = 3.5, color = "dark red") +
+  geom_errorbar(data = cho_pct[cho_pct$age_range =="Total", ],
+                limits,
+                width = 0.3,
+                size = 0.8, color = "darkred") +
   xlab("Age group") +
-  ylab("Proportion of all 1853 deaths\n attributed to cholera") +
-  ggtitle ("Middle-aged ") +
+  ylab("Proportion") +
+  scale_y_continuous(breaks = seq(0, 0.8, 0.2),
+                     limits = c(0, 0.8)) + 
   theme_minimal() +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
@@ -357,8 +362,10 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 # FACET PLOT MONTHLY ALL_CAUSE MORTALITY  ---------------------------------
 
 # Make into long format for ggplot
-cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:5)
-dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:5)
+cph_allcause$Total <- rowSums(cph_allcause[, 2:5])
+dk_allcause$Total <- rowSums(dk_allcause[, 2:5])
+cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:6)
+dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:6)
 
 # Specify variable for facet_wrap
 dk_long$area <- "All other cities"
@@ -392,6 +399,7 @@ allcause_plot <- ggplot(data = all_monthly_mort) +
   xlab("") +
   ylab("Mortality") +
   scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
+  scale_y_continuous(breaks = seq(0, 1250, 250)) +
   
   scale_color_manual(name = "Age group",
                        breaks = c("<10", "10-25", "26-50", "50+"),
@@ -414,3 +422,11 @@ allcause_plot <- ggplot(data = all_monthly_mort) +
         strip.text.x = element_text(size = 14, face = "bold"))
 
 allcause_plot
+
+
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F12 - monthly all-cause mort.jpg",
+       plot = allcause_plot,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
