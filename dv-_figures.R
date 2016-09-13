@@ -362,10 +362,9 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 # FACET PLOT MONTHLY ALL_CAUSE MORTALITY  ---------------------------------
 
 # Make into long format for ggplot
-cph_allcause$Total <- rowSums(cph_allcause[, 2:5])
-dk_allcause$Total <- rowSums(dk_allcause[, 2:5])
-cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:6)
-dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:6)
+
+cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:5)
+dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:5)
 
 # Specify variable for facet_wrap
 dk_long$area <- "All other cities"
