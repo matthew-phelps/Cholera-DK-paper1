@@ -50,40 +50,6 @@ all_cases_temp$season <- paste("100",
 all_cases_temp$season <- as.Date(all_cases_temp$season)
 all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
 
-# INCIDENCE PER 10K ----------------------------------------------------
-
-incidence_10k_plot <- ggplot(data = all_cases) +
-  geom_line(size = 1.2,
-            aes(x = day_index,
-                y = cases_norm,
-                group = city,
-                color = city)) +
-  xlab("Day index") +
-  ylab("Incidence per 10,000") +
-  xlim(0, 80) +
-  ggtitle ("Daily incidence") +
-  theme_classic() +
-  theme(legend.title = element_blank(),
-        legend.position = c(0.7, 0.5),
-        legend.text = element_text(size = 19),
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 16),
-        axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
-        axis.title.y = element_text(size = 18, face = "bold"),
-        plot.title = element_text(size = 20, face="bold"),
-        plot.margin = unit(c(0,0,0.5,0), 'lines')) +
-  coord_cartesian(xlim = c(0, 80), ylim = c(5,max(all_cases$cases_norm)+15)) +
-    scale_color_discrete(breaks = c('aalborg', 'copenhagen', 'korsoer'),
-                         labels = c('Aalborg', 'Copenhagen', 'Korsør'))
-incidence_10k_plot
-
-
-ggsave(filename = 'Output\\F1-incidence-per-10k.jpg',
-       plot = incidence_10k_plot,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 600)
 
 
 # ABSOLUTE CASES ----------------------------------------------------------

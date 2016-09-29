@@ -37,16 +37,18 @@ cases <- cholera_daily_data_towns
 aal_1850 <- aalborg_1850_census
 aal_1855 <- aalborg_1855_census
 aal_chol <- aalborg_age_gender
+kor_pop <- census[census$place=="korsoer" & census$year == "1857", ]
+kor_chol <- korsoer_age_gender
 
 
-
-
-# MERGE AGE GROUPS - CPH & AALBORG -----------------------------------------------
+# MERGE AGE GROUPS - CPH & AALBORG & KORSOER-----------------------------------------------
 # Merge the last two age groups into a 70+ category
 aal_chol <- row.merge(aal_chol)
 cph_pop <- row.merge(cph_pop)
 counts <- row.merge(counts)
 
+kor_pop <- kor_pop[-10, c("age", "total")] # Remove "unknown" age group and unused columns
+kor_pop <- row.merge(kor_pop)
 
 
 
@@ -146,14 +148,23 @@ z_crit <- qnorm(1 - (bonf_c/2)) # critical z-value from: http://goo.gl/BXDBFL
 
 
 
-# CITYWIDE POPULATION, CASES AND DEATHS -----------------------------------
+
+# KORSOER MORT & MORB RATES -----------------------------------------------
+# City-wide rates
+kor_pop <- citywide(kor_pop)
+kor_chol <- citywide(kor_chol)
+
+kor_chol$tot_attack_rt <- kor_chol$total_sick / kor_pop$total * 100
+kor_chol$tot_mort_rt <- kor_chol$total_dead / kor_pop$total * 100
+
+# CPH MORBIDITY & MORTALITY RATES -----------------------------------------
+# This was calculated in CholeraDataDK, but need to tweek it
+
+# Citywide numbers
 cph_pop <- citywide(cph_pop)
 counts <- citywide(counts)
 
 
-
-# CPH MORBIDITY & MORTALITY RATES -----------------------------------------
-# This was calculated in CholeraDataDK, but need to tweek it
 cph_chol <- data.frame(matrix(cph_pop$age_range, nrow = nrow(cph_pop)))
 colnames(cph_chol) <- "age_range"
 cph_chol$male_mort_rate <- counts$male_dead / cph_pop$men1853
@@ -292,17 +303,28 @@ aal_burden$tot_mort_rt <- aal_burden$tot_mort_rt * 100
 aal_burden$tot_attck_rt <- aal_burden$tot_attck_rt * 100
 colnames(aal_burden) <- c(colnames(chol_burden))
 
+# Korsoer
+kor_burden <- kor_chol[, c("age_group", "tot_mort_rt", "tot_attack_rt")]
+kor_burden$city <- "korsoer"
+colnames(kor_burden) <- c(colnames(chol_burden))
+
+
 # Calculate 95% CI
 
 # Bind CPH and Aalborg together so can do 95%CI vectorized on 1 df
 aal_burden$pop <- aal_age_pop$Total
 aal_burden$num_dead <- aal_chol$total_dead
 aal_burden$num_sick <- aal_chol$total_sick
+
+kor_burden$pop <- kor_pop$total
+kor_burden$num_dead <- kor_chol$total_dead
+kor_burden$num_sick <- kor_chol$total_sick
+
 chol_burden$pop <- cph_pop$total1853
 chol_burden$num_dead <- counts$total_dead
 chol_burden$num_sick <- counts$total_sick
 
-chol_burden <- rbind(chol_burden, aal_burden)
+chol_burden <- rbind(chol_burden, aal_burden, kor_burden)
 chol_burden <- gather(chol_burden, outcome, pe, c(2,3))
 
 

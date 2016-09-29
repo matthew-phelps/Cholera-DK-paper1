@@ -48,6 +48,202 @@ mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
                       value = mort_rate,
                       c(male_mort2, female_mort2))
 
+# 1 - FACET PLOT MONTHLY ALL_CAUSE MORTALITY  ---------------------------------
+
+# Make into long format for ggplot
+
+cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:5)
+dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:5)
+
+# Specify variable for facet_wrap
+dk_long$area <- "All other cities"
+cph_allcause_long$area <- "Copenhagen"
+
+all_monthly_mort <- rbind(cph_allcause_long, dk_long)
+all_monthly_mort$age <- ifelse(all_monthly_mort$age == ">50", "50+", all_monthly_mort$age)
+# To shade 1853, need a rectangle that covers only this year for all y
+all_monthly_mort$year <- format(all_monthly_mort$date, "%Y")
+yrng <- range(all_monthly_mort$mortality)
+start_53 <- as.Date("1853-06-01") # start of shading
+end_53 <- as.Date("1853-10-01") # End of shading
+
+# Re-level factor to make CPH plot first
+all_monthly_mort$area <- as.factor(all_monthly_mort$area)
+all_monthly_mort$age <- as.factor(all_monthly_mort$age)
+all_monthly_mort$area <- relevel(all_monthly_mort$area, ref = "Copenhagen")
+levels(all_monthly_mort$age)
+
+
+allcause_plot <- ggplot(data = all_monthly_mort) +
+  geom_line(size = 1,
+            aes(x = date, y = mortality,
+                group = age, color = age, linetype = age)) +
+  # Color code the years - annotate is easier for some reasons:
+  # http://goo.gl/7snZ8T
+  annotate("rect", fill = "grey", alpha = 0.3,
+           xmin = start_53, xmax = end_53,
+           ymin = yrng[1], ymax = yrng[2])+
+  facet_wrap(~ area, switch = "x") +
+  xlab("") +
+  ylab("All-cause mortality") +
+  scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
+  scale_y_continuous(breaks = seq(0, 1250, 250)) +
+  
+  scale_color_manual(name = "Age group",
+                     breaks = c("<10", "10-25", "26-50", "50+"),
+                     values = c("red2", "black", "blue2", "green3" ))+
+  scale_linetype_manual(name = "Age group",
+                        breaks = c("<10", "10-25", "26-50", "50+"),
+                        values = c("longdash",  "dotted", "solid", "twodash" ))+
+  #ggtitle ("Monthly all-cause mortality") +
+  theme_classic() +
+  theme(legend.title = element_text(size = 16),
+        legend.position = c(0.5, 0.6),
+        legend.text = element_text(size = 15),
+        axis.text.x = element_text(size = 13, angle = 45, hjust = 1, vjust = 1),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
+        axis.title.y = element_text(size = 18, face = "bold"),
+        plot.title = element_text(size = 20, face="bold"),
+        plot.margin = unit(c(-.5,0,-1.5,0), 'lines'),
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 14, face = "bold"))
+
+allcause_plot
+
+
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/1-monthly all-cause mort.jpg",
+       plot = allcause_plot,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
+
+
+# 2 - INCIDENCE PER 10K ----------------------------------------------------
+
+all_cases_temp <- all_cases_temp[order(all_cases_temp$city, all_cases_temp$date), ]
+
+# To plot all epidemics on same calendar year - put them on a "dummy" year
+all_cases_temp$season <- paste("100",
+                               format(all_cases_temp$date, "%m"),
+                               format(all_cases_temp$date, "%d"),
+                               sep = "-")
+all_cases_temp$season <- as.Date(all_cases_temp$season)
+all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
+
+
+
+plot_season <- ggplot(data = all_cases,
+                      aes(x = season, y = cases_norm,
+                          group = city, color = city, linetype = city)) +
+  geom_line(size= 1) +
+  xlab("Date") +
+  ylab("Incidence per 10,000 people") +
+  ggtitle ("Daily cholera case incidence") +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        legend.position = c(0.2, 0.5),
+        legend.text = element_text(size = 17),
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18, vjust = -0.1),
+        axis.title.y = element_text(size = 18),
+        plot.title = element_text(size = 20),
+        plot.margin = unit(c(0,0,0.5,0), 'lines')) +
+  coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
+  scale_color_brewer(breaks = c('copenhagen', 'aalborg', 'korsoer'),
+                     labels = c('Copenhagen (1853)', 'Aalborg (1853)', 'Korsør (1857)'),
+                     palette = "Dark2") +
+  scale_linetype_discrete(breaks = c('copenhagen', 'aalborg', 'korsoer'),
+                        labels = c('Copenhagen (1853)', 'Aalborg (1853)', 'Korsør (1857)')) +
+  guides(colour = guide_legend(keywidth = 2.5)) # Makes legend symbole wider
+
+plot_season
+
+
+ggsave(filename = 'Output\\2-seasonality.jpg',
+       plot = plot_season,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 300)
+
+
+
+
+# 3 - Total mortality & total attack rate due to cholera -----------------------------------------
+# DF with cholera mort as % of total mort & cholera mort rates in 1 df
+limits <- aes(ymax = upper95, ymin = lower95,
+              x= age_range, color = plot_var)
+dodge <- position_dodge(width=- 0.4)
+
+plot_chol_mort <- ggplot() +
+  # Style the age 0 - 70 +. Will style the "total" group separately
+  geom_line(data = chol_burden[chol_burden$age_range != "Total", ],
+            position = dodge,
+            aes(x = age_range, y = pe, group = plot_var, color = plot_var,
+                linetype = plot_var), size = 0.9, alpha = 0.5) +
+  geom_point(data = chol_burden[chol_burden$age_range != "Total", ], 
+             position = dodge,
+             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
+                 shape = plot_var),  size = 2.8) +
+  geom_errorbar(data = chol_burden[chol_burden$age_range != "Total", ],
+                limits, position = dodge, width = 0.2) +
+  
+  # Same but only for the "Total" group
+  geom_point(data = chol_burden[chol_burden$age_range == "Total", ], 
+             position = dodge,
+             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
+                 shape = plot_var),  size = 3.5) +
+  geom_errorbar(data = chol_burden[chol_burden$age_range == "Total", ],
+                limits, position = dodge, size = 1.0, width = 0.4) +
+  
+  # Create symbology
+  scale_color_manual(values = c("red2",  "red4",
+                                "steelblue1" , "royalblue4"),
+                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+                                'cph.total_attack', 'cph.total_mort_rate'),
+                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                                'CPH Attack rate ', 'CPH Mortality rate')) +
+  scale_shape_manual(values = c(4, 17, 19, 8),
+                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+                                'cph.total_attack', 'cph.total_mort_rate'),
+                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                                'CPH Attack rate ', 'CPH Mortality rate')) +
+  scale_linetype_manual(values = c(5,5,1,1),
+                        breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+                                   'cph.total_attack', 'cph.total_mort_rate'),
+                        labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                                   'CPH Attack rate ', 'CPH Mortality rate')) +
+  xlab("Age group") +
+  ylab("Rate per 100 people\n") +
+  ggtitle ("Cholera morbidity and \nmortality rate by age") +
+  theme_minimal() +
+  theme(legend.title = element_blank(),
+        legend.position = c(x = 0.25, y = .80),
+        axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
+        axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18,
+                                    face = "bold",
+                                    vjust = 0),
+        axis.title.y = element_text(size = 18,
+                                    face = "bold"),
+        plot.title = element_text(size = 18, face="bold"),
+        plot.margin = unit(c(0,0,0.5,0.5), 'lines'))
+plot_chol_mort
+
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F8-cholera-mort-rate.jpg",
+       plot = plot_chol_mort,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
+
+
+
+
 
 # # AGE MORTALITY BY GENDER -------------------------------------------------------------------
 # ggplot(data = mort_gender, aes(group = gender)) +
@@ -286,146 +482,6 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 
 
 
-# Total mortality & total attack rate due to cholera -----------------------------------------
-# DF with cholera mort as % of total mort & cholera mort rates in 1 df
-chol_burden$lower95
-
-limits <- aes(ymax = upper95, ymin = lower95,
-              x= age_range, color = plot_var)
-dodge <- position_dodge(width=- 0.4)
-
-plot_chol_mort <- ggplot() +
-  # Style the age 0 - 70 +. Will style the "total" group separately
-  geom_line(data = chol_burden[chol_burden$age_range != "Total", ],
-            position = dodge,
-            aes(x = age_range, y = pe, group = plot_var, color = plot_var,
-                linetype = plot_var), size = 0.9, alpha = 0.5) +
-  geom_point(data = chol_burden[chol_burden$age_range != "Total", ], 
-             position = dodge,
-             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
-                 shape = plot_var),  size = 2.8) +
-  geom_errorbar(data = chol_burden[chol_burden$age_range != "Total", ],
-                limits, position = dodge, width = 0.2) +
-  
-  # Same but only for the "Total" group
-  geom_point(data = chol_burden[chol_burden$age_range == "Total", ], 
-             position = dodge,
-             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
-                 shape = plot_var),  size = 3.5) +
-  geom_errorbar(data = chol_burden[chol_burden$age_range == "Total", ],
-                limits, position = dodge, size = 1.0, width = 0.4) +
-  
-  # Create symbology
-  scale_color_manual(values = c("red2",  "red4",
-                                "steelblue1" , "royalblue4"),
-                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
-                                'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
-                                'CPH Attack rate ', 'CPH Mortality rate')) +
-  scale_shape_manual(values = c(4, 17, 19, 8),
-                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
-                                'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
-                                'CPH Attack rate ', 'CPH Mortality rate')) +
-  scale_linetype_manual(values = c(5,5,1,1),
-                        breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
-                                   'cph.total_attack', 'cph.total_mort_rate'),
-                        labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
-                                   'CPH Attack rate ', 'CPH Mortality rate')) +
-  xlab("Age group") +
-  ylab("Rate per 100 people\n") +
-  ggtitle ("Cholera morbidity and \nmortality rate by age") +
-  theme_minimal() +
-  theme(legend.title = element_blank(),
-        legend.position = c(x = 0.25, y = .80),
-        axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
-        axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
-        axis.text.y = element_text(size = 16),
-        axis.title.x = element_text(size = 18,
-                                    face = "bold",
-                                    vjust = 0),
-        axis.title.y = element_text(size = 18,
-                                    face = "bold"),
-        plot.title = element_text(size = 18, face="bold"),
-        plot.margin = unit(c(0,0,0.5,0.5), 'lines'))
-plot_chol_mort
-
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F8-cholera-mort-rate.jpg",
-       plot = plot_chol_mort,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 600)
 
 
 
-# FACET PLOT MONTHLY ALL_CAUSE MORTALITY  ---------------------------------
-
-# Make into long format for ggplot
-
-cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:5)
-dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:5)
-
-# Specify variable for facet_wrap
-dk_long$area <- "All other cities"
-cph_allcause_long$area <- "Copenhagen"
-
-all_monthly_mort <- rbind(cph_allcause_long, dk_long)
-all_monthly_mort$age <- ifelse(all_monthly_mort$age == ">50", "50+", all_monthly_mort$age)
-# To shade 1853, need a rectangle that covers only this year for all y
-all_monthly_mort$year <- format(all_monthly_mort$date, "%Y")
-yrng <- range(all_monthly_mort$mortality)
-start_53 <- as.Date("1853-01-01") # start of shading
-end_53 <- as.Date("1853-12-31") # End of shading
-
-# Re-level factor to make CPH plot first
-all_monthly_mort$area <- as.factor(all_monthly_mort$area)
-all_monthly_mort$age <- as.factor(all_monthly_mort$age)
-all_monthly_mort$area <- relevel(all_monthly_mort$area, ref = "Copenhagen")
-levels(all_monthly_mort$age)
-
-
-allcause_plot <- ggplot(data = all_monthly_mort) +
-  geom_line(size = 1,
-            aes(x = date, y = mortality,
-                group = age, color = age, linetype = age)) +
-  # Color code the years - annotate is easier for some reasons:
-  # http://goo.gl/7snZ8T
-  annotate("rect", fill = "grey", alpha = 0.3,
-           xmin = start_53, xmax = end_53,
-           ymin = yrng[1], ymax = yrng[2])+
-  facet_wrap(~ area, switch = "x") +
-  xlab("") +
-  ylab("Mortality") +
-  scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
-  scale_y_continuous(breaks = seq(0, 1250, 250)) +
-  
-  scale_color_manual(name = "Age group",
-                       breaks = c("<10", "10-25", "26-50", "50+"),
-                       values = c("red2", "black", "blue2", "green3" ))+
-  scale_linetype_manual(name = "Age group",
-                       breaks = c("<10", "10-25", "26-50", "50+"),
-                       values = c("longdash",  "dotted", "solid", "twodash" ))+
-  #ggtitle ("Monthly all-cause mortality") +
-  theme_classic() +
-  theme(legend.title = element_text(size = 16),
-        legend.position = c(0.5, 0.6),
-        legend.text = element_text(size = 15),
-        axis.text.x = element_text(size = 13, angle = 45, hjust = 1, vjust = 1),
-        axis.text.y = element_text(size = 16),
-        axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
-        axis.title.y = element_text(size = 18, face = "bold"),
-        plot.title = element_text(size = 20, face="bold"),
-        plot.margin = unit(c(-.5,0,-1.5,0), 'lines'),
-        strip.background = element_blank(),
-        strip.text.x = element_text(size = 14, face = "bold"))
-
-allcause_plot
-
-
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F12 - monthly all-cause mort.jpg",
-       plot = allcause_plot,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 600)
