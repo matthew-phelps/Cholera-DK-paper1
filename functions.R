@@ -34,3 +34,24 @@ row.merge <- function (x){
   x[nobs-1, 1] <- "70+"
   return(x)
 }
+
+
+rotatedAxisElementText = function(size,angle,position='x'){
+  # Function allows auto justification when axis labels are rotated between 0 
+  # and 90* in ggplot2. From: https://goo.gl/MX8bSj 
+  # Function to Return Element Text Object to be delivered to a ggplot function.
+  # First aurgument is the angel which text should be roated, the second is "x"
+  # or "y" to specify which axis is to be rotated.
+  size      = size[1];
+  angle     = angle[1]; 
+  position  = position[1]
+  positions = list(x=0,y=90,top=180,right=270)
+  if(!position %in% names(positions))
+    stop(sprintf("'position' must be one of [%s]",paste(names(positions),collapse=", ")),call.=FALSE)
+  if(!is.numeric(angle))
+    stop("'angle' must be numeric",call.=FALSE)
+  rads  = (-angle - positions[[ position ]])*pi/180
+  hjust = 0.5*(1 - sin(rads))
+  vjust = 0.5*(1 + cos(rads))
+  element_text(size = size, angle=angle,vjust=vjust,hjust=hjust)
+}
