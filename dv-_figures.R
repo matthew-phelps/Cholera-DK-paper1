@@ -24,6 +24,7 @@ library(tidyr)
 library(CholeraDataDK)
 library(epitools)
 library(scales) # required for some ggplot functions
+library(gridExtra) # required to remove empty plots in facet_wrap()
 
 # LOAD --------------------------------------------------------------------
 
@@ -156,7 +157,7 @@ plot_season <- ggplot(data = all_cases,
                      labels = c('Copenhagen (1853)', 'Aalborg (1853)', 'Korsør (1857)'),
                      palette = "Dark2") +
   scale_linetype_discrete(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                        labels = c('Copenhagen (1853)', 'Aalborg (1853)', 'Korsør (1857)')) +
+                          labels = c('Copenhagen (1853)', 'Aalborg (1853)', 'Korsør (1857)')) +
   guides(colour = guide_legend(keywidth = 2.5)) # Makes legend symbole wider
 
 plot_season
@@ -178,12 +179,19 @@ limits <- aes(ymax = upper95, ymin = lower95,
               x= age_range, color = plot_var)
 dodge <- position_dodge(width=- 0.4)
 
+
+# In order to have facet_wrap fill the bottom row, first we have to create a empty plot, then move that plot to the top row, then make that plot invisible
+# Creat empty plot to be plotted by adding an dummy "city" to be plotted
+chol_burden$city2 <- factor(chol_burden$city,
+                            levels = c("", "korsoer", "aalborg", "cph"))
+
+
 plot_chol_mort <- ggplot() +
   # Style the age 0 - 70 +. Will style the "total" group separately
   geom_line(data = chol_burden[chol_burden$age_range != "Total", ],
             position = dodge,
-            aes(x = age_range, y = pe, group = plot_var, color = plot_var,
-                linetype = plot_var), size = 0.9, alpha = 0.5) +
+            aes(x = age_range, y = pe, group = plot_var, color = plot_var),
+            size = 0.9, alpha = 0.5) +
   geom_point(data = chol_burden[chol_burden$age_range != "Total", ], 
              position = dodge,
              aes(x = age_range, y = pe, group = plot_var, color = plot_var,
@@ -199,29 +207,43 @@ plot_chol_mort <- ggplot() +
   geom_errorbar(data = chol_burden[chol_burden$age_range == "Total", ],
                 limits, position = dodge, size = 1.0, width = 0.4) +
   
+  # facet wrap and put labels below x-axis (swtich="x"). Use city2 var to plot
+  # empty plot so that bottom row is filled
+  #facet_wrap(~ city2, ncol = 2, switch = "x", drop = FALSE) +
+  
   # Create symbology
   scale_color_manual(values = c("red2",  "red4",
+                                "green3", "green4",
                                 "steelblue1" , "royalblue4"),
-                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate',
+                                'aalborg.total_attack', 'aalborg.total_mort_rate',
                                 'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                     labels = c('Korsør attack rate', 'Korsør mortality rate',
+                                'Aalborg attack rate ', "Aalborg mortality rate",
                                 'CPH Attack rate ', 'CPH Mortality rate')) +
-  scale_shape_manual(values = c(4, 17, 19, 8),
-                     breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
+
+  scale_shape_manual(values = c(16, 17, 16, 17, 16, 17),
+                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate',
+                                'aalborg.total_attack', 'aalborg.total_mort_rate',
                                 'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
+                     labels = c('Korsør attack rate', 'Korsør mortality rate',
+                                'Aalborg attack rate ', "Aalborg mortality rate",
                                 'CPH Attack rate ', 'CPH Mortality rate')) +
-  scale_linetype_manual(values = c(5,5,1,1),
-                        breaks = c('aalborg.total_attack', 'aalborg.total_mort_rate',
-                                   'cph.total_attack', 'cph.total_mort_rate'),
-                        labels = c('Aalborg Attack rate ', "Aalborg Mortality rate",
-                                   'CPH Attack rate ', 'CPH Mortality rate')) +
+  
+  # scale_linetype_manual(values = c(5,5,1,1, 4, 4),
+  #                       breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate',
+  #                                  'aalborg.total_attack', 'aalborg.total_mort_rate',
+  #                                  'cph.total_attack', 'cph.total_mort_rate'),
+  #                       labels = c('Korsør attack rate', 'Korsør mortality rate',
+  #                                  'Aalborg Attack rate ', "Aalborg Mortality rate",
+  #                                  'CPH Attack rate ', 'CPH Mortality rate')) +
   xlab("Age group") +
   ylab("Rate per 100 people\n") +
+  coord_cartesian(ylim = c(0, 70)) +
   ggtitle ("Cholera morbidity and \nmortality rate by age") +
   theme_minimal() +
   theme(legend.title = element_blank(),
-        legend.position = c(x = 0.25, y = .80),
+        legend.position = c(x = 0.2, y = .75),
         axis.text.x = element_text(size = 14, angle = 45, vjust = 0.5),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
         axis.text.y = element_text(size = 16),
@@ -234,13 +256,30 @@ plot_chol_mort <- ggplot() +
         plot.margin = unit(c(0,0,0.5,0.5), 'lines'))
 plot_chol_mort
 
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F8-cholera-mort-rate.jpg",
+## Use grob to remove empty panels from plot. If you work with another set of
+## plots, look at the output of names(g$grobs) and g$layout$name to figure out,
+## which elements have to be removed. https://goo.gl/4AK5Ey
+g <- ggplotGrob(plot_chol_mort)
+# remove empty panels
+g$grobs[names(g$grobs) %in% c("panel1", "strip_t1")] <- NULL
+# remove panel from layout
+g$layout <- g$layout[!(g$layout$name %in% c('panel-1', 'strip_t-1')), ]
+grid.newpage()
+grid.draw(g)
+
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/3-cholera-mort-rate.jpg",
        plot = plot_chol_mort,
        width = 26,
        height = 20,
        units = 'cm',
        dpi = 600)
 
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/3-cholera-mort-rate2.jpg",
+       plot = g,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
 
 
 
