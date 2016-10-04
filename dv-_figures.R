@@ -241,11 +241,11 @@ plot_chol_mort <- ggplot() +
   
   xlab("Age group") +
   ylab("Rate per 100 people\n") +
-  coord_cartesian(ylim = c(0, 60)) +
+  coord_cartesian(ylim = c(0, 50)) +
   ggtitle ("Cholera morbidity and \nmortality rate by age") +
   theme_minimal() +
   theme(legend.title = element_blank(),
-        legend.position = c(x = 0.60, y = .79),
+        legend.position = c(x = 0.60, y = .81),
         legend.text = element_text(size = 12),
         axis.text.x = element_text(size = 15,
                                    angle = 45, vjust = 1.5, hjust = 1.0,

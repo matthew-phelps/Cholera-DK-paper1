@@ -331,7 +331,7 @@ aal_burden$pop <- aal_age_pop$Total
 aal_burden$num_dead <- aal_chol$total_dead
 aal_burden$num_sick <- aal_chol$total_sick
 
-kor_burden$pop <- kor_pop$total
+kor_burden$pop <- korsoer_age_gender_pop$Total
 kor_burden$num_dead <- kor_chol$total_dead
 kor_burden$num_sick <- kor_chol$total_sick
 
