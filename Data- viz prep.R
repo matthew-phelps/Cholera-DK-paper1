@@ -39,6 +39,7 @@ aal_1855 <- aalborg_1855_census
 aal_chol <- aalborg_age_gender
 kor_pop <- census[census$place=="korsoer" & census$year == "1857", ]
 kor_chol <- korsoer_age_gender
+korsoer_age_gender_pop <- korsoer_age_gender_pop
 
 
 
@@ -189,11 +190,11 @@ kor_chol <- citywide(kor_chol)
 
 kor_chol$m_attck_rt <- kor_chol$male_sick / korsoer_age_gender_pop$m
 kor_chol$f_attck_rt <- kor_chol$female_sick / korsoer_age_gender_pop$f
-kor_chol$tot_attack_rt <- kor_chol$total_sick / kor_pop$total * 100
+kor_chol$tot_attack_rt <- kor_chol$total_sick / korsoer_age_gender_pop$Total * 100
 
 kor_chol$m_mort_rt <- kor_chol$male_dead / korsoer_age_gender_pop$m
 kor_chol$f_mort_rt <- kor_chol$female_dead / korsoer_age_gender_pop$f
-kor_chol$tot_mort_rt <- kor_chol$total_dead / kor_pop$total * 100
+kor_chol$tot_mort_rt <- kor_chol$total_dead / korsoer_age_gender_pop$Total * 100
 
 
 # KORSOER DEATH RR --------------------------------------------------------
