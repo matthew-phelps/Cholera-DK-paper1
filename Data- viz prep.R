@@ -41,6 +41,17 @@ kor_pop <- census[census$place=="korsoer" & census$year == "1857", ]
 kor_chol <- korsoer_age_gender
 
 
+
+
+# GLOBAL BONFERONI CORRECTION Z-CRIT VALUE\ --------------------------------------
+# Bonferonni correction for multiple testing: http://goo.gl/Drhjly (pdf)
+alpha <- 0.05
+n <- 9 # number of "test", in this case, age groups being compared
+bonf_c <- alpha / n
+z_crit <- qnorm(1 - (bonf_c/2)) # critical z-value from: http://goo.gl/BXDBFL
+notes <- "*95%CI corrected for multiple tests\n using Bonferroni correction"
+
+
 # MERGE AGE GROUPS - CPH & AALBORG & KORSOER-----------------------------------------------
 # Merge the last two age groups into a 70+ category
 aal_chol <- row.merge(aal_chol)
@@ -136,16 +147,38 @@ aal_chol$m_mort_rt <- aal_chol$male_dead / aal_age_pop$m
 aal_chol$f_mort_rt <- aal_chol$female_dead / aal_age_pop$f
 aal_chol$tot_mort_rt <- aal_chol$total_dead / aal_age_pop$Total
 
+# AALBORG DEATH RR --------------------------------------------------------
+aal_rr_mrt <- matrix(NA, nrow = length(aal_chol$age_group))
+aal_rr_mrt <- data.frame(aal_rr_mrt)
+colnames(aal_rr_mrt) <- "rr"
+aal_rr_mrt$age_range <- aal_chol$age_group
+aal_rr_mrt$rr <- aal_chol$m_mort_rt / aal_chol$f_mort_rt
+
+# 95% CI: https://goo.gl/JE6C4t
+m_d <- aal_chol$male_dead
+f_d <- aal_chol$female_dead
+m_pop <- aal_age_pop$m
+f_pop <- aal_age_pop$f
+se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
+aal_rr_mrt$low95 <- exp(log(aal_rr_mrt$rr) - z_crit * se)
+aal_rr_mrt$up95 <- exp(log(aal_rr_mrt$rr) + z_crit * se)
 
 
-# BONFERONI CORRECTION Z-CRIT VALUE\ --------------------------------------
-# Bonferonni correction for multiple testing: http://goo.gl/Drhjly (pdf)
-alpha <- 0.05
-n <- 9 # number of "test", in this case, age groups being compared
-bonf_c <- alpha / n
-z_crit <- qnorm(1 - (bonf_c/2)) # critical z-value from: http://goo.gl/BXDBFL
+# AALBORG RR ATTACK RATE --------------------------------------------------
+aal_rr_sic <- matrix(NA, nrow = length(aal_chol$age_group))
+aal_rr_sic <- data.frame(aal_rr_sic)
+colnames(aal_rr_sic) <- "rr"
+aal_rr_sic$age_range <- aal_chol$age_group
+aal_rr_sic$rr <- aal_chol$m_attck_rt / aal_chol$f_attck_rt
 
-
+# 95% CI: https://goo.gl/JE6C4t
+m_d <- aal_chol$male_sick
+f_d <- aal_chol$female_sick
+m_pop <- aal_age_pop$m
+f_pop <- aal_age_pop$f
+se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
+aal_rr_sic$low95 <- exp(log(aal_rr_sic$rr) - z_crit * se)
+aal_rr_sic$up95 <- exp(log(aal_rr_sic$rr) + z_crit * se)
 
 
 
@@ -154,16 +187,55 @@ z_crit <- qnorm(1 - (bonf_c/2)) # critical z-value from: http://goo.gl/BXDBFL
 kor_pop <- citywide(kor_pop)
 kor_chol <- citywide(kor_chol)
 
+kor_chol$m_attck_rt <- kor_chol$male_sick / korsoer_age_gender_pop$m
+kor_chol$f_attck_rt <- kor_chol$female_sick / korsoer_age_gender_pop$f
 kor_chol$tot_attack_rt <- kor_chol$total_sick / kor_pop$total * 100
+
+kor_chol$m_mort_rt <- kor_chol$male_dead / korsoer_age_gender_pop$m
+kor_chol$f_mort_rt <- kor_chol$female_dead / korsoer_age_gender_pop$f
 kor_chol$tot_mort_rt <- kor_chol$total_dead / kor_pop$total * 100
+
+
+# KORSOER DEATH RR --------------------------------------------------------
+kor_rr_mrt <- matrix(NA, nrow = nrow(kor_chol))
+kor_rr_mrt <- data.frame(kor_rr_mrt)
+colnames(kor_rr_mrt) <- "rr"
+kor_rr_mrt$age_range <- kor_chol$age_group
+kor_rr_mrt$rr <- kor_chol$m_mort_rt / kor_chol$f_mort_rt
+
+# 95% CI: https://goo.gl/JE6C4t
+m_d <- kor_chol$male_dead
+f_d <- kor_chol$female_dead
+m_pop <- korsoer_age_gender_pop$m
+f_pop <- korsoer_age_gender_pop$f
+se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
+kor_rr_mrt$low95 <- exp(log(kor_rr_mrt$rr) - z_crit * se)
+kor_rr_mrt$up95 <- exp(log(kor_rr_mrt$rr) + z_crit * se)
+
+# KORSOER RR ATTACK RATE --------------------------------------------------
+kor_rr_sic <- matrix(NA, nrow = length(kor_chol$age_group))
+kor_rr_sic <- data.frame(kor_rr_sic)
+colnames(kor_rr_sic) <- "rr"
+kor_rr_sic$age_range <- kor_chol$age_group
+kor_rr_sic$rr <- kor_chol$m_attck_rt / kor_chol$f_attck_rt
+
+# 95% CI: https://goo.gl/JE6C4t
+m_d <- kor_chol$male_sick
+f_d <- kor_chol$female_sick
+m_pop <- korsoer_age_gender_pop$m
+f_pop <- korsoer_age_gender_pop$f
+se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
+kor_rr_sic$low95 <- exp(log(kor_rr_sic$rr) - z_crit * se)
+kor_rr_sic$up95 <- exp(log(kor_rr_sic$rr) + z_crit * se)
+
+
+
 
 # CPH MORBIDITY & MORTALITY RATES -----------------------------------------
 # This was calculated in CholeraDataDK, but need to tweek it
-
 # Citywide numbers
 cph_pop <- citywide(cph_pop)
 counts <- citywide(counts)
-
 
 cph_chol <- data.frame(matrix(cph_pop$age_range, nrow = nrow(cph_pop)))
 colnames(cph_chol) <- "age_range"
@@ -173,10 +245,7 @@ cph_chol$male_attack_rate <- counts$male_sick / cph_pop$men1853
 cph_chol$female_attack_rate <- counts$female_sick / cph_pop$women1853
 cph_chol$total_mort_rate <- counts$total_dead / cph_pop$total1853
 
-
-
 # CPH DEATH RR -----------------------------------------------------------------------
-
 # Male is reference. If >1 risk is higher for females
 cph_rr_mrt <- matrix(NA, nrow = length(cph_chol$age_range))
 cph_rr_mrt <- data.frame(cph_rr_mrt)
@@ -184,100 +253,45 @@ colnames(cph_rr_mrt) <- "rr"
 cph_rr_mrt$age_range <- cph_pop$age_range
 cph_rr_mrt$rr <- cph_chol$male_mort_rate / cph_chol$female_mort_rate
 
+# 95% CI: https://goo.gl/JE6C4t
 m_d <- counts$male_dead
 f_d <- counts$female_dead
 m_pop <- cph_pop$men1853
 f_pop <- cph_pop$women1853
-
-
-
-# 95% CI: https://goo.gl/JE6C4t
 se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
 cph_rr_mrt$low95 <- exp(log(cph_rr_mrt$rr) - z_crit * se)
 cph_rr_mrt$up95 <- exp(log(cph_rr_mrt$rr) + z_crit * se)
 
-
-
-# AALBORG DEATH RR --------------------------------------------------------
-
-aal_rr_mrt <- matrix(NA, nrow = length(aal_chol$age_group))
-aal_rr_mrt <- data.frame(aal_rr_mrt)
-colnames(aal_rr_mrt) <- "rr"
-aal_rr_mrt$age_range <- aal_chol$age_group
-aal_rr_mrt$rr <- aal_chol$m_mort_rt / aal_chol$f_mort_rt
-
-m_d <- aal_chol$male_dead
-f_d <- aal_chol$female_dead
-m_pop <- aal_age_pop$m
-f_pop <- aal_age_pop$f
-
-# Bonferonni correction for multiple testing: http://goo.gl/Drhjly (pdf)
-alpha <- 0.05
-n <- 9 # number of "test", in this case, age groups being compared
-bonf_c <- alpha / n
-z_crit <- qnorm(1 - (bonf_c/2)) # critical z-value from: http://goo.gl/BXDBFL
-notes <- "*95%CI corrected for multiple tests\n using Bonferroni correction"
-# 95% CI: https://goo.gl/JE6C4t
-se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
-aal_rr_mrt$low95 <- exp(log(aal_rr_mrt$rr) - z_crit * se)
-aal_rr_mrt$up95 <- exp(log(aal_rr_mrt$rr) + z_crit * se)
-
-
-# COMBINE RR_MRT ----------------------------------------------------------
-aal_rr_mrt$city <- "aalborg"
-cph_rr_mrt$city <- "cph"
-rr_mrt <- rbind(cph_rr_mrt, aal_rr_mrt)
-
-
-
-
-
-
-
 # CPH RR ATTACK RATE ---------------------------------------------------------
-
 # Male is reference. If >1 risk is higher for females
 cph_rr_sic <- matrix(NA, nrow = length(cph_chol$age_range))
 cph_rr_sic <- data.frame(cph_rr_sic)
 colnames(cph_rr_sic) <- "rr"
 cph_rr_sic$age_range <- cph_chol$age_range
 cph_rr_sic$rr <- cph_chol$male_attack_rate / cph_chol$female_attack_rate
+
+# 95% CI: https://goo.gl/JE6C4t
 m_d <- counts$male_sick
 f_d <- counts$female_sick
 m_pop <- cph_pop$men1853
 f_pop <- cph_pop$women1853
-
-# 95% CI: https://goo.gl/JE6C4t
 se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
 cph_rr_sic$low95 <- exp(log(cph_rr_sic$rr) - z_crit * se)
 cph_rr_sic$up95 <- exp(log(cph_rr_sic$rr) + z_crit * se)
 
 
-
-# AALBORG RR ATTACK RATE --------------------------------------------------
-
-aal_rr_sic <- matrix(NA, nrow = length(aal_chol$age_group))
-aal_rr_sic <- data.frame(aal_rr_sic)
-colnames(aal_rr_sic) <- "rr"
-aal_rr_sic$age_range <- aal_chol$age_group
-aal_rr_sic$rr <- aal_chol$m_attck_rt / aal_chol$f_attck_rt
-
-m_d <- aal_chol$male_sick
-f_d <- aal_chol$female_sick
-m_pop <- aal_age_pop$m
-f_pop <- aal_age_pop$f
-# 95% CI: https://goo.gl/JE6C4t
-se <- sqrt(1/m_d + 1/f_d - 1/m_pop - 1/f_pop)
-aal_rr_sic$low95 <- exp(log(aal_rr_sic$rr) - z_crit * se)
-aal_rr_sic$up95 <- exp(log(aal_rr_sic$rr) + z_crit * se)
-
+# COMBINE RR_MRT ----------------------------------------------------------
+aal_rr_mrt$city <- "aalborg"
+cph_rr_mrt$city <- "cph"
+kor_rr_mrt$city <- "korsoer"
+rr_mrt <- rbind(cph_rr_mrt, aal_rr_mrt, kor_rr_mrt)
 
 
 # COMBINE RR_SIC ----------------------------------------------------------
 aal_rr_sic$city <- "aalborg"
 cph_rr_sic$city <- "cph"
-
-rr_sic <- rbind(cph_rr_sic, aal_rr_sic)
+kor_rr_sic$city <- "korsoer"
+rr_sic <- rbind(cph_rr_sic, aal_rr_sic, kor_rr_sic)
 
 
 rm(n, alpha, bonf_c, f_d, f_pop, m_d, m_pop, notes, se, z_crit, aal_rr_sic,

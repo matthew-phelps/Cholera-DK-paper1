@@ -106,9 +106,13 @@ allcause_plot <- ggplot(data = all_monthly_mort) +
         axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
         axis.title.y = element_text(size = 18, face = "bold"),
         plot.title = element_text(size = 20, face="bold"),
-        plot.margin = unit(c(-.5,0,-1.5,0), 'lines'),
+        plot.margin = unit(c(0,-0.5,-1.5,0), 'lines'),
         strip.background = element_blank(),
-        strip.text.x = element_text(size = 14, face = "bold"))
+        strip.text.x = element_text(size = 14, face = "bold"),
+        panel.margin.x = unit(0, "lines")) +
+  # increase size of line symbol on legand. 
+  guides(color = guide_legend(keywidth = 1.5, keyheight = 1.5,
+                              override.aes = list(size = 1.2))) 
 
 allcause_plot
 
@@ -137,8 +141,8 @@ all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
 
 plot_season <- ggplot(data = all_cases,
                       aes(x = season, y = cases_norm,
-                          group = city, color = city, linetype = city)) +
-  geom_line(size= 1) +
+                          group = city, color = city)) +
+  geom_line(size= 1.1) +
   xlab("Date") +
   ylab("Incidence per 10,000 people") +
   ggtitle ("Daily cholera case incidence") +
@@ -153,17 +157,16 @@ plot_season <- ggplot(data = all_cases,
         plot.title = element_text(size = 20),
         plot.margin = unit(c(0,0,0.5,0), 'lines')) +
   coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
-  scale_color_brewer(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                     labels = c('Copenhagen (1853)', 'Aalborg (1853)', 'Korsør (1857)'),
-                     palette = "Dark2") +
-  scale_linetype_discrete(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                          labels = c('Copenhagen (1853)', 'Aalborg (1853)', 'Korsør (1857)')) +
-  guides(colour = guide_legend(keywidth = 2.5)) # Makes legend symbole wider
+  scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
+                     labels = c('Copenhagen', 'Aalborg', 'Korsør (1857)'),
+                     values = c("#006DDB", "#E69F00", "green4")) +
+  guides(colour = guide_legend(keywidth = 2.5, keyheight = 1.6,
+                               override.aes = list(size = 1.5))) # Makes legend symbole wider
 
 plot_season
 
 
-ggsave(filename = 'Output/2-seasonality.jpg',
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/2-seasonality.jpg",
        plot = plot_season,
        width = 26,
        height = 20,
@@ -183,9 +186,9 @@ dodge <- position_dodge(width=- 0.3)
 # In order to have facet_wrap fill the bottom row, first we have to create a empty plot, then move that plot to the top row, then make that plot invisible
 # Creat empty plot to be plotted by adding an dummy "city" to be plotted
 chol_burden$city2 <- factor(chol_burden$city,
-                            levels = c("", "aalborg", "korsoer", "cph"))
+                            levels = c( "aalborg", "", "korsoer", "cph"))
 levels(chol_burden$city2)
-levels(chol_burden$city2) <- c("", "Aalborg", "Korsør (1857)", "Copenhagen")
+levels(chol_burden$city2) <- c("Aalborg", "", "Korsør (1857)", "Copenhagen")
 plot_chol_mort <- ggplot() +
   # Style the age 0 - 70 +. Will style the "total" group separately
   geom_line(data = chol_burden[chol_burden$age_range != "Total", ],
@@ -209,7 +212,7 @@ plot_chol_mort <- ggplot() +
   
   # facet wrap and put labels below x-axis (swtich="x"). Use city2 var to plot
   # empty plot so that bottom row is filled
-  facet_wrap(~ city2, ncol = 2, switch = "x", drop = FALSE) +
+  #facet_wrap(~ city2, ncol = 2, switch = "x", drop = FALSE) +
   
   # Create symbology
   scale_color_manual(values = c("red2",  "red4",
@@ -217,15 +220,21 @@ plot_chol_mort <- ggplot() +
                                 "steelblue1" , "royalblue4"),
                      breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate',
                                 'aalborg.total_attack', 'aalborg.total_mort_rate',
-                                'cph.total_attack', 'cph.total_mort_rate')) +
+                                'cph.total_attack', 'cph.total_mort_rate'),
+                     labels = c('Korsør attack rate', 'Korsør mortality rate',
+                                'Aalborg attack rate', 'Aalborg mortality rate',
+                                'Copenhagen attack rate', 'Copenhagen mortality rate'))+
 
   scale_shape_manual(values = c(16, 17, 16, 17, 16, 17),
-                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate'),
-                     labels = c('Attack rate', 'Mortality rate')) +
+                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate',
+                                'aalborg.total_attack', 'aalborg.total_mort_rate',
+                                'cph.total_attack', 'cph.total_mort_rate'),
+                     labels = c('Korsør attack rate', 'Korsør mortality rate',
+                                'Aalborg attack rate', 'Aalborg mortality rate',
+                                'Copenhagen attack rate', 'Copenhagen mortality rate')) +
   
-  guides(color = FALSE,
-         shape = guide_legend(keywidth = 2.5,
-                              keyheight = 1.5)) + # Removes color part of legend
+   guides(shape = guide_legend(keywidth = 2.5,
+                               keyheight = 1.7)) + # Removes color part of legend
   
   xlab("Age group") +
   ylab("Rate per 100 people\n") +
@@ -233,7 +242,7 @@ plot_chol_mort <- ggplot() +
   ggtitle ("Cholera morbidity and \nmortality rate by age") +
   theme_minimal() +
   theme(legend.title = element_blank(),
-        legend.position = c(x = 0.2, y = .35),
+        legend.position = c(x = 0.60, y = .79),
         legend.text = element_text(size = 12),
         axis.text.x = element_text(size = 15,
                                    angle = 45, vjust = 1.5, hjust = 1.0,
@@ -258,10 +267,10 @@ plot_chol_mort
 g <- ggplotGrob(plot_chol_mort)
 
 # remove empty panels
-g$grobs[names(g$grobs) %in% c("panel1", "strip_t1")] <- NULL
+g$grobs[names(g$grobs) %in% c("panel2", "strip_t2")] <- NULL
 
 # remove panel from layout
-g$layout <- g$layout[!(g$layout$name %in% c('panel-1', 'strip_t-1')), ]
+g$layout <- g$layout[!(g$layout$name %in% c('panel-2', 'strip_t-2')), ]
 
 # move axis closer to panel
 g$layout[g$layout$name == "axis_b-9", c("t", "b")] = c(9,9)
@@ -270,15 +279,15 @@ g$layout[g$layout$name == "axis_b-9", c("t", "b")] = c(9,9)
 
 grid.newpage()
 grid.draw(g)
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/3-cholera-mort-rate2.jpg",
-       plot = g,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 600)
+# ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/3-cholera-mort-rate.jpg",
+#        plot = g,
+#        width = 26,
+#        height = 20,
+#        units = 'cm',
+#        dpi = 600)
 
 plot_chol_mort
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/3-cholera-mort-rate.jpg",
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/3-cholera-mort-rate-b.jpg",
        plot = plot_chol_mort,
        width = 26,
        height = 20,
@@ -287,32 +296,51 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 
 
 
-# # AGE MORTALITY BY GENDER -------------------------------------------------------------------
-# ggplot(data = mort_gender, aes(group = gender)) +
-#   geom_bar(aes(x = age_range, y = mort_rate, fill = gender),
-#            stat = "identity",
-#            position = "dodge") +
-#   xlab("Age group") +
-#   ylab("Mortality rate") +
-#   ggtitle ("How did mortality vary with age? \n") +
-#   scale_y_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30)) +
-#   theme_minimal() +
-#   theme(axis.text.x = element_text(size = 18, angle = 45, vjust = 0.4),
-#         axis.text.y = element_text(size = 18),
-#         axis.title.x = element_text(size = 22,
-#                                     face = "bold",
-#                                     vjust = -0.1),
-#         axis.title.y = element_text(size = 22,
-#                                     face = "bold",
-#                                     vjust = 1.3),
-#         plot.title = element_text(size = 28, face="bold"),
-#         plot.margin = unit(c(0,0.5,0.5,0.3), 'lines'))
-# 
-# age_mortality_plot
+# 4 - Cholera Deaths -------------------------------------------------
+limits = aes(ymax = hi95, ymin = low95, x = age_range)
+
+plot_chol_pct <- ggplot() +
+  geom_line(data = cho_pct[1:8, ], aes(x = age_range, y = mortality, group = 1),
+            size = 1.1) +
+  geom_point(data = cho_pct[1:8, ], aes(x = age_range, y = mortality),
+             size = 3.1) +
+  geom_errorbar(data = cho_pct[cho_pct$age_range !="Total", ],
+                limits,
+                width = 0.3,
+                size = 0.8) +
+  geom_point(data = cho_pct[9, ], aes(x = age_range, y = mortality),
+             size = 3.5, color = "red3") +
+  geom_errorbar(data = cho_pct[cho_pct$age_range =="Total", ],
+                limits,
+                width = 0.3,
+                size = 0.8, color = "red3") +
+  xlab("Age group") +
+  ylab("Proportion of all deaths\nattributed to cholera") +
+  scale_y_continuous(breaks = seq(0, 0.8, 0.2),
+                     limits = c(0, 0.8)) + 
+  theme_minimal() +
+  theme(legend.title = element_blank(),
+        axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 18,
+                                    face = "bold",
+                                    vjust = 0),
+        axis.title.y = element_text(size = 18,
+                                    face = "bold"),
+        plot.title = element_text(size = 18, face="bold"),
+        plot.margin = unit(c(0,0,0.5,0.5), 'lines'))
+plot_chol_pct
 
 
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/4-cholera-of-total.jpg",
+       plot = plot_chol_pct,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
 
-# DEATH RELATIVE RISK -----------------------------------------------------------
+
+# 5 - DEATH RELATIVE RISK -----------------------------------------------------------
 
 # set limits for error bars: http://goo.gl/4QE74U
 limits = aes(ymax = up95, ymin = low95, x = age_range, color = city)
@@ -398,8 +426,6 @@ se <- sqrt(1/fem_chol + 1/men_chol - 1/men_pop - 1/fem_pop)
 rr_gender_l <- exp(log(rr_gender) - 1.96 * se)
 rr_gender_u <- exp(log(rr_gender) + 1.96 * se)
 
-# CITY-WIDE GENDER ATTACK RELATIVE RISK  -----------------------------------------------------
-# 
 # # Attach city-wide data:
 # rr <- rbind(c(rr_gender, rr_gender_l, rr_gender_u), rr)
 # rr$age_range <- factor(c("Total", age_char))
@@ -478,48 +504,6 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 
 
 
-# Cholera Deaths -------------------------------------------------
-limits = aes(ymax = hi95, ymin = low95, x = age_range)
-
-plot_chol_pct <- ggplot() +
-  geom_line(data = cho_pct[1:8, ], aes(x = age_range, y = mortality, group = 1),
-            size = 1.1) +
-  geom_point(data = cho_pct[1:8, ], aes(x = age_range, y = mortality),
-             size = 3.1) +
-  geom_errorbar(data = cho_pct[cho_pct$age_range !="Total", ],
-                limits,
-                width = 0.3,
-                size = 0.8) +
-  geom_point(data = cho_pct[9, ], aes(x = age_range, y = mortality),
-             size = 3.5, color = "dark red") +
-  geom_errorbar(data = cho_pct[cho_pct$age_range =="Total", ],
-                limits,
-                width = 0.3,
-                size = 0.8, color = "darkred") +
-  xlab("Age group") +
-  ylab("Proportion") +
-  scale_y_continuous(breaks = seq(0, 0.8, 0.2),
-                     limits = c(0, 0.8)) + 
-  theme_minimal() +
-  theme(legend.title = element_blank(),
-        axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
-        axis.text.y = element_text(size = 16),
-        axis.title.x = element_text(size = 18,
-                                    face = "bold",
-                                    vjust = 0),
-        axis.title.y = element_text(size = 18,
-                                    face = "bold"),
-        plot.title = element_text(size = 18, face="bold"),
-        plot.margin = unit(c(0,0,0.5,0.5), 'lines'))
-plot_chol_pct
-
-
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F7-cholera-of-total.jpg",
-       plot = plot_chol_pct,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 600)
 
 
 
