@@ -88,7 +88,7 @@ allcause_plot <- ggplot(data = all_monthly_mort) +
            ymin = yrng[1], ymax = yrng[2])+
   facet_wrap(~ area, switch = "x") +
   xlab("") +
-  ylab("All-cause mortality") +
+  ylab("All-cause mortality counts") +
   scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
   scale_y_continuous(breaks = seq(0, 1250, 250)) +
   
@@ -97,17 +97,17 @@ allcause_plot <- ggplot(data = all_monthly_mort) +
                      values = c("red2", "black", "blue2", "green3" ))+
   scale_linetype_manual(name = "Age group",
                         breaks = c("<10", "10-25", "26-50", "50+"),
-                        values = c("longdash",  "dotted", "solid", "twodash" ))+
+                        values = c("longdash",  "dotted", "twodash", "solid"  ))+
   #ggtitle ("Monthly all-cause mortality") +
   theme_classic() +
   theme(legend.title = element_text(size = 16),
         legend.position = c(0.5, 0.6),
         legend.text = element_text(size = 15),
         axis.text.x = element_text(size = 13, angle = 45, hjust = 1, vjust = 1),
-        axis.text.y = element_text(size = 16),
-        axis.title.x = element_text(size = 18, face = "bold", vjust = -0.1),
-        axis.title.y = element_text(size = 18, face = "bold"),
-        plot.title = element_text(size = 20, face="bold"),
+        axis.text.y = element_text(size = 15),
+        axis.title.x = element_text(size = 16, vjust = -0.1),
+        axis.title.y = element_text(size = 16),
+        plot.title = element_text(size = 18),
         plot.margin = unit(c(0,-0.5,-1.5,0), 'lines'),
         strip.background = element_blank(),
         strip.text.x = element_text(size = 14, face = "bold"),
@@ -147,11 +147,11 @@ plot_season <- ggplot(data = all_cases,
   geom_line(size= 1.1) +
   xlab("Date") +
   ylab("Incidence per 10,000 people") +
-  ggtitle ("Daily cholera case incidence") +
+  ggtitle ("Daily cholera case incidence & seasonality") +
   theme_classic() +
   theme(legend.title = element_blank(),
-        legend.position = c(0.2, 0.5),
-        legend.text = element_text(size = 17),
+        legend.position = c(0.2, 0.27),
+        legend.text = element_text(size = 16),
         axis.text.x = element_text(size = 16),
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18, vjust = -0.1),
@@ -168,7 +168,7 @@ plot_season <- ggplot(data = all_cases,
 plot_season
 
 
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/2-seasonality.jpg",
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/2-seasonality-temp.jpg",
        plot = plot_season,
        width = 26,
        height = 20,
@@ -181,35 +181,42 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 # 3 - Total mortality & total attack rate due to cholera -----------------------------------------
 # DF with cholera mort as % of total mort & cholera mort rates in 1 df
 limits <- aes(ymax = upper95, ymin = lower95,
-              x= age_range, color = plot_var)
+              x= age_range, color = plot_var2)
 dodge <- position_dodge(width=- 0.3)
 dodge2 <- position_dodge(width=- 0.5)
 
 
-# In order to have facet_wrap fill the bottom row, first we have to create a empty plot, then move that plot to the top row, then make that plot invisible
-# Creat empty plot to be plotted by adding an dummy "city" to be plotted
-chol_burden$city2 <- factor(chol_burden$city,
-                            levels = c( "aalborg", "", "korsoer", "cph"))
-levels(chol_burden$city2)
-levels(chol_burden$city2) <- c("Aalborg", "", "Korsør (1857)", "Copenhagen")
+# In order to makes space between cities in legend, need to plot empty "dummy" variables that will be white space. Creat empty factors:
+chol_burden$plot_var2 <- chol_burden$plot_var
+chol_burden$plot_var2 <- factor(chol_burden$plot_var2,
+                                        levels = c("korsoer.total_attack", 
+                                                   "korsoer.total_mort_rate",
+                                                   "a",
+                                                   "aalborg.total_attack",
+                                                   "aalborg.total_mort_rate",
+                                                   "b",
+                                                   "cph.total_attack",
+                                                   "cph.total_mort_rate"))
+
+
 plot_chol_mort <- ggplot() +
   # Style the age 0 - 70 +. Will style the "total" group separately
   geom_line(data = chol_burden[chol_burden$age_range != "Total", ],
             position = dodge,
-            aes(x = age_range, y = pe, group = plot_var, color = plot_var),
-            size = 0.9, alpha = 0.5) +
+            aes(x = age_range, y = pe, group = plot_var2, color = plot_var2),
+            size = 0.9, alpha = 0.9) +
   geom_point(data = chol_burden[chol_burden$age_range != "Total", ], 
              position = dodge,
-             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
-                 shape = plot_var),  size = 2.8) +
+             aes(x = age_range, y = pe, group = plot_var2, color = plot_var2,
+                 shape = plot_var2),  size = 2.8) +
   geom_errorbar(data = chol_burden[chol_burden$age_range != "Total", ],
                 limits, position = dodge, width = 0.2) +
   
   # Same but only for the "Total" group
   geom_point(data = chol_burden[chol_burden$age_range == "Total", ], 
              position = dodge2,
-             aes(x = age_range, y = pe, group = plot_var, color = plot_var,
-                 shape = plot_var),  size = 3.5) +
+             aes(x = age_range, y = pe, group = plot_var2, color = plot_var2,
+                 shape = plot_var2),  size = 3.5) +
   geom_errorbar(data = chol_burden[chol_burden$age_range == "Total", ],
                 limits, position = dodge2, size = 1.0, width = 0.4) +
   
@@ -218,26 +225,32 @@ plot_chol_mort <- ggplot() +
   #facet_wrap(~ city2, ncol = 2, switch = "x", drop = FALSE) +
   
   # Create symbology
-  scale_color_manual(values = c("red2",  "red4",
-                                "green3", "green4",
-                                "steelblue1" , "royalblue4"),
-                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate',
+  scale_color_manual(drop = FALSE, # stops R gropping empty "dummy" factors
+                     values = c("green3",  "green4", "grey100",
+                                "steelblue1", "royalblue4", "grey100",
+                                "#f4a700" , "#af7a07"),
+                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate', 
+                                "a",
                                 'aalborg.total_attack', 'aalborg.total_mort_rate',
+                                "b",
                                 'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Korsør attack rate', 'Korsør mortality rate',
-                                'Aalborg attack rate', 'Aalborg mortality rate',
+                     labels = c('Korsør attack rate', 'Korsør mortality rate', " ",
+                                'Aalborg attack rate', 'Aalborg mortality rate', "",
                                 'Copenhagen attack rate', 'Copenhagen mortality rate'))+
 
-  scale_shape_manual(values = c(16, 17, 16, 17, 16, 17),
-                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate',
-                                'aalborg.total_attack', 'aalborg.total_mort_rate',
+  scale_shape_manual(drop = FALSE, # stops R gropping empty "dummy" factors
+                     values = c(16, 17, 33,
+                                16, 17, 32,
+                                16, 17),
+                     breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate', "a",
+                                'aalborg.total_attack', 'aalborg.total_mort_rate', "b",
                                 'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Korsør attack rate', 'Korsør mortality rate',
-                                'Aalborg attack rate', 'Aalborg mortality rate',
-                                'Copenhagen attack rate', 'Copenhagen mortality rate')) +
+                     labels = c('Korsør attack rate', 'Korsør mortality rate', " ",
+                                'Aalborg attack rate', 'Aalborg mortality rate', "",
+                                'Copenhagen attack rate', 'Copenhagen mortality rate'))+
   
-   guides(shape = guide_legend(keywidth = 2.5,
-                               keyheight = 1.7)) + # Removes color part of legend
+   # guides(shape = guide_legend(keywidth = 2.5,
+   #                             keyheight = 3)) + # Removes color part of legend
   
   xlab("Age group") +
   ylab("Rate per 100 people\n") +
@@ -245,8 +258,9 @@ plot_chol_mort <- ggplot() +
   ggtitle ("Cholera morbidity and \nmortality rate by age") +
   theme_minimal() +
   theme(legend.title = element_blank(),
-        legend.position = c(x = 0.60, y = .81),
+        legend.position = c(x = 0.25, y = .74),
         legend.text = element_text(size = 12),
+        legend.key.height = unit(0.6, "cm"),
         axis.text.x = element_text(size = 15,
                                    angle = 45, vjust = 1.5, hjust = 1.0,
                                    margin = margin(0,0,-10,0)),
@@ -262,24 +276,32 @@ plot_chol_mort <- ggplot() +
  
 plot_chol_mort
 
-## Use grob to remove empty panels from plot. If you work with another set of
-## plots, look at the output of names(g$grobs) and g$layout$name to figure out,
-## which elements have to be removed. https://goo.gl/4AK5Ey
-g <- ggplotGrob(plot_chol_mort)
 
-# remove empty panels
-g$grobs[names(g$grobs) %in% c("panel2", "strip_t2")] <- NULL
+ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/3-cholera-mort-rate.jpg",
+       plot = plot_chol_mort,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 600)
 
-# remove panel from layout
-g$layout <- g$layout[!(g$layout$name %in% c('panel-2', 'strip_t-2')), ]
-
-# move axis closer to panel
-g$layout[g$layout$name == "axis_b-9", c("t", "b")] = c(9,9)
-
-# plot output
-
-grid.newpage()
-grid.draw(g)
+# ## Use grob to remove empty panels from plot. If you work with another set of
+# ## plots, look at the output of names(g$grobs) and g$layout$name to figure out,
+# ## which elements have to be removed. https://goo.gl/4AK5Ey
+# g <- ggplotGrob(plot_chol_mort)
+# 
+# # remove empty panels
+# g$grobs[names(g$grobs) %in% c("panel2", "strip_t2")] <- NULL
+# 
+# # remove panel from layout
+# g$layout <- g$layout[!(g$layout$name %in% c('panel-2', 'strip_t-2')), ]
+# 
+# # move axis closer to panel
+# g$layout[g$layout$name == "axis_b-9", c("t", "b")] = c(9,9)
+# 
+# # plot output
+# 
+# grid.newpage()
+# grid.draw(g)
 # ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/cholera-mort-rate.jpg",
 #        plot = g,
 #        width = 26,
@@ -287,13 +309,7 @@ grid.draw(g)
 #        units = 'cm',
 #        dpi = 600)
 
-plot_chol_mort
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/cholera-mort-rate-b.jpg",
-       plot = plot_chol_mort,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 600)
+
 
 
 
@@ -316,19 +332,16 @@ plot_chol_pct <- ggplot() +
                 width = 0.3,
                 size = 0.8, color = "red3") +
   xlab("Age group") +
-  ylab("Proportion of all deaths\nattributed to cholera") +
+  ylab("Proportion of all annual deaths\nattributed to cholera") +
   scale_y_continuous(breaks = seq(0, 0.8, 0.2),
                      limits = c(0, 0.8)) + 
   theme_minimal() +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(size = 16, angle = 45, vjust = 0.9),
         axis.text.y = element_text(size = 16),
-        axis.title.x = element_text(size = 18,
-                                    face = "bold",
-                                    vjust = 0),
-        axis.title.y = element_text(size = 18,
-                                    face = "bold"),
-        plot.title = element_text(size = 18, face="bold"),
+        axis.title.x = element_text(size = 16),
+        axis.title.y = element_text(size = 16),
+        plot.title = element_text(size = 18),
         plot.margin = unit(c(0,0,0.5,0.5), 'lines'))
 plot_chol_pct
 
@@ -415,7 +428,7 @@ ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK
 
 # 6 - ATTACK RELATIVE RISK  ---------------------------------------
 limits = aes(ymax = up95, ymin = low95, color = city, x = age_range)
-title <- "Relative risk of cholera mobidity by age & gender \n"
+title <- "Relative risk of cholera morbidity by age & gender \n"
 notes <- "*male is reference group"
 pd <- position_dodge(0.4)
 pd2 <- position_dodge(0.6)
