@@ -118,20 +118,24 @@ all_cases_temp$season <- paste("100",
                                sep = "-")
 all_cases_temp$season <- as.Date(all_cases_temp$season)
 all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
-
+cph_lab <- all_cases[all_cases$city=="copenhagen",]
+cph_xmin <- cph_lab$season[which.max(cph_lab$cases_norm)] - 10
+cph_xmax <- cph_lab$season[which.max(cph_lab$cases_norm)] + 10
 
 
 plot_season <- ggplot(data = all_cases,
                       aes(x = season, y = cases_norm,
                           group = city, color = city)) +
   geom_line(size= 1.1) +
+  annotate("rect", xmin = cph_xmin, xmax = cph_xmax, ymin = 5, ymax = 10,
+           fill="#E69F00") + 
   xlab("Date") +
   ylab("Incidence per 10,000 people") +
   ggtitle ("Daily cholera case incidence & seasonality") +
   theme_classic() +
   theme(legend.title = element_blank(),
         legend.position = c(0.2, 0.27),
-        legend.text = element_text(size = 16),
+        legend.text = element_text(size = 14),
         axis.text.x = element_text(size = 16),
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size = 18, vjust = -0.1),
@@ -140,7 +144,9 @@ plot_season <- ggplot(data = all_cases,
         plot.margin = unit(c(0,0,0.5,0), 'lines')) +
   coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
   scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                     labels = c('Copenhagen', 'Aalborg', 'Korsør (1857)'),
+                     labels = c('Copenhagen (population: 138,030)',
+                                'Aalborg (population: 8,498',
+                                'Korsør (1857)'),
                      values = c("#006DDB", "#E69F00", "green4")) +
   guides(colour = guide_legend(keywidth = 2.5, keyheight = 1.6,
                                override.aes = list(size = 1.5))) # Makes legend symbole wider
@@ -169,14 +175,14 @@ dodge2 <- position_dodge(width=- 0.5)
 # In order to makes space between cities in legend, need to plot empty "dummy" variables that will be white space. Creat empty factors:
 chol_burden$plot_var2 <- chol_burden$plot_var
 chol_burden$plot_var2 <- factor(chol_burden$plot_var2,
-                                        levels = c("korsoer.total_attack", 
-                                                   "korsoer.total_mort_rate",
-                                                   "a",
-                                                   "aalborg.total_attack",
-                                                   "aalborg.total_mort_rate",
-                                                   "b",
-                                                   "cph.total_attack",
-                                                   "cph.total_mort_rate"))
+                                levels = c("korsoer.total_attack", 
+                                           "korsoer.total_mort_rate",
+                                           "a",
+                                           "aalborg.total_attack",
+                                           "aalborg.total_mort_rate",
+                                           "b",
+                                           "cph.total_attack",
+                                           "cph.total_mort_rate"))
 
 
 plot_chol_mort <- ggplot() +
@@ -217,7 +223,7 @@ plot_chol_mort <- ggplot() +
                      labels = c('Korsør attack rate', 'Korsør mortality rate', " ",
                                 'Aalborg attack rate', 'Aalborg mortality rate', "",
                                 'Copenhagen attack rate', 'Copenhagen mortality rate'))+
-
+  
   scale_shape_manual(drop = FALSE, # stops R gropping empty "dummy" factors
                      values = c(16, 17, 33,
                                 16, 17, 32,
@@ -229,8 +235,8 @@ plot_chol_mort <- ggplot() +
                                 'Aalborg attack rate', 'Aalborg mortality rate', "",
                                 'Copenhagen attack rate', 'Copenhagen mortality rate'))+
   
-   # guides(shape = guide_legend(keywidth = 2.5,
-   #                             keyheight = 3)) + # Removes color part of legend
+  # guides(shape = guide_legend(keywidth = 2.5,
+  #                             keyheight = 3)) + # Removes color part of legend
   
   xlab("Age group") +
   ylab("Rate per 100 people\n") +
@@ -253,7 +259,7 @@ plot_chol_mort <- ggplot() +
         strip.text.x = element_text(size = 14,
                                     margin = margin(0,0,5,0)),
         panel.margin.y = unit(0, "lines"))
- 
+
 plot_chol_mort
 
 
