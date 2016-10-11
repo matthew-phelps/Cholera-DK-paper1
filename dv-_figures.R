@@ -37,8 +37,7 @@ pop <- cph_pop1853_10yr
 attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
 cen <- census
-cph_allcause <- CPH_allcause
-dk_allcause <- dk_cities_allcause
+
 rownames(cen) <- NULL
 
 # Re-order levels of factor so that plotting works: http://goo.gl/CD2fEC
@@ -53,31 +52,12 @@ mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
 
 # 1 - FACET PLOT MONTHLY ALL_CAUSE MORTALITY  ---------------------------------
 
-# Make into long format for ggplot
-
-cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:5)
-dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:5)
-
-# Specify variable for facet_wrap
-dk_long$area <- "All other cities"
-cph_allcause_long$area <- "Copenhagen"
-
-all_monthly_mort <- rbind(cph_allcause_long, dk_long)
-all_monthly_mort$age <- ifelse(all_monthly_mort$age == ">50", "50+", all_monthly_mort$age)
 # To shade 1853, need a rectangle that covers only this year for all y
-all_monthly_mort$year <- format(all_monthly_mort$date, "%Y")
-yrng <- range(all_monthly_mort$mortality)
+yrng <- range(all_monthly_mort$mortality[all_monthly_mort$age != "total"])
 start_53 <- as.Date("1853-06-01") # start of shading
 end_53 <- as.Date("1853-10-01") # End of shading
 
-# Re-level factor to make CPH plot first
-all_monthly_mort$area <- as.factor(all_monthly_mort$area)
-all_monthly_mort$age <- as.factor(all_monthly_mort$age)
-all_monthly_mort$area <- relevel(all_monthly_mort$area, ref = "Copenhagen")
-levels(all_monthly_mort$age)
-
-
-allcause_plot <- ggplot(data = all_monthly_mort) +
+allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total", ]) +
   geom_line(size = 1,
             aes(x = date, y = mortality,
                 group = age, color = age, linetype = age)) +

@@ -41,7 +41,8 @@ kor_pop <- census[census$place=="korsoer" & census$year == "1857", ]
 kor_chol <- korsoer_age_gender
 korsoer_age_gender_pop <- korsoer_age_gender_pop
 
-
+cph_allcause <- CPH_allcause
+dk_allcause <- dk_cities_allcause
 
 
 # GLOBAL BONFERONI CORRECTION Z-CRIT VALUE\ --------------------------------------
@@ -381,7 +382,52 @@ se <- z * sqrt(cho_pct$mortality * (1 - cho_pct$mortality) / cho_pct$n)
 cho_pct$low95 <- cho_pct$mortality - se
 cho_pct$hi95 <- cho_pct$mortality + se
 
+
+
+
+# MONTHLY ALL-CAUSE MORTALITY ---------------------------------------------
+
+# Make into long format for ggplot
+cph_allcause$total <- rowSums(cph_allcause[, 2:5]) 
+dk_allcause$total <- rowSums(dk_allcause[, 2:5]) 
+
+cph_allcause_long <- tidyr::gather(cph_allcause, "age", "mortality", 2:6)
+dk_long <- tidyr::gather(dk_allcause, "age", "mortality", 2:6)
+
+# Specify variable for facet_wrap
+dk_long$area <- "All other cities"
+cph_allcause_long$area <- "Copenhagen"
+
+all_monthly_mort <- rbind(cph_allcause_long, dk_long)
+all_monthly_mort$age <- ifelse(all_monthly_mort$age == ">50", "50+", all_monthly_mort$age)
+# To shade 1853, need a rectangle that covers only this year for all y
+all_monthly_mort$year <- format(all_monthly_mort$date, "%Y")
+yrng <- range(all_monthly_mort$mortality)
+start_53 <- as.Date("1853-06-01") # start of shading
+end_53 <- as.Date("1853-10-01") # End of shading
+
+# Re-level factor to make CPH plot first
+all_monthly_mort$area <- as.factor(all_monthly_mort$area)
+all_monthly_mort$age <- as.factor(all_monthly_mort$age)
+all_monthly_mort$area <- relevel(all_monthly_mort$area, ref = "Copenhagen")
+levels(all_monthly_mort$age)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # SAVE --------------------------------------------------------------------
 setwd(data.path)
-save(chol_burden, aal_age_pop, rr_mrt, rr_sic, counts, cho_pct,
+save(chol_burden, aal_age_pop, rr_mrt, rr_sic, counts, cho_pct, 
+     all_monthly_mort,
      file = "data-viz-prep.Rdata")

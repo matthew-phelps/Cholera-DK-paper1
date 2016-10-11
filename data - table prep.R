@@ -32,7 +32,7 @@ source("functions.R")
 
 # LOAD --------------------------------------------------------------------
 setwd(data.path)
-
+load("data-viz-prep.Rdata")
 load(file = "aal_age_pop.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
@@ -112,3 +112,47 @@ ci.rate(100, x$Population, num_cases = x$Number.of.deaths, upper = T) /100
 ci.rate(100, x$Population, num_cases = x$Number.of.deaths, upper = F)/100
 
 
+# EXCSESS DEATHS ----------------------------------------------------------
+# Subset data to calculate baseline and outbreak mortality over epidemic time of
+# year. Find mean mortality for epi period in 1852 & 1854, then mean mort
+d1 <- all_monthly_mort[all_monthly_mort$age == "total", ]
+
+d52 <- dplyr::filter(d1, date >= "1852-06-01" & date <= "1852-09-01")
+d53 <- dplyr::filter(d1, date >= "1853-06-01" & date <= "1853-09-01")
+d54 <- dplyr::filter(d1, date >= "1854-06-01" & date <= "1854-09-01")
+
+# 1st find baseline mean mortality per month
+base <- rbind(d52, d54)
+cph_base <- sum(base[base$area=="Copenhagen",]$mortality) / 2
+
+
+# 2nd find mean monthly mortality during outbreak
+exc <- sum(d53[d53$area=="Copenhagen", ]$mortality)
+
+# Difference in mortality between off and on years
+excess_mort <- exc - cph_base
+
+# Excess killed in terms of percentage of population
+excess_mort / sum(cph_pop$total1853)
+
+
+# Excess deaths in Haiti from: "Mortality Rates during Cholera Epidemic, Haiti,
+# 2010–2011"
+# Using Gonaives study site from paper:
+pop <- 2.28725e5
+ex_death <- 1028
+ex_death_hi <- 1567
+ex_death_lo <- 606
+
+ex_death/pop * 100
+ex_death_hi / pop * 100
+ex_death_lo / pop * 100
+
+
+# Population of port-au-prince in 2015 from pdf : https://goo.gl/1kXVkY
+
+port_pop <- 987310 + 395260 + 265072 + 130283 + 511345 + 376834 +57434
+port_cases <- 164423
+port_dead <- 1065
+
+port_cases / port_pop * 100
