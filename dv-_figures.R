@@ -118,23 +118,25 @@ all_cases_temp$season <- paste("100",
                                sep = "-")
 all_cases_temp$season <- as.Date(all_cases_temp$season)
 all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
-cph_lab <- all_cases[all_cases$city=="copenhagen",]
-cph_xmin <- cph_lab$season[which.max(cph_lab$cases_norm)] - 10
-cph_xmax <- cph_lab$season[which.max(cph_lab$cases_norm)] + 10
-
+lab_x <- min(all_cases$season)
+lab_size <- 6
 
 plot_season <- ggplot(data = all_cases,
                       aes(x = season, y = cases_norm,
                           group = city, color = city)) +
   geom_line(size= 1.1) +
-  annotate("rect", xmin = cph_xmin, xmax = cph_xmax, ymin = 5, ymax = 10,
-           fill="#E69F00") + 
+  annotate("text", x = lab_x + 15, y = 14, ymax = 10,
+           color="#E69F00", label="Copenhagen", size = lab_size) + 
+  annotate("text", x = lab_x + 56, y = 28, ymax = 10,
+           color="#006DDB", label="Aalborg", size = lab_size) +
+  annotate("text", x = lab_x + 80, y = 109, ymax = 10,
+           color="green4", label="Korsør (1857)", size = lab_size) +
   xlab("Date") +
   ylab("Incidence per 10,000 people") +
-  ggtitle ("Daily cholera case incidence & seasonality") +
+  ggtitle ("Daily cholera case incidence \n& seasonality") +
   theme_classic() +
   theme(legend.title = element_blank(),
-        legend.position = c(0.2, 0.27),
+        legend.position = "none",
         legend.text = element_text(size = 14),
         axis.text.x = element_text(size = 16),
         axis.text.y = element_text(size = 16),
@@ -144,13 +146,7 @@ plot_season <- ggplot(data = all_cases,
         plot.margin = unit(c(0,0,0.5,0), 'lines')) +
   coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
   scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                     labels = c('Copenhagen (population: 138,030)',
-                                'Aalborg (population: 8,498',
-                                'Korsør (1857)'),
-                     values = c("#006DDB", "#E69F00", "green4")) +
-  guides(colour = guide_legend(keywidth = 2.5, keyheight = 1.6,
-                               override.aes = list(size = 1.5))) # Makes legend symbole wider
-
+                     values = c("#006DDB", "#E69F00", "green4"))
 plot_season
 
 

@@ -63,7 +63,7 @@ counts <- row.merge(counts)
 kor_pop <- kor_pop[-10, c("age", "total")] # Remove "unknown" age group and unused columns
 kor_pop <- row.merge(kor_pop)
 
-
+sum(kor_pop$total)
 
 # AALBORG-POPULATION-GENDER-AGE ------------------------------------------------------
 
@@ -186,8 +186,8 @@ aal_rr_sic$up95 <- exp(log(aal_rr_sic$rr) + z_crit * se)
 
 # KORSOER MORT & MORB RATES -----------------------------------------------
 # City-wide rates
-kor_pop <- citywide(kor_pop)
-kor_chol <- citywide(kor_chol)
+# kor_pop <- citywide(kor_pop)
+# kor_chol <- citywide(kor_chol)
 
 kor_chol$m_attck_rt <- kor_chol$male_sick / korsoer_age_gender_pop$m
 kor_chol$f_attck_rt <- kor_chol$female_sick / korsoer_age_gender_pop$f
