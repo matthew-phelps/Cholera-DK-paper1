@@ -37,6 +37,7 @@ setwd(data.path)
 # LOAD --------------------------------------------------------------------
 
 load("data-viz-prep.Rdata")
+load("r0.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
 pop <- cph_pop1853_10yr
@@ -300,210 +301,48 @@ ggsave(filename = "3-cholera-mort-rate.jpg",
 
 
 
-# 4 - Cholera Deaths -------------------------------------------------
-limits = aes(ymax = hi95, ymin = low95, x = age_range)
 
-plot_chol_pct <- ggplot() +
-  geom_line(data = cho_pct[1:8, ], aes(x = age_range, y = mortality, group = 1),
-            size = 1.1) +
-  geom_point(data = cho_pct[1:8, ], aes(x = age_range, y = mortality),
-             size = 3.1) +
-  geom_errorbar(data = cho_pct[cho_pct$age_range !="Total", ],
-                limits,
-                width = 0.3,
-                size = 0.8) +
-  geom_point(data = cho_pct[9, ], aes(x = age_range, y = mortality),
-             size = 3.5, color = "red3") +
-  geom_errorbar(data = cho_pct[cho_pct$age_range =="Total", ],
-                limits,
-                width = 0.3,
-                size = 0.8, color = "red3") +
-  xlab("Age group") +
-  ylab("Proportion of all annual deaths\nattributed to cholera") +
-  scale_y_continuous(breaks = seq(0, 0.8, 0.2),
-                     limits = c(0, 0.8)) + 
-  theme_classic() +
+# 4 - R0 PLOTS ------------------------------------------------------------
+
+pd <- position_dodge(0.4)
+
+# Remove time-dependent
+r0 <- r0[r0$method != "TD", ]
+R0 <- ggplot(data = r0,
+             aes(x = city, y = pe, color = method)) +
+  geom_point(position = pd,
+             size = 2) +
+  geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
+                width = 0.15,
+                size = 1,
+                position = pd) +
+  ggtitle(expression(R[0]*" estimates")) +
+  ylab(expression(R[0])) +
+  theme_minimal() +
   theme(legend.title = element_blank(),
-        axis.text.x = element_text(size = 12, angle = 45, vjust = 0.9),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 15),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
-        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'))
-plot_chol_pct
+        legend.position = c(0.15, 0.85),
+        axis.text.x = element_text(size = 14, angle = 0, vjust = 0.9),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 18,
+                                    face = "bold",
+                                    vjust = 1.3),
+        plot.title = element_text(size = 18, face="bold")) +
+  coord_cartesian(ylim = c(min(r0$ci_l), max(r0$ci_u))) +
+  scale_color_manual(values = c("orange", "royalblue2"),
+                     breaks = c("EG", "ML"),
+                     labels = c("Exponential \nGrowth\n",
+                                "Maximum \n Likelihood"))
+R0
 
-setwd(main.path)
-ggsave(filename = "Output/4-cholera-of-total.jpg",
-       plot = plot_chol_pct,
-       width = 26,
+
+setwd(plot.path)
+ggsave(filename = "4-R0.tiff",
+       plot = R0,
+       width = 32,
        height = 20,
        units = 'cm',
-       dpi = 600)
-
-
-# 5 - ATTACK RELATIVE RISK DATA ---------------------------------------
-limits = aes(ymax = up95, ymin = low95, color = city, x = age_range)
-title <- "Relative risk of cholera morbidity by age & gender \n"
-notes <- "*male is reference group"
-pd <- position_dodge(0.4)
-pd2 <- position_dodge(0.6)
-
-# To specify that CPH is plotted first changed factors
-rr_sic$city <- factor(rr_sic$city, levels = c("cph", "aalborg", "korsoer"))
-levels(rr_sic$city) <- c("Copenhagen", "Aalborg", "Korsør (1857)")
-
-# 5 ATTACK RR PLOT --------------------------------------------------------
-
-plot_attack <- ggplot() +
-  geom_point(data = rr_sic[rr_sic$age_range !="Total", ],
-             aes(x = age_range,
-                 y = rr,
-                 color = city,
-                 shape = city),
-             position = pd,
-             size = 2.3) +
-  
-  geom_errorbar(data = rr_sic[rr_sic$age_range !="Total", ],
-                limits,
-                width = 0.3,
-                size = 0.8,
-                position = pd) +
-  # Separate series for the "Total" RR so that it can have different styling
-  geom_point(data = rr_sic[rr_sic$age_range =="Total", ],
-             aes(x = age_range,
-                 y = rr,
-                 color = city,
-                 shape = city),
-             position = pd2,
-             size = 3.0) +
-  geom_errorbar(data = rr_sic[rr_sic$age_range =="Total", ],
-                limits,
-                width = 0.4,
-                size = 1.3,
-                position = pd2) +
-  coord_cartesian(ylim = c(0, 4)) +
-  scale_color_manual(values = c("#E69F00","#006DDB", "green4"),
-                     breaks = c('Copenhagen', 'Aalborg', 'Korsør (1857)'),
-                     labels = c('Copenhagen', 'Aalborg', "Korsør (1857)")) +
-  scale_shape_manual(values = c(8, 17, 15),
-                     breaks = c('Copenhagen', 'Aalborg', 'Korsør (1857)'),
-                     labels = c('Copenhagen', 'Aalborg', "Korsør (1857)"))  +
-  geom_hline(yintercept = 1) +
-  xlab("") +
-  ylab("Relative risk of cholera infection") +
-  # annotate("text", x = 8.5, y = 4.0, label = notes) +
-  # ggtitle (title)  +
-  theme_classic() +
-  theme(legend.title = element_blank(),
-        legend.position = c(x = 0.88, y = .8),
-        legend.text = element_text(size = 12),
-        axis.text.x = element_text(size = 12, angle = 45, vjust = 1.4, hjust = 1),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 15,
-                                    vjust = -0.1),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
-        plot.title = element_text(size = 16),
-        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'))
-plot_attack
-setwd(main.path)
-# ggsave(filename = "Output/6-RR-attack.jpg",
-#        plot = plot_attack,
-#        width = 26,
-#        height = 20,
-#        units = 'cm',
-#        dpi = 600)
-
-# 6 - DEATH RELATIVE RISK DATA--------------------------------------------------
-# set limits for error bars: http://goo.gl/4QE74U
-limits = aes(ymax = up95, ymin = low95, x = age_range, color = city)
-notes <- "*male is reference group"
-title <- "Relative risk of cholera mortality by age & gender \n"
-pd <- position_dodge(0.4)
-pd2 <- position_dodge(0.6)
-
-# To specify that CPH is plotted first changed factors
-rr_mrt$city <- factor(rr_mrt$city, levels = c("cph", "aalborg", "korsoer"))
-levels(rr_mrt$city) <- c("Copenhagen", "Aalborg", "Korsør (1857)")
-
-# 6 - DEATH RR PLOT -------------------------------------------------------
-
-plot_mort <- ggplot() +
-  geom_point(data = rr_mrt[rr_mrt$age_range != "Total", ],
-             aes(x = age_range,
-                 y = rr,
-                 color = city,
-                 shape = city),
-             position = pd, size = 2.5) +
-  geom_errorbar(data = rr_mrt[rr_mrt$age_range != "Total", ],
-                limits,
-                width = 0.3,
-                size = 0.8,
-                position = pd) +
-  # Separate series for the "Total" RR so that it can have different styling
-  geom_point(data = rr_mrt[rr_mrt$age_range == "Total", ],
-             aes(x = age_range,
-                 y = rr,
-                 color = city,
-                 shape = city),
-             position = pd2, size = 3.0) +
-  geom_errorbar(data = rr_mrt[rr_mrt$age_range == "Total", ],
-                limits,
-                width = 0.4,
-                size = 1.3,
-                position = pd2) +
-  coord_cartesian(ylim = c(0, 4)) +
-  scale_color_manual(values = c("#E69F00","#006DDB", "green4"),
-                     breaks = c('Copenhagen', 'Aalborg', 'Korsør (1857)'),
-                     labels = c('Copenhagen', 'Aalborg', "Korsør (1857)")) +
-  scale_shape_manual(values = c(8, 17, 15),
-                     breaks = c('Copenhagen', 'Aalborg', 'Korsør (1857)'),
-                     labels = c('Copenhagen', 'Aalborg', "Korsør (1857)")) +
-  geom_hline(yintercept = 1) +
-  xlab("Age") +
-  ylab("Relative risk of cholera death") +
-  # annotate("text", x = 8.5, y = 4.0, label = notes) +
-  #ggtitle (title)  +
-  theme_classic() +
-  theme(legend.title = element_blank(),
-        legend.position = c(x = 0.88, y = .8),
-        legend.text = element_text(size = 12),
-        axis.text.x = element_text(size = 12, angle = 45, vjust = 1.4, hjust = 1),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 15,
-                                    vjust = -0.1),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
-        plot.title = element_text(size = 16),
-        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'))
-plot_mort
-
-# ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/5-RR-mortality.jpg",
-#        plot = plot_mort,
-#        width = 26,
-#        height = 20,
-#        units = 'cm',
-#        dpi = 600)
-
-
-
-#        
-
-# MULTIPLOT ---------------------------------------------------------------
-
-setwd(main.path)
-jpeg(filename = "Output/5-RR-gender.jpg",
-     width = 20,
-     height = 26,
-     units = "cm",
-     quality = 100,
-     res = 600)
-multiplot(plot_attack, plot_mort, cols = 1)
-dev.off()
-
-
-
-
+       dpi = 300)
 
 
 

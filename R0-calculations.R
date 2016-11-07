@@ -1,4 +1,12 @@
+
+# INTRO -------------------------------------------------------------------
 rm(list = ls())
+graphics.off()
+
+ifelse(grepl("wrz741", getwd()),
+       data.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data",
+       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data")
+
 library(devtools)
 install_github("matthew-phelps/CholeraDataDK")
 library(CholeraDataDK)
@@ -170,45 +178,9 @@ sens_GT <-sensitivity.analysis(korsoer$cases,
 #        col="black",
 #        length=0.05)
 
-
+# SAVE DATA ---------------------------------------------------------------
+setwd(data.path)
+save(r0, file = "r0.Rdata")
 
 # R0 plots for cities -----------------------------------------------------
-pd <- position_dodge(0.4)
 
-# Remove time-dependent
-r0 <- r0[r0$method != "TD", ]
-R0 <- ggplot(data = r0,
-             aes(x = city, y = pe, color = method)) +
-  geom_point(position = pd,
-             size = 2) +
-  geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
-                width = 0.15,
-                size = 1,
-                position = pd) +
-  ggtitle(expression(R[0]*" estimates")) +
-  ylab(expression(R[0])) +
-  theme_minimal() +
-  theme(legend.title = element_blank(),
-        legend.position = c(0.15, 0.85),
-        axis.text.x = element_text(size = 14, angle = 0, vjust = 0.9),
-        axis.text.y = element_text(size = 14),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18,
-                                    face = "bold",
-                                    vjust = 1.3),
-        plot.title = element_text(size = 18, face="bold")) +
-  scale_y_continuous(limits = c(1, max(r0$ci_u))) +
-  scale_color_manual(values = c("orange", "royalblue2"),
-                       breaks = c("EG", "ML"),
-                       labels = c("Exponential \nGrowth\n",
-                                 "Maximum \n Likelihood"))
-R0
-
-
-
-ggsave(filename = "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/Output/F9 - R0.jpg",
-       plot = R0,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 600)
