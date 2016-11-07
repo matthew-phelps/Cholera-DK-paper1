@@ -44,8 +44,8 @@ all_cases_temp <- all_cases_temp[order(all_cases_temp$city, all_cases_temp$date)
 
 # To plot all epidemics on same calendar year - put them on a "dummy" year
 all_cases_temp$season <- paste("100",
-                               all_cases_temp$month,
-                               all_cases_temp$day,
+                               format(all_cases_temp$date, "%m"),
+                               format(all_cases_temp$date, "%d"),
                                sep = "-")
 all_cases_temp$season <- as.Date(all_cases_temp$season)
 all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]

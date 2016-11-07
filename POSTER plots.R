@@ -5,8 +5,8 @@
 # INTRO -------------------------------------------------------------------
 rm(list = ls())
 ifelse(grepl("wrz741", getwd()),
-       main.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1",
-       main.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1")
+       plot.path <- "C:/Users/wrz741/Google Drive/Copenhagen/Conferences/ASTMH Novermber 2016",
+       plot.path <-"/Users/Matthew/Google Drive/Copenhagen/Conferences/ASTMH Novermber 2016")
 
 
 ifelse(grepl("wrz741", getwd()),
@@ -64,7 +64,7 @@ start_53 <- as.Date("1853-06-01") # start of shading
 end_53 <- as.Date("1853-10-01") # End of shading
 
 allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total", ]) +
-  geom_line(size = 1,
+  geom_line(size = 1.5,
             aes(x = date, y = mortality,
                 group = age, color = age, linetype = age)) +
   # Color code the years - annotate is easier for some reasons:
@@ -75,7 +75,7 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total",
   facet_wrap(~ area, switch = "x") +
   xlab("") +
   ylab("All-cause mortality counts") +
-  scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
+  scale_x_date(date_breaks = "6 month", date_labels = "%b %Y")+
   scale_y_continuous(breaks = seq(0, 1250, 250)) +
   
   scale_color_manual(name = "Age group",
@@ -86,30 +86,34 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total",
                         values = c("longdash",  "dotted", "twodash", "solid"  ))+
   #ggtitle ("Monthly all-cause mortality") +
   theme_classic() +
-  theme(legend.title = element_text(size = 16),
+  theme(legend.title = element_text(size = 24, face = "bold"),
         legend.position = c(0.5, 0.6),
-        legend.text = element_text(size = 15),
-        axis.text.x = element_text(size = 13, angle = 45, hjust = 1, vjust = 1),
-        axis.text.y = element_text(size = 15),
-        axis.title.x = element_text(size = 16, vjust = -0.1),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
-        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'),
+        legend.text = element_text(size = 24),
+        axis.text.x = element_text(size = 24, angle = 35, hjust = 1, vjust = 1),
+        axis.text.y = element_text(size = 24),
+        axis.title.x = element_text(size = 24, margin = margin(0,0,0,0)),
+        axis.title.y = element_text(size = 28, face = "bold",
+                                    margin = margin(0,10,0,0)),
+        plot.margin = unit(c(0,0.3,-0.3,0.5), 'lines'),
         strip.background = element_blank(),
-        strip.text.x = element_text(size = 14, face = "bold"))+
+        strip.text.x = element_text(size = 26, face = "bold"))+
   # increase size of line symbol on legand. 
-  guides(color = guide_legend(keywidth = 1.5, keyheight = 1.5,
-                              override.aes = list(size = 1.2))) 
+  guides(color = guide_legend(keywidth = 2.0, keyheight = 1.8,
+                              override.aes = list(size = 1.8))) 
 
 allcause_plot
 
-setwd(main.path)
-ggsave(filename = "Output/1-monthly all-cause mort.jpg",
+# 1 - SAVE ----------------------------------------------------------------
+
+
+
+setwd(plot.path)
+ggsave(filename = "1-monthly all-cause mort.tiff",
        plot = allcause_plot,
-       width = 26,
+       width = 32,
        height = 20,
        units = 'cm',
-       dpi = 600)
+       dpi = 300)
 
 
 # 2 - DAILY INCIDENCE PER 10K ----------------------------------------------------
@@ -124,39 +128,39 @@ all_cases_temp$season <- paste("100",
 all_cases_temp$season <- as.Date(all_cases_temp$season)
 all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
 lab_x <- min(all_cases$season)
-lab_size <- 6
+lab_size <- 10
 
 plot_season <- ggplot(data = all_cases,
                       aes(x = season, y = cases_norm,
                           group = city, color = city)) +
-  geom_line(size= 1.1) +
+  geom_line(size= 1.5) +
   annotate("text", x = lab_x + 15, y = 14, ymax = 10,
-           color="#E69F00", label="Copenhagen", size = lab_size) + 
-  annotate("text", x = lab_x + 56, y = 28, ymax = 10,
-           color="#006DDB", label="Aalborg", size = lab_size) +
-  annotate("text", x = lab_x + 80, y = 109, ymax = 10,
+           color="#006DDB", label="Copenhagen", size = lab_size) + 
+  annotate("text", x = lab_x + 55, y = 35, ymax = 10,
+           color="#E69F00", label="Aalborg", size = lab_size) +
+  annotate("text", x = lab_x + 76, y = 100, ymax = 10,
            color="green4", label="Korsør (1857)", size = lab_size) +
   xlab("Date") +
   ylab("Incidence per 10,000 people") +
   theme_classic() +
   theme(legend.title = element_blank(),
         legend.position = "none",
-        legend.text = element_text(size = 14),
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 15, vjust = -0.1),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
-        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines')) +
+        axis.text.x = element_text(size = 24),
+        axis.text.y = element_text(size = 24),
+        axis.title.x = element_text(size = 28, face = "bold",
+                                    margin = margin(15,0,0,0)),
+        axis.title.y = element_text(size = 28, face = "bold",
+                                    margin = margin(0,10,0,0)),
+        plot.margin = unit(c(0.8,0.3,0.2,1.0), 'lines')) +
   coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
   scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                     values = c("#006DDB", "#E69F00", "green4"))
+                     values = c("#E69F00","#006DDB", "green4"))
 plot_season
 
-setwd(main.path)
-ggsave(filename = "Output/2-seasonality-temp.jpg",
+setwd(plot.path)
+ggsave(filename = "2-seasonality-temp.tiff",
        plot = plot_season,
-       width = 26,
+       width = 32,
        height = 20,
        units = 'cm',
        dpi = 300)
@@ -190,19 +194,19 @@ plot_chol_mort <- ggplot() +
   geom_line(data = chol_burden[chol_burden$age_range != "Total", ],
             position = dodge,
             aes(x = age_range, y = pe, group = plot_var2, color = plot_var2),
-            size = 0.9, alpha = 0.9) +
+            size = 1.4, alpha = 0.9) +
   geom_point(data = chol_burden[chol_burden$age_range != "Total", ], 
              position = dodge,
              aes(x = age_range, y = pe, group = plot_var2, color = plot_var2,
-                 shape = plot_var2),  size = 2.8) +
+                 shape = plot_var2),  size = 4.8) +
   geom_errorbar(data = chol_burden[chol_burden$age_range != "Total", ],
-                limits, position = dodge, width = 0.2) +
+                limits, position = dodge, width = 0.4, size = 1) +
   
   # Same but only for the "Total" group
   geom_point(data = chol_burden[chol_burden$age_range == "Total", ], 
              position = dodge2,
              aes(x = age_range, y = pe, group = plot_var2, color = plot_var2,
-                 shape = plot_var2),  size = 3.5) +
+                 shape = plot_var2),  size = 5.5) +
   geom_errorbar(data = chol_burden[chol_burden$age_range == "Total", ],
                 limits, position = dodge2, size = 1.0, width = 0.4) +
   
@@ -213,8 +217,8 @@ plot_chol_mort <- ggplot() +
   # Create symbology
   scale_color_manual(drop = FALSE, # stops R gropping empty "dummy" factors
                      values = c("green3",  "green4", "grey100",
-                                "steelblue1", "royalblue4", "grey100",
-                                "#f4a700" , "#af7a07"),
+                                "#f4a700", "#af7a07", "grey100",
+                                "steelblue1" , "royalblue4"),
                      breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate', 
                                 "a",
                                 'aalborg.total_attack', 'aalborg.total_mort_rate',
@@ -239,32 +243,33 @@ plot_chol_mort <- ggplot() +
   #                             keyheight = 3)) + # Removes color part of legend
   
   xlab("Age group") +
-  ylab("Rate per 100 people\n") +
+  ylab("Rate per 100 people") +
   coord_cartesian(ylim = c(0, 50)) +
   theme_classic() +
   theme(legend.title = element_blank(),
         legend.position = c(x = 0.25, y = .74),
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 22),
         legend.key.height = unit(0.6, "cm"),
-        axis.text.x = element_text(size = 12,
+        axis.text.x = element_text(size = 22,
                                    angle = 45, vjust = 1.5, hjust = 1.0,
                                    margin = margin(0,0,-10,0)),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 15,
-                                    margin = margin(10, 0, 4, 0)),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
-        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'))
+        axis.text.y = element_text(size = 24),
+        axis.title.x = element_text(size = 26, face = "bold",
+                                    margin = margin(0, 0, 4, 0)),
+        axis.title.y = element_text(size = 26, face = "bold",
+                                    margin = margin(0,10,0,0)),
+        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines')) +
+  guides(color = guide_legend(keywidth = 2.0, keyheight = 1.8)) 
 
 plot_chol_mort
 
-setwd(main.path)
-ggsave(filename = "Output/3-cholera-mort-rate.jpg",
+setwd(plot.path)
+ggsave(filename = "3-cholera-mort-rate.jpg",
        plot = plot_chol_mort,
-       width = 26,
+       width = 32,
        height = 20,
        units = 'cm',
-       dpi = 600)
+       dpi = 300)
 
 # ## Use grob to remove empty panels from plot. If you work with another set of
 # ## plots, look at the output of names(g$grobs) and g$layout$name to figure out,
