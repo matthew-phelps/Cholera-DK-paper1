@@ -156,3 +156,9 @@ port_cases <- 164423
 port_dead <- 1065
 
 port_cases / port_pop * 100
+
+
+# U5 PORT AU PRINCE ATTACK RATE -------------------------------------------
+
+u5_pp <- 25518
+609 / (sum(counts$male_sick) + sum(counts$female_sick))

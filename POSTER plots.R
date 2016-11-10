@@ -64,7 +64,7 @@ yrng <- range(all_monthly_mort$mortality[all_monthly_mort$age != "total"])
 start_53 <- as.Date("1853-06-01") # start of shading
 end_53 <- as.Date("1853-10-01") # End of shading
 
-allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total", ]) +
+allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total" & all_monthly_mort$area=="Copenhagen", ]) +
   geom_line(size = 1.5,
             aes(x = date, y = mortality,
                 group = age, color = age, linetype = age)) +
@@ -73,7 +73,6 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total",
   annotate("rect", fill = "grey", alpha = 0.3,
            xmin = start_53, xmax = end_53,
            ymin = yrng[1], ymax = yrng[2])+
-  facet_wrap(~ area, switch = "x") +
   xlab("") +
   ylab("All-cause mortality counts") +
   scale_x_date(date_breaks = "6 month", date_labels = "%b %Y")+
@@ -88,7 +87,7 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total",
   #ggtitle ("Monthly all-cause mortality") +
   theme_classic() +
   theme(legend.title = element_text(size = 24, face = "bold"),
-        legend.position = c(0.5, 0.6),
+        legend.position = c(0.82, 0.6),
         legend.text = element_text(size = 24),
         axis.text.x = element_text(size = 24, angle = 35, hjust = 1, vjust = 1),
         axis.text.y = element_text(size = 24),
@@ -99,7 +98,7 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total",
         strip.background = element_blank(),
         strip.text.x = element_text(size = 26, face = "bold"))+
   # increase size of line symbol on legand. 
-  guides(color = guide_legend(keywidth = 2.0, keyheight = 1.8,
+  guides(color = guide_legend(keywidth = 2.8, keyheight = 1.8,
                               override.aes = list(size = 1.8))) 
 
 allcause_plot
