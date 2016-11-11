@@ -73,7 +73,7 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total" 
   annotate("rect", fill = "grey", alpha = 0.3,
            xmin = start_53, xmax = end_53,
            ymin = yrng[1], ymax = yrng[2])+
-  xlab("") +
+  xlab("Copenhagen") +
   ylab("All-cause mortality counts") +
   scale_x_date(date_breaks = "6 month", date_labels = "%b %Y")+
   scale_y_continuous(breaks = seq(0, 1250, 250)) +
@@ -91,10 +91,11 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total" 
         legend.text = element_text(size = 24),
         axis.text.x = element_text(size = 24, angle = 35, hjust = 1, vjust = 1),
         axis.text.y = element_text(size = 24),
-        axis.title.x = element_text(size = 24, margin = margin(0,0,0,0)),
+        axis.title.x = element_text(size = 24, face = "bold",
+                                    margin = margin(5,0,0,0)),
         axis.title.y = element_text(size = 28, face = "bold",
                                     margin = margin(0,10,0,0)),
-        plot.margin = unit(c(0,0.3,-0.3,0.5), 'lines'),
+        plot.margin = unit(c(0,0.3,0.5,0.5), 'lines'),
         strip.background = element_blank(),
         strip.text.x = element_text(size = 26, face = "bold"))+
   # increase size of line symbol on legand. 
@@ -110,8 +111,8 @@ allcause_plot
 setwd(plot.path)
 ggsave(filename = "1-monthly all-cause mort.tiff",
        plot = allcause_plot,
-       width = 32,
-       height = 20,
+       width = 3,
+       height = 25,
        units = 'cm',
        dpi = 300)
 
