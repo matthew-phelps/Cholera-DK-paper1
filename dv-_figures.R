@@ -63,8 +63,8 @@ yrng <- range(all_monthly_mort$mortality[all_monthly_mort$age != "total"])
 start_53 <- as.Date("1853-06-01") # start of shading
 end_53 <- as.Date("1853-10-01") # End of shading
 
-allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total", ]) +
-  geom_line(size = 1,
+allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total" & all_monthly_mort$area=="Copenhagen", ]) +
+  geom_line(size = 1.5,
             aes(x = date, y = mortality,
                 group = age, color = age, linetype = age)) +
   # Color code the years - annotate is easier for some reasons:
@@ -72,10 +72,9 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total",
   annotate("rect", fill = "grey", alpha = 0.3,
            xmin = start_53, xmax = end_53,
            ymin = yrng[1], ymax = yrng[2])+
-  facet_wrap(~ area, switch = "x") +
-  xlab("") +
+  xlab("Copenhagen") +
   ylab("All-cause mortality counts") +
-  scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
+  scale_x_date(date_breaks = "6 month", date_labels = "%b %Y")+
   scale_y_continuous(breaks = seq(0, 1250, 250)) +
   
   scale_color_manual(name = "Age group",
@@ -86,20 +85,21 @@ allcause_plot <- ggplot(data = all_monthly_mort[all_monthly_mort$age != "total",
                         values = c("longdash",  "dotted", "twodash", "solid"  ))+
   #ggtitle ("Monthly all-cause mortality") +
   theme_classic() +
-  theme(legend.title = element_text(size = 16),
-        legend.position = c(0.5, 0.6),
-        legend.text = element_text(size = 15),
-        axis.text.x = element_text(size = 13, angle = 45, hjust = 1, vjust = 1),
-        axis.text.y = element_text(size = 15),
-        axis.title.x = element_text(size = 16, vjust = -0.1),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
-        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'),
+  theme(legend.title = element_text(size = 16, face = "bold"),
+        legend.position = c(0.82, 0.6),
+        legend.text = element_text(size = 16),
+        axis.text.x = element_text(size = 16, angle = 35, hjust = 1, vjust = 1),
+        axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 16,
+                                    margin = margin(5,0,0,0)),
+        axis.title.y = element_text(size = 16,
+                                    margin = margin(0,10,0,0)),
+        plot.margin = unit(c(0,0.3,0.5,0.5), 'lines'),
         strip.background = element_blank(),
         strip.text.x = element_text(size = 14, face = "bold"))+
   # increase size of line symbol on legand. 
-  guides(color = guide_legend(keywidth = 1.5, keyheight = 1.5,
-                              override.aes = list(size = 1.2))) 
+  guides(color = guide_legend(keywidth = 2.8, keyheight = 1.8,
+                              override.aes = list(size = 1.8))) 
 
 allcause_plot
 
@@ -220,9 +220,9 @@ plot_chol_mort <- ggplot() +
                                 'aalborg.total_attack', 'aalborg.total_mort_rate',
                                 "b",
                                 'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Korsør attack rate', 'Korsør mortality rate', " ",
-                                'Aalborg attack rate', 'Aalborg mortality rate', "",
-                                'Copenhagen attack rate', 'Copenhagen mortality rate'))+
+                     labels = c('Korsør morbidity rate', 'Korsør mortality rate', " ",
+                                'Aalborg morbidity rate', 'Aalborg mortality rate', "",
+                                'Copenhagen morbidity rate', 'Copenhagen mortality rate'))+
   
   scale_shape_manual(drop = FALSE, # stops R gropping empty "dummy" factors
                      values = c(16, 17, 33,
@@ -231,9 +231,9 @@ plot_chol_mort <- ggplot() +
                      breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate', "a",
                                 'aalborg.total_attack', 'aalborg.total_mort_rate', "b",
                                 'cph.total_attack', 'cph.total_mort_rate'),
-                     labels = c('Korsør attack rate', 'Korsør mortality rate', " ",
-                                'Aalborg attack rate', 'Aalborg mortality rate', "",
-                                'Copenhagen attack rate', 'Copenhagen mortality rate'))+
+                     labels = c('Korsør morbidity rate', 'Korsør mortality rate', " ",
+                                'Aalborg morbidity rate', 'Aalborg mortality rate', "",
+                                'Copenhagen morbidity rate', 'Copenhagen mortality rate'))+
   
   # guides(shape = guide_legend(keywidth = 2.5,
   #                             keyheight = 3)) + # Removes color part of legend
@@ -244,19 +244,20 @@ plot_chol_mort <- ggplot() +
   theme_classic() +
   theme(legend.title = element_blank(),
         legend.position = c(x = 0.25, y = .74),
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 14),
         legend.key.height = unit(0.6, "cm"),
-        axis.text.x = element_text(size = 12,
-                                   angle = 45, vjust = 1.5, hjust = 1.0,
-                                   margin = margin(0,0,-10,0)),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 15,
+        axis.text.x = element_text(size = 14,
+                                   angle = 45, vjust = .8, hjust = 1.0,
+                                   margin = margin(0,0,0,0)),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_text(size = 14,
                                     margin = margin(10, 0, 4, 0)),
-        axis.title.y = element_text(size = 15,
-                                    margin = margin(0,20,0,0)),
+        axis.title.y = element_text(size = 14,
+                                    margin = margin(0,0,0,0)),
         plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'))
 
 plot_chol_mort
+
 
 setwd(main.path)
 ggsave(filename = "Output/3-cholera-mort-rate.jpg",
