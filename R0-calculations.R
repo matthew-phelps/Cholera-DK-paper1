@@ -31,11 +31,11 @@ mGT <- generation.time("weibull", c(3.1, 2))
 # Sensitivity
 sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
                                  est.method = c("EG", "ML"), sa.type = "time")
- plot(sens_time)
- sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
-                                  est.method = "ML", sa.type = "time")
- 
-# plot(sens_time, what = "criterion")
+plot(sens_time)
+sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
+                                 est.method = "ML", sa.type = "time")
+
+ plot(sens_time, what = "criterion")
 
 aal <- estimate.R(aalborg$cases, GT = mGT, t = aalborg$day_index, begin = 1, end = 16, methods = c("EG", "ML", "TD"), nsim = 1500)
 
@@ -56,12 +56,12 @@ rm(aal, ci_u, ci_l, method, pe)
 
 # Generation time Sensitivity
 sens_GT <-sensitivity.analysis(aalborg$cases,
-                             GT.type = "lognormal",
-                             GT.mean = seq(3,7,0.5),
-                             GT.sd.range = 2,
-                             begin = 1, end = 17,
-                             est.method = "EG",
-                              sa.type = "GT")
+                               GT.type = "lognormal",
+                               GT.mean = seq(3,7,0.5),
+                               GT.sd.range = 2,
+                               begin = 1, end = 17,
+                               est.method = "EG",
+                               sa.type = "GT")
 # plot(x=sens_GT[,"GT.Mean"],
 #      xlab="mean GT (days)",
 #      y=sens_GT[,"R"],
