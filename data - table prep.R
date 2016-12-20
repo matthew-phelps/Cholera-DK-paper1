@@ -26,8 +26,8 @@ library(CholeraDataDK)
 library(epitools)
 library(grouping)
 library(xlsx)
+library(googlesheets) # for spreadsheets into R. https://goo.gl/05US08
 source("functions.R")
-
 
 
 # LOAD --------------------------------------------------------------------
@@ -100,16 +100,24 @@ kor/hi
 
 
 # KORSOER SES CI ----------------------------------------------------------
-setwd(main.path)
-x <- read.xlsx2("output/Table 2 - SES Korsoer.xlsx", sheetIndex = 1,
-                colClasses = c("character", "numeric","numeric", "numeric",
-                               "numeric", "numeric", "numeric", "numeric",
-                               "numeric"))
-ci.rate(100, x$Population, num_cases = x$Number.of.cases, upper = T) /100
-ci.rate(100, x$Population, num_cases = x$Number.of.cases, upper = F)/100
 
-ci.rate(100, x$Population, num_cases = x$Number.of.deaths, upper = T) /100
-ci.rate(100, x$Population, num_cases = x$Number.of.deaths, upper = F)/100
+z <- gs_ls()
+x1 <- gs_title("Table 2 SES Korsoer")
+gs_ws_ls(x1)
+x <- x1 %>%
+  gs_read(ws = "Sheet1")
+
+# 
+# setwd(main.path)
+# x <- read.xlsx2("output/Table 2 - SES Korsoer.xlsx", sheetIndex = 1,
+#                 colClasses = c("character", "numeric","numeric", "numeric",
+#                                "numeric", "numeric", "numeric", "numeric",
+#                                "numeric"))
+ci.rate(100, x$Population, num_cases = x$`Number of cases`, upper = T) /100
+ci.rate(100, x$Population, num_cases = x$`Number of cases`, upper = F)/100
+
+ci.rate(100, x$Population, num_cases = x$`Number of deaths`, upper = T) /100
+ci.rate(100, x$Population, num_cases = x$`Number of deaths`, upper = F)/100
 
 
 # EXCSESS DEATHS ----------------------------------------------------------
