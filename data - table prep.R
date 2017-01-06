@@ -72,6 +72,17 @@ u5$upper95 <- ci.rate(100, cph_pop_u5, u5$counts, upper = T)
 
 u5_mort_rate/u5_attack
 
+# PERCENTAGE OF CASES OVER 5 ----------------------------------------------
+
+r <- nrow(cph_mort_raw)
+cph_sick_tot <- sum(cph_mort_raw$total_sick)
+
+cph_sick_u5 / cph_sick_tot
+
+# Population % over 14 (to compare with Haiti data from world bank)
+cph_pop_u14 <- sum(cph_pop_raw$total1853[1:6])
+cph_pop_tot <- sum(cph_pop_raw$total1853)
+cph_pop_u14 / cph_pop_tot
 
 # TOTAL INFECTIONS INCLUDING ASYPMTOMATIC ---------------------------------
 cph <- 0.052
@@ -118,6 +129,49 @@ ci.rate(100, x$Population, num_cases = x$`Number of cases`, upper = F)/100
 
 ci.rate(100, x$Population, num_cases = x$`Number of deaths`, upper = T) /100
 ci.rate(100, x$Population, num_cases = x$`Number of deaths`, upper = F)/100
+
+# How do I re-create the data?? What model do I use?
+x <- 0.08
+z <- rnorm(1000, mean = x)
+quantile(z, c(0.05, 0.95))
+
+
+
+
+# CI AROUND CUM CASE AND CUM MORT -----------------------------------------
+
+x1 <- gs_title("Table 1 - Summary statistics")
+gs_ws_ls(x1)
+x <- x1 %>%
+  gs_read(ws = "Sheet1")
+
+
+
+
+
+x$Copenhagen[2]
+x$Copenhagen[3]
+
+
+# high
+cph_h <- ci.rate(100, 138030, num_cases = 7219, upper = TRUE) / 100
+cph_l <- ci.rate(100, 138030, num_cases = 7219, upper = FALSE) / 100
+
+x$Aalborg[2]
+x$Aalborg[3]
+aal_h <- ci.rate(100, 8621, num_cases = 759, upper = TRUE) / 100
+aal_l <- ci.rate(100, 8621, num_cases = 759, upper = FALSE) / 100
+aal_h
+aal_l
+
+
+x$Korsør[2]
+x$Korsør[3]
+k_h <- ci.rate(100, 2258, num_cases = 294, upper = TRUE) / 100
+k_l <- ci.rate(100, 2258, num_cases = 294, upper = FALSE) / 100
+
+k_h
+k_l
 
 
 # EXCSESS DEATHS ----------------------------------------------------------

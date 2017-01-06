@@ -18,7 +18,8 @@ library(fitdistrplus)
 library(mixdist)
 # DATA --------------------------------------------------------------------
 
-si <- c(2, 2, 9, 1, 1, 1, 3, 2, 5, 4, 4)
+si <- c(2, 2, 9, 1, 1, 1, 3, 2, 5, 4, 4, 4, 2, 2, 3, 4, 2, 2, 2)
+length(si)
 mean(si)
 median(si)
 hist(si)
@@ -45,6 +46,7 @@ lines(density(si), col ="red")
 # http://goo.gl/LUeCli
 d_range <- seq(0, 10, len = 600)
 
+# Non-parametric bootsraping: We are making no assumptions about the underlying distribution of the data we are sampling from. i.e sampling from empirical distribution
 set.seed(13)
 boot.pdf <- sapply(1:1000, function(i) {
   si.boot <- sample(si, size=length(si), replace=TRUE) # re-sample data
@@ -95,3 +97,13 @@ mu <- sapply(1:1000, function(i) {
 )
 mean(mu)
 mu_range <- quantile(mu,  c(0.025, 0.975))
+mu_range
+
+
+
+# STANDARD DEVIATION ------------------------------------------------------
+# Get shape and scale parameters from fit.wei object and run in WolframAlpha:
+# weibull(shape, scale)
+fit.wei2
+
+

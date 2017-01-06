@@ -11,6 +11,7 @@ library(devtools)
 install_github("matthew-phelps/CholeraDataDK")
 library(CholeraDataDK)
 library(R0)
+library(tidyverse)
 library(ggplot2)
 
 
@@ -21,7 +22,7 @@ korsoer <- cases[cholera_daily_data$city == "korsoer", ]
 cph <- cases[cholera_daily_data$city == "copenhagen", ]
 
 # Get generation time: 10.1371/journal.pntd.0001901
-mGT <- generation.time("weibull", c(3.1, 2))
+mGT <- generation.time("weibull", c(2.9, 1.7))
 # Check generation time
 # plot(mGT)
 
@@ -132,7 +133,7 @@ sens_GT <-sensitivity.analysis(korsoer$cases,
 
 sens_time <-sensitivity.analysis(cph$cases, mGT, begin = 1:11, end = 30:40,
                                  est.method = "EG", sa.type = "time")
-# plot(sens_time)
+plot(sens_time)
 # Because the sensitivity matrix is not so clear, look at deviance R-sq data
 # plot(sens_time, what = "criterion")
 
@@ -181,6 +182,9 @@ sens_GT <-sensitivity.analysis(korsoer$cases,
 # SAVE DATA ---------------------------------------------------------------
 setwd(data.path)
 save(r0, file = "r0.Rdata")
+
+r0 %>%
+  filter(method != "TD")
 
 # R0 plots for cities -----------------------------------------------------
 

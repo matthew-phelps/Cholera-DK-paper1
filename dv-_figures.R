@@ -37,6 +37,7 @@ setwd(data.path)
 # LOAD --------------------------------------------------------------------
 
 load("data-viz-prep.Rdata")
+load("r0.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
 pop <- cph_pop1853_10yr
@@ -497,7 +498,56 @@ jpeg(filename = "Output/5-RR-gender.jpg",
 multiplot(plot_attack, plot_mort, cols = 1)
 dev.off()
 
+# 4 - R0 PLOTS ------------------------------------------------------------
 
+pd <- position_dodge(0.4)
+
+# Remove time-dependent
+r0 <- r0[r0$method != "TD", ]
+R0 <- ggplot(data = r0,
+             aes(x = city, y = pe, color = method)) +
+  geom_point(position = pd, aes(shape = method),
+             size = 3.5) +
+  geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
+                width = 0.15,
+                size = 1.1,
+                position = pd) +
+  xlab("Town") + 
+  ylab(expression(bold(Repdocutive~number~"("*R[0]*")"))) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        legend.position = c(0.25, 0.75),
+        legend.text = element_text(size = 15),
+        axis.text.x = element_text(size = 12,
+                                   margin = margin(5,0,25,0)),
+        axis.text.y = element_text(size = 12,
+                                   margin = margin(0, 2, 0, 0)),
+        axis.title.x = element_text(size = 15, face = "bold",
+                                    margin = margin(0, 0, 4, 0)),
+        axis.title.y = element_text(size = 15,
+                                    margin = margin(0,15,0,0)),
+        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines')) +
+  coord_cartesian(ylim = c(min(r0$ci_l), max(r0$ci_u))) +
+  scale_color_manual(values = c("orange", "royalblue2"),
+                     breaks = c("EG", "ML"),
+                     labels = c("Exponential \nGrowth\n",
+                                "Maximum \nLikelihood")) +
+  scale_shape_manual(values = c(19, 17),
+                     breaks = c("EG", "ML"),
+                     labels = c("Exponential \nGrowth\n",
+                                "Maximum \nLikelihood")) +
+  guides(color = guide_legend(keywidth = 2.3, keyheight = 1.8)) 
+
+R0
+
+
+setwd(main.path)
+ggsave(filename = "Output/6 - R0.tiff",
+       plot = R0,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 300)
 
 
 
