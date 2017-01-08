@@ -137,6 +137,33 @@ quantile(z, c(0.05, 0.95))
 
 
 
+# OR confidence interval of infection: https://goo.gl/Wu3o4j
+a <- 74 # exposed group
+c <- 58 # control group
+b <- (359-a)
+d <- (717-c)
+
+or_sick <- (a*d)/(b*c)
+
+se_ln <- sqrt(1/a + 1/b + 1/c + 1/d)
+exp(log(or) - 1.96*se_ln)
+exp(log(or) + 1.96*se_ln)
+
+
+# OR confidence interval of mortality
+a <- 51
+c <- 35
+b <- 359-a
+d <- 717-c
+
+or_death <- (a*d)/(b*c)
+or_death
+
+se_ln_death <- sqrt(1/a + 1/b + 1/c + 1/d)
+exp(log(or_death) - 1.96*se_ln)
+exp(log(or_death) + 1.96*se_ln)
+
+
 
 # CI AROUND CUM CASE AND CUM MORT -----------------------------------------
 
