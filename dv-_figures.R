@@ -47,6 +47,15 @@ cen <- census
 
 rownames(cen) <- NULL
 
+
+# CHECK DATA SUMMATIONS ---------------------------------------------------
+
+cen %>%
+  filter(place == "korsoer", year == "1857") %>%
+  select(total) %>%
+  sum()
+
+
 # Re-order levels of factor so that plotting works: http://goo.gl/CD2fEC
 age_char <- as.character(mort$age_range)
 mort$age_range <- factor(age_char, levels = c(age_char))
