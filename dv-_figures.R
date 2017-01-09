@@ -45,6 +45,7 @@ attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
 cen <- census
 
+
 rownames(cen) <- NULL
 
 
@@ -124,30 +125,45 @@ ggsave(filename = "Output/1-monthly all-cause mort.jpg",
 
 # 2 - DAILY INCIDENCE PER 10K ----------------------------------------------------
 
-all_cases_temp <- all_cases_temp[order(all_cases_temp$city, all_cases_temp$date), ]
-
+all_cases <- all_cases_temp %>%
+  arrange(city, date) %>%
+  filter(city != "brandholm")
 # To plot all epidemics on same calendar year - put them on a "dummy" year
-all_cases_temp$season <- paste("100",
-                               format(all_cases_temp$date, "%m"),
-                               format(all_cases_temp$date, "%d"),
+all_cases$season <- paste("100",
+                               format(all_cases$date, "%m"),
+                               format(all_cases$date, "%d"),
                                sep = "-")
-all_cases_temp$season <- as.Date(all_cases_temp$season)
-all_cases <- all_cases_temp[all_cases_temp$city != "brandholm", ]
+broad_st$season <-  paste("100",
+                          format(broad_st$date, "%m"),
+                          format(broad_st$date, "%d"),
+                          sep = "-")
+all_cases$season <- as.Date(all_cases$season)
+broad_st$season <- as.Date(broad_st$season)
+
 lab_x <- min(all_cases$season)
 lab_size <- 6
 
-plot_season <- ggplot(data = all_cases,
-                      aes(x = season, y = cases_norm,
-                          group = city, color = city)) +
-  geom_line(size= 1.1) +
-  annotate("text", x = lab_x + 15, y = 14, ymax = 10,
+################
+plot_season <- ggplot() +
+  geom_line(data = broad_st,
+            aes(x = season, y = deaths),
+            group = 1,
+            size = 1.1,
+            color = "grey") +
+  geom_line(data = all_cases,
+            aes(x = season, y = cases_norm,
+                group = city, color = city),
+            size= 1.1) +
+ 
+  annotate("text", x = lab_x + 15, y = 14,
            color="#E69F00", label="Copenhagen", size = lab_size) + 
-  annotate("text", x = lab_x + 56, y = 28, ymax = 10,
+  annotate("text", x = lab_x + 56, y = 28,
            color="#006DDB", label="Aalborg", size = lab_size) +
-  annotate("text", x = lab_x + 80, y = 109, ymax = 10,
-           color="green4", label="Korsør (1857)", size = lab_size) +
+  annotate("text", x = lab_x + 105, y = 125,
+           color="green4", label="Korsør 1857", size = lab_size) +
+  annotate("text", x = lab_x + 67, y = 110,
+           color="gray", label="London 1854 \n (mortality counts)", size = lab_size) +
   xlab("Date") +
-  ylab("Incidence per 10,000 people") +
   theme_classic() +
   theme(legend.title = element_blank(),
         legend.position = "none",
@@ -159,12 +175,14 @@ plot_season <- ggplot(data = all_cases,
                                     margin = margin(0,20,0,0)),
         plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines')) +
   coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
+  scale_y_continuous("Incidence per 10,000 people",
+                     sec.axis = sec_axis(~. * 1, name = "Mortality counts (London)")) +
   scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
                      values = c("#006DDB", "#E69F00", "green4"))
 plot_season
 
 setwd(main.path)
-ggsave(filename = "Output/2-seasonality-temp.jpg",
+ggsave(filename = "Output/2-seasonality-temp.tiff",
        plot = plot_season,
        width = 26,
        height = 20,
@@ -347,7 +365,7 @@ ggsave(filename = "Output/4-cholera-of-total.jpg",
        dpi = 600)
 
 
-# 5 - ATTACK RELATIVE RISK DATA ---------------------------------------
+# 5 - RELATIVE RISK ---------------------------------------
 limits = aes(ymax = up95, ymin = low95, color = city, x = age_range)
 title <- "Relative risk of cholera morbidity by age & gender \n"
 notes <- "*male is reference group"
@@ -358,8 +376,7 @@ pd2 <- position_dodge(0.6)
 rr_sic$city <- factor(rr_sic$city, levels = c("cph", "aalborg", "korsoer"))
 levels(rr_sic$city) <- c("Copenhagen", "Aalborg", "Korsør (1857)")
 
-# 5 ATTACK RR PLOT --------------------------------------------------------
-
+# 5 ATTACK RR PLOT
 plot_attack <- ggplot() +
   geom_point(data = rr_sic[rr_sic$age_range !="Total", ],
              aes(x = age_range,
@@ -420,7 +437,9 @@ setwd(main.path)
 #        units = 'cm',
 #        dpi = 600)
 
-# 6 - DEATH RELATIVE RISK DATA--------------------------------------------------
+
+
+# 6 - DEATH RELATIVE RISK DATA-
 # set limits for error bars: http://goo.gl/4QE74U
 limits = aes(ymax = up95, ymin = low95, x = age_range, color = city)
 notes <- "*male is reference group"
@@ -432,8 +451,7 @@ pd2 <- position_dodge(0.6)
 rr_mrt$city <- factor(rr_mrt$city, levels = c("cph", "aalborg", "korsoer"))
 levels(rr_mrt$city) <- c("Copenhagen", "Aalborg", "Korsør (1857)")
 
-# 6 - DEATH RR PLOT -------------------------------------------------------
-
+# 6 - DEATH RR PLOT -
 plot_mort <- ggplot() +
   geom_point(data = rr_mrt[rr_mrt$age_range != "Total", ],
              aes(x = age_range,
@@ -507,6 +525,12 @@ jpeg(filename = "Output/5-RR-gender.jpg",
 multiplot(plot_attack, plot_mort, cols = 1)
 dev.off()
 
+
+
+
+
+
+
 # 4 - R0 PLOTS ------------------------------------------------------------
 
 pd <- position_dodge(0.4)
@@ -560,8 +584,45 @@ ggsave(filename = "Output/6 - R0.tiff",
 
 
 
+# LONDON ------------------------------------------------------------------
+
+all_cases <- all_cases_temp %>%
+  arrange(city, date) %>%
+  filter(city != "brandholm")
+
+# To plot all epidemics on same calendar year - put them on a "dummy" year
+all_cases$season <- paste("100",
+                               format(all_cases$date, "%m"),
+                               format(all_cases$date, "%d"),
+                               sep = "-")
+all_cases$season <- as.Date(all_cases$season)
+lab_x <- min(all_cases$season)
+lab_size <- 6
+
+broad_st$city <- "london"
+head(broad_st)
+head(all_cases)
 
 
+plot_london <- ggplot() +
+  geom_line(data = all_cases,
+            aes(x = season, y = cases_norm,
+                    group = city, color = city),
+            size = 1.1) +
+  xlab("Date") +
+  ylab("Death counts") +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        legend.position = "none",
+        legend.text = element_text(size = 14),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 15, vjust = -0.1),
+        axis.title.y = element_text(size = 15,
+                                    margin = margin(0,20,0,0)),
+        plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines')) +
+  coord_cartesian(ylim = c(5,max(broad_st$fatal_attacks)))
+plot_london
 
 
 

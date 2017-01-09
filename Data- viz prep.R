@@ -18,10 +18,8 @@ graphics.off()
 
 devtools::install_github('matthew-phelps/CholeraDataDK', force = F)
 devtools::install_github('matthew-phelps/grouping', force = F)
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 library(grid)
-library(tidyr)
 library(CholeraDataDK)
 library(epitools)
 library(grouping)
@@ -44,6 +42,7 @@ korsoer_age_gender_pop <- korsoer_age_gender_pop
 cph_allcause <- CPH_allcause
 dk_allcause <- dk_cities_allcause
 
+broad_st <- broad_st
 
 # GLOBAL BONFERONI CORRECTION Z-CRIT VALUE\ --------------------------------------
 # Bonferonni correction for multiple testing: http://goo.gl/Drhjly (pdf)
@@ -411,6 +410,9 @@ levels(all_monthly_mort$age)
 
 
 
+# BROAD STREET ------------------------------------------------------------
+ 
+broad_st$date <- lubridate::ymd(broad_st$date)
 
 
 
@@ -424,5 +426,5 @@ levels(all_monthly_mort$age)
 # SAVE --------------------------------------------------------------------
 setwd(data.path)
 save(chol_burden, aal_age_pop, rr_mrt, rr_sic, counts, cho_pct, 
-     all_monthly_mort,
+     all_monthly_mort, broad_st,
      file = "data-viz-prep.Rdata")

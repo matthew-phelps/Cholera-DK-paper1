@@ -22,6 +22,12 @@ korsoer <- cases[cholera_daily_data$city == "korsoer", ]
 cph <- cases[cholera_daily_data$city == "copenhagen", ]
 
 # Get generation time: 10.1371/journal.pntd.0001901
+
+# est.GT uses in-package function to calculate generation time dist
+si <- c(2, 2, 9, 1, 1, 1, 3, 2, 5, 4, 4, 4, 2, 2, 3, 4, 2, 2, 2)
+mGT <- est.GT(serial.interval = si) 
+
+# We use our own estimate, but the parameters match closely to in-package est.
 mGT <- generation.time("weibull", c(2.9, 1.7))
 # Check generation time
 # plot(mGT)
