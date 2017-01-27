@@ -117,14 +117,14 @@ x1 <- gs_title("Table 2 SES Korsoer")
 gs_ws_ls(x1)
 x <- x1 %>%
   gs_read(ws = "Sheet1")
-
+x$`Population` <- as.integer(x$`Population`)
 # 
 # setwd(main.path)
 # x <- read.xlsx2("output/Table 2 - SES Korsoer.xlsx", sheetIndex = 1,
 #                 colClasses = c("character", "numeric","numeric", "numeric",
 #                                "numeric", "numeric", "numeric", "numeric",
 #                                "numeric"))
-ci.rate(100, x$Population, num_cases = x$`Number of cases`, upper = T) /100
+ci.rate(100, pop = x$`Population`, num_cases = x$`Number of cases`, upper = T) /100
 ci.rate(100, x$Population, num_cases = x$`Number of cases`, upper = F)/100
 
 ci.rate(100, x$Population, num_cases = x$`Number of deaths`, upper = T) /100
@@ -172,13 +172,8 @@ gs_ws_ls(x1)
 x <- x1 %>%
   gs_read(ws = "Sheet1")
 
-
-
-
-
 x$Copenhagen[2]
 x$Copenhagen[3]
-
 
 # high
 cph_h <- ci.rate(100, 138030, num_cases = 7219, upper = TRUE) / 100
@@ -191,7 +186,6 @@ aal_l <- ci.rate(100, 8621, num_cases = 759, upper = FALSE) / 100
 aal_h
 aal_l
 
-
 x$Korsør[2]
 x$Korsør[3]
 k_h <- ci.rate(100, 2258, num_cases = 294, upper = TRUE) / 100
@@ -200,6 +194,32 @@ k_l <- ci.rate(100, 2258, num_cases = 294, upper = FALSE) / 100
 k_h
 k_l
 
+
+
+# CI AROUND CFR -----------------------------------------------------------
+# We use the number infected as the "population" data here 
+
+x$Copenhagen[3] # the "population"
+x$Copenhagen[5]
+
+
+cph_h <- ci.rate(100, 7219, num_cases = 4737, upper = TRUE) / 100
+cph_l <- ci.rate(100, 7219, num_cases = 4737, upper = FALSE) / 100
+
+x$Aalborg[3]
+x$Aalborg[5]
+aal_h <- ci.rate(100, 759, num_cases = 409, upper = TRUE) / 100
+aal_l <- ci.rate(100, 759, num_cases = 409, upper = FALSE) / 100
+aal_h
+aal_l
+
+x$Korsør[3]
+x$Korsør[5]
+k_h <- ci.rate(100, 294, num_cases = 201, upper = TRUE) / 100
+k_l <- ci.rate(100, 294, num_cases = 201, upper = FALSE) / 100
+
+k_h
+k_l
 
 # EXCSESS DEATHS ----------------------------------------------------------
 # Subset data to calculate baseline and outbreak mortality over epidemic time of
