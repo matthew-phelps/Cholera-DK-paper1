@@ -626,3 +626,38 @@ plot_london
 
 
 
+
+# QUARTER PANEL PLOTS -----------------------------------------------------
+
+
+quarter_panel_incidence <- function(combined) {
+  ggplot (combined,
+          aes( x = week.id,
+               y = sick.total.week / est.pop.1853*1000,
+               group = quarter))+
+    geom_line(size = 1) +
+    geom_vline( xintercept = 5, linetype = 2, color = "black") +
+    facet_wrap(~quarter) +
+    xlab("Week index") +
+    ylab("Incidence per 1000 people") +
+    theme_classic() +
+    theme(legend.position = 'none',
+          axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.title.x = element_text(size = 12, vjust = -0.1),
+          axis.title.y = element_text(size = 12, vjust = 0.5),
+          strip.background = element_rect(color = '#F0F0F0', fill = '#F0F0F0')) 
+}
+
+cph_quarter_for_plot <- cph_quarters %>%
+  filter(quarter != "Fra skibe" & quarter != "Ladegaarden" &
+           quarter != "Vesterbro" & quarter != "Noerrebro" & quarter != "Oesterbro")
+quarters <- quarter_panel_incidence(cph_quarter_for_plot)
+
+setwd(main.path)
+ggsave(filename = "Output/S1 - quarters.tiff",
+       plot = quarters,
+       width = 26,
+       height = 20,
+       units = 'cm',
+       dpi = 300)
