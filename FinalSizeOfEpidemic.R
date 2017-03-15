@@ -35,6 +35,28 @@ rootsOut <- function(minR0, maxR0, partitions = 1000){
 }
 
 r0
-rootsOut(1.5, 1.8)
-rootsOut(1.00001, 4.4)
-rootsOut(1.4, 2.0)
+
+# CPH
+cph<- r0 %>%
+    filter(city=="Copenhagen", method == "EG")
+rootsOut(min(cph$ci_l), max(cph$ci_u))
+
+# CFR adjusted
+truSick <- c(.76 * 138030, .60*138030)
+4737 / truSick
+
+
+aal<- r0 %>%
+  filter(city=="Åalborg", method == "EG")
+rootsOut(min(aal$ci_l), max(aal$ci_u))
+# CFR adjusted
+truSick <- c(.83 * 8621, .58*8621)
+409 / truSick * 100
+
+
+
+kor<- r0 %>%
+  filter(city=="Korsør", method == "EG")
+rootsOut(min(kor$ci_l), max(kor$ci_u))
+truSick <- c(.98 * 2258, 0.37*2258)
+201 / truSick * 100

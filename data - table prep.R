@@ -26,14 +26,15 @@ library(CholeraDataDK)
 library(epitools)
 library(grouping)
 library(xlsx)
+library(pander)
 library(googlesheets) # for spreadsheets into R. https://goo.gl/05US08
 source("functions.R")
-
 
 # LOAD --------------------------------------------------------------------
 setwd(data.path)
 load("data-viz-prep.Rdata")
 load(file = "aal_age_pop.Rdata")
+load("r0.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
 counts <- cph_counts_age
@@ -221,6 +222,30 @@ k_l <- ci.rate(100, 294, num_cases = 201, upper = FALSE) / 100
 k_h
 k_l
 
+
+
+
+# CI (AR & CFR) FOR OTHER CITIES  -----------------------------------------
+# Oslo AR
+ci.rate(100, pop = 48000, num_cases = 2453, upper = TRUE)
+ci.rate(100, pop = 48000, num_cases = 2453, upper = FALSE)
+
+# Oslo CFR
+ci.rate(100, pop = 2453, num_cases = 1597, upper = TRUE)
+ci.rate(100, pop = 2453, num_cases = 1597, upper = FALSE)
+
+# Stokholm AR
+ci.rate(100, pop = 97952, num_cases = 7906, upper = TRUE)
+ci.rate(100, pop = 97952, num_cases = 7906, upper = FALSE)
+7906/97952*100
+
+# Stokholm CFR
+3284 / 7906*100
+
+ci.rate(100, pop = 7906, num_cases = 3284, upper = TRUE)
+ci.rate(100, pop = 7906, num_cases = 3284, upper = FALSE)
+
+
 # EXCSESS DEATHS ----------------------------------------------------------
 # Subset data to calculate baseline and outbreak mortality over epidemic time of
 # year. Find mean mortality for epi period in 1852 & 1854, then mean mort
@@ -271,3 +296,10 @@ port_cases / port_pop * 100
 
 u5_pp <- 25518
 609 / (sum(counts$male_sick) + sum(counts$female_sick))
+
+
+
+# R0 values ---------------------------------------------------------------
+
+pander(r0 %>%
+  filter(method=="EG"))
