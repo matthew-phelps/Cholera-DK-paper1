@@ -28,7 +28,7 @@ pop <- cph_pop1853_10yr
 attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
 cen <- census
-dead_1853 <- all_cause_1853
+dead_all_cause <- all_cause_1852_1854
 
 rownames(cen) <- NULL
 
@@ -49,10 +49,10 @@ mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
                       value = mort_rate,
                       c(male_mort2, female_mort2))
 
-# 1 - FACET PLOT MONTHLY ALL_CAUSE MORTALITY  ---------------------------------
+# 1 - ALL_CAUSE MORTALITY  ---------------------------------
 
 # To shade 1853, need a rectangle that covers only this year for all y
-all_cause <- gather(dead_1853, cause, dead, 4:6)
+all_cause <- gather(dead_all_cause, cause, dead, 4:6)
 yrng <- range(0:4000)
 start_53 <- as.Date("1853-06-01") # start of shading
 end_53 <- as.Date("1853-10-01") # End of shading
@@ -61,12 +61,12 @@ end_53 <- as.Date("1853-10-01") # End of shading
 
 all_cause_plot <- all_cause %>%
   deathsBasePlot()%>%
-  deathPoints(p_size = 2.2) %>%
+  deathPoints(p_size = 2.2, space = FALSE) %>%
   deathsStyles()
 all_cause_plot
 
 
-ggsave(filename = "Output/1-monthly-all-cause-mort.jpg",
+ggsave(filename = "Output/2-monthly-all-cause-mort.jpg",
        plot = all_cause_plot,
        width = 26,
        height = 20,
@@ -75,8 +75,8 @@ ggsave(filename = "Output/1-monthly-all-cause-mort.jpg",
 
 
 allcause_plot <- all_monthly_mort[all_monthly_mort$age != "total" & all_monthly_mort$area=="Copenhagen", ] %>%
-  allcause_base_plot() %>%
-  all_cause_style()
+  deathsBasePlot() %>%
+  deathsStyles()
 allcause_plot
 
 
@@ -104,11 +104,10 @@ lab_x <- min(all_cases$season)
 
 
 plot_season <- all_cases %>%
-  plotSeason(lab_x = lab_x)
+  plotSeason(lab_x = lab_x, broad_street = TRUE, broad_street_data = broad_st)
+plot_season
 
-addBroadSt(plot_season,lab_x = lab_x)
-
-ggsave(filename = "Output/2-seasonality-temp.tiff",
+ggsave(filename = "Output/1-seasonality-temp.jpg",
        plot = plot_season,
        width = 26,
        height = 20,
@@ -354,7 +353,7 @@ R0 <- ggplot(data = r0,
         axis.title.y = element_text(size = 15,
                                     margin = margin(0,15,0,0)),
         plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines')) +
-  coord_cartesian(ylim = c(min(r0$ci_l), max(r0$ci_u))) +
+  coord_cartesian(ylim = c(0, max(r0$ci_u))) +
   scale_color_manual(values = c("orange", "royalblue2"),
                      breaks = c("EG", "ML"),
                      labels = c("Exponential \nGrowth\n",
@@ -368,7 +367,6 @@ R0 <- ggplot(data = r0,
 R0
 
 
-setwd(main.path)
 ggsave(filename = "Output/6 - R0.tiff",
        plot = R0,
        width = 26,
@@ -430,7 +428,7 @@ quarter_panel_incidence <- function(combined) {
                y = sick.total.week / est.pop.1853*1000,
                group = quarter))+
     geom_line(size = 1) +
-    geom_vline( xintercept = 5, linetype = 2, color = "black") +
+    geom_vline( xintercept = 5, linetype = 2, color = "black", alpha = 0.5) +
     facet_wrap(~quarter) +
     xlab("Week index") +
     ylab("Incidence per 1000 people") +

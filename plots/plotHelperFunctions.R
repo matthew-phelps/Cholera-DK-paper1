@@ -12,16 +12,22 @@ deathsBasePlot <- function(x){
   # 
 }
 
-deathPoints <- function(death_base, p_size){
-  death_base +
-    geom_point(size = p_size + 2.5,
-               color = "white",
-               aes(x = date, y = dead,
-                   group = cause)) +
-    geom_point(size = p_size,
-               aes(x = date, y = dead,
-                   group = cause, color = cause))
-  
+deathPoints <- function(death_base, p_size, space = TRUE){
+  if(space){
+    death_base +
+      geom_point(size = p_size + 2.5,
+                 color = "white",
+                 aes(x = date, y = dead,
+                     group = cause)) +
+      geom_point(size = p_size,
+                 aes(x = date, y = dead,
+                     group = cause, color = cause))
+  } else {
+    death_base +
+      geom_point(size = p_size,
+                 aes(x = date, y = dead,
+                     group = cause, color = cause))
+  }
   # Overplot white points for effect
 }
 
@@ -29,14 +35,14 @@ deathsStyles <- function(deaths_base){
   deaths_base + 
     xlab("Copenhagen") +
     ylab("Mortality counts") +
-    scale_x_date(date_breaks = "2 month", date_labels = "%b %Y")+
+    scale_x_date(date_breaks = "4 month", date_labels = "%b %Y")+
     scale_y_continuous(breaks = seq(0, 4000, 1000)) +
     
     scale_color_manual(name = "Cause of death",
-                       labels = c("All", "Cholera", "Diarrhea"),
+                       labels = c("All-cause", "Cholera", "Diarrhea"),
                        values = c("orange3", "dodgerblue4", "green4"))+
     scale_linetype_manual(name = "Cause of death",
-                          labels = c("All", "Cholera", "Diarrhea"),
+                          labels = c("All-cause", "Cholera", "Diarrhea"),
                           values = c("twodash", "solid", "solid"))+
     #ggtitle ("Monthly all-cause mortality") +
     theme_classic() +
@@ -51,10 +57,10 @@ deathsStyles <- function(deaths_base){
                                       margin = margin(0,10,0,0)),
           plot.margin = unit(c(0,0.3,0.5,0.5), 'lines'),
           strip.background = element_blank(),
-          strip.text.x = element_text(size = 14, face = "bold"))+
-    # increase size of line symbol on legand. 
-    guides(color = guide_legend(keywidth = 2.8, keyheight = 1.8,
-                                override.aes = list(size = 1.5))) 
+          strip.text.x = element_text(size = 14, face = "bold"))
+  # increase size of line symbol on legand. 
+  # guides(color = guide_legend(keywidth = 2.8, keyheight = 1.8,
+  #                             override.aes = list(size = 1.5))) 
 }
 
 
@@ -98,8 +104,21 @@ all_cause_style <- function(allcause_base){
 }
 
 
-plotSeason <- function(cases_all, lab_size = 6, lab_x) {
-  ggplot() +
+plotSeason <- function(cases_all, lab_size = 6, lab_x,
+                       broad_street = FALSE, broad_street_data) {
+  base_plot <- ggplot()
+  if(broad_street){
+   base_plot <- base_plot + 
+      geom_line(data = broad_st,
+                aes(x = season, y = deaths),
+                group = 1,
+                size = 1.1,
+                color = "grey") +
+      annotate("text", x = lab_x + 67, y = 110,
+               color="gray", label="London 1854 \n (mortality counts)", size = lab_size) 
+  }
+  
+  base_plot <- base_plot +
     geom_line(data = cases_all,
               aes(x = season, y = cases_norm,
                   group = city, color = city),
@@ -126,16 +145,9 @@ plotSeason <- function(cases_all, lab_size = 6, lab_x) {
                        sec.axis = sec_axis(~. * 1, name = "Mortality counts (London)")) +
     scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
                        values = c("#006DDB", "#E69F00", "green4"))
+  return(base_plot)
 }
-addBroadSt <- function(old_plot, lab_size = 6, lab_x){
-  old_plot + geom_line(data = broad_st,
-                       aes(x = season, y = deaths),
-                       group = 1,
-                       size = 1.1,
-                       color = "grey") +
-    annotate("text", x = lab_x + 67, y = 110,
-             color="gray", label="London 1854 \n (mortality counts)", size = lab_size) 
-}
+
 
 
 
@@ -228,7 +240,7 @@ cholProportionDeaths <- function() {
                size = 5.9) +
     geom_point(data = cho_pct[1:8, ], aes(x = age_range, y = mortality),
                size = 2.8) +
-
+    
     
     geom_errorbar(data = cho_pct[cho_pct$age_range !="Total", ],
                   limits,
