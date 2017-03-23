@@ -85,29 +85,29 @@ cph_pop_u14 <- sum(cph_pop_raw$total1853[1:6])
 cph_pop_tot <- sum(cph_pop_raw$total1853)
 cph_pop_u14 / cph_pop_tot
 
-# TOTAL INFECTIONS INCLUDING ASYPMTOMATIC ---------------------------------
-cph <- 0.052
-aal <- 0.088
-kor <- 0.112
-
-mid <- 0.242
-low <- 0.407
-hi <- 0.144
-
-
-cph / mid
-cph/low
-cph/hi
-
-aal / mid
-aal/low
-aal/hi
-
-kor/mid
-kor/low
-kor/hi
-5/10
-5/9
+# # TOTAL INFECTIONS INCLUDING ASYPMTOMATIC ---------------------------------
+# cph <- 0.052
+# aal <- 0.088
+# kor <- 0.112
+# 
+# mid <- 0.242
+# low <- 0.407
+# hi <- 0.144
+# 
+# 
+# cph / mid
+# cph/low
+# cph/hi
+# 
+# aal / mid
+# aal/low
+# aal/hi
+# 
+# kor/mid
+# kor/low
+# kor/hi
+# 5/10
+# 5/9
 
 
 
@@ -254,7 +254,7 @@ d1 <- all_monthly_mort[all_monthly_mort$age == "total", ]
 d52 <- dplyr::filter(d1, date >= "1852-06-01" & date <= "1852-09-01")
 d53 <- dplyr::filter(d1, date >= "1853-06-01" & date <= "1853-09-01")
 d54 <- dplyr::filter(d1, date >= "1854-06-01" & date <= "1854-09-01")
-
+sum(d53$mortality)
 # 1st find baseline mean mortality per month
 base <- rbind(d52, d54)
 cph_base <- sum(base[base$area=="Copenhagen",]$mortality) / 2
