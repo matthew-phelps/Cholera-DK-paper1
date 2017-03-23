@@ -24,11 +24,12 @@ cph <- cases[cholera_daily_data$city == "copenhagen", ]
 # Get generation time: 10.1371/journal.pntd.0001901
 
 # est.GT uses in-package function to calculate generation time dist
-si <- c(2,2,9,1,1,1,3,3,5,4,4,4,6,2,2,3,5)
+# 110
+si <- c(2,2,9,1,1,1,3,3,5,4,4,4,6,2,2,3,5,6,10)
 mGT <- est.GT(serial.interval = si) 
 
 # We use our own estimate, but the parameters match closely to in-package est.
-mGT <- generation.time("weibull", c(3.4, 1.9))
+mGT <- generation.time("weibull", c(3.9, 2.5))
 # Check generation time
 # plot(mGT)
 
@@ -39,12 +40,12 @@ mGT <- generation.time("weibull", c(3.4, 1.9))
 sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
                                  est.method = c("EG", "ML"), sa.type = "time")
 plot(sens_time)
-sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 15:20,
+sens_time <-sensitivity.analysis(aalborg$cases, mGT, begin = 1:6, end = 14:19,
                                  est.method = "ML", sa.type = "time")
 
  plot(sens_time, what = "criterion")
 
-aal <- estimate.R(aalborg$cases, GT = mGT, t = aalborg$day_index, begin = 1, end = 16, methods = c("EG", "ML", "TD"), nsim = 1500)
+aal <- estimate.R(aalborg$cases, GT = mGT, t = aalborg$day_index, begin = 3, end = 16, methods = c("EG", "ML", "TD"), nsim = 1500)
 
 # Put R0 and CI into data frame so can plot each citys estimates on one graph
 # For TD we average over the exponential growth phase
@@ -88,12 +89,12 @@ sens_GT <-sensitivity.analysis(aalborg$cases,
 
 # KORSOER -----------------------------------------------------------------
 
-sens_time <-sensitivity.analysis(korsoer$cases, mGT, begin = 1:5, end = 14:18,
+sens_time <-sensitivity.analysis(korsoer$cases, mGT, begin = 1:6, end = 21:26,
                                  est.method = "EG", sa.type = "time")
-# plot(sens_time)
-kor <- estimate.R(korsoer$cases, GT = mGT, t = korsoer$day_index, begin = 1, end = 15, methods = c("EG", "ML", "TD"), nsim = 1500)
-
+plot(sens_time)
+kor <- estimate.R(korsoer$cases, GT = mGT, t = korsoer$day_index, begin = 1, end = 24, methods = c("EG", "ML", "TD"), nsim = 1500)
 # plot(kor)
+
 pe <- c(kor$estimates$EG$R, kor$estimates$ML$R, mean(kor$estimates$TD$R))
 ci_l<- c(kor$estimates$EG$conf.int[1],
          kor$estimates$ML$conf.int[1],

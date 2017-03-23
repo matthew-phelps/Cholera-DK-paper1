@@ -18,7 +18,7 @@ library(fitdistrplus)
 library(mixdist)
 # DATA --------------------------------------------------------------------
 
-si <- c(2,2,9,1,1,1,3,3,5,4,4,4,6,2,2,3,5)
+si <- c(2,2,9,1,1,1,3,3,5,4,4,4,6,2,2,3,5,6,10)
 length(si)
 mean(si)
 median(si)
@@ -91,7 +91,7 @@ mu <- sapply(1:1000, function(i) {
   MLE.est <- suppressWarnings(fitdistr(si.boot, densfun="weibull", lower = 0))  # fit dist to each new sample
   dweibull(d_range, shape=as.numeric(MLE.est[[1]][1]), scale=as.numeric(MLE.est[[1]][2])) # create pdf using fitted params
   mu <- weibullparinv(shape = MLE.est$estimate[1],
-                     scale = MLE.est$estimate[2])
+                      scale = MLE.est$estimate[2])
   mu <- as.matrix(mu[[1]])
 }
 )
