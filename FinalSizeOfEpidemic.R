@@ -42,21 +42,27 @@ cph<- r0 %>%
 rootsOut(min(cph$ci_l), max(cph$ci_u))
 
 # CFR adjusted
-truSick <- c(.76 * 138030, .60*138030)
-4737 / truSick
+truSick <- c(.79 * 138030, .67*138030)
+4737 / truSick * 100
+
+
+cph<- r0 %>%
+  filter(city=="Copenhagen", method != "TD")
+rootsOut(min(cph$ci_l), max(cph$ci_u))
+
 
 
 aal<- r0 %>%
-  filter(city=="Åalborg", method == "EG")
+  filter(city=="Åalborg", method != "TD")
 rootsOut(min(aal$ci_l), max(aal$ci_u))
 # CFR adjusted
-truSick <- c(.83 * 8621, .58*8621)
+truSick <- c(.84 * 8621, .64*8621)
 409 / truSick * 100
 
 
 
 kor<- r0 %>%
-  filter(city=="Korsør", method == "EG")
+  filter(city=="Korsør", method != "TD")
 rootsOut(min(kor$ci_l), max(kor$ci_u))
-truSick <- c(.98 * 2258, 0.37*2258)
+truSick <- c(.95 * 2258, 0.74*2258)
 201 / truSick * 100
