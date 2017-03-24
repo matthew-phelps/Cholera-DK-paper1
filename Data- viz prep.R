@@ -5,15 +5,6 @@
 
 ## Intro
 rm(list = ls())
-ifelse(grepl("wrz741", getwd()),
-       main.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1",
-       main.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1")
-
-ifelse(grepl("wrz741", getwd()),
-       data.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data",
-       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data")
-setwd(main.path)
-
 graphics.off()
 
 devtools::install_github('matthew-phelps/CholeraDataDK', force = F)
@@ -424,7 +415,7 @@ broad_st$date <- lubridate::ymd(broad_st$date)
 
 
 # SAVE --------------------------------------------------------------------
-setwd(data.path)
+
 save(chol_burden, aal_age_pop, rr_mrt, rr_sic, counts, cho_pct, 
      all_monthly_mort, broad_st,
-     file = "data-viz-prep.Rdata")
+     file = "data/data-viz-prep.Rdata")

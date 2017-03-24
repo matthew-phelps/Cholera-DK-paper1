@@ -5,23 +5,12 @@
 
 ## Intro
 rm(list = ls())
-ifelse(grepl("wrz741", getwd()),
-       main.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1",
-       main.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1")
-
-ifelse(grepl("wrz741", getwd()),
-       data.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data",
-       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data")
-setwd(main.path)
-
 graphics.off()
 
 devtools::install_github('matthew-phelps/CholeraDataDK', force = F)
 devtools::install_github('matthew-phelps/grouping', force = F)
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 library(grid)
-library(tidyr)
 library(CholeraDataDK)
 library(epitools)
 library(grouping)
@@ -31,10 +20,10 @@ library(googlesheets) # for spreadsheets into R. https://goo.gl/05US08
 source("functions.R")
 
 # LOAD --------------------------------------------------------------------
-setwd(data.path)
-load("data-viz-prep.Rdata")
-load(file = "aal_age_pop.Rdata")
-load("r0.Rdata")
+
+load("data/data-viz-prep.Rdata")
+load(file = "data/aal_age_pop.Rdata")
+load("data/r0.Rdata")
 all_cases_temp <- cholera_daily_data
 mort <- cph_mort_rates_10yr
 counts <- cph_counts_age

@@ -2,11 +2,6 @@
 # INTRO -------------------------------------------------------------------
 rm(list = ls())
 graphics.off()
-
-ifelse(grepl("wrz741", getwd()),
-       data.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data",
-       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data")
-
 library(devtools)
 install_github("matthew-phelps/CholeraDataDK")
 library(CholeraDataDK)
@@ -92,8 +87,8 @@ sens_GT <-sensitivity.analysis(aalborg$cases,
 sens_time <-sensitivity.analysis(korsoer$cases, mGT, begin = 1:6, end = 21:26,
                                  est.method = "EG", sa.type = "time")
 plot(sens_time)
-kor <- estimate.R(korsoer$cases, GT = mGT, t = korsoer$day_index, begin = 1, end = 24, methods = c("EG", "ML", "TD"), nsim = 1500)
-# plot(kor)
+kor <- estimate.R(korsoer$cases, GT = mGT, t = korsoer$day_index, begin = 1, end = 23, methods = c("EG", "ML", "TD"), nsim = 1500)
+ plot(kor)
 
 pe <- c(kor$estimates$EG$R, kor$estimates$ML$R, mean(kor$estimates$TD$R))
 ci_l<- c(kor$estimates$EG$conf.int[1],
@@ -188,7 +183,7 @@ sens_GT <-sensitivity.analysis(korsoer$cases,
 
 # SAVE DATA ---------------------------------------------------------------
 setwd(data.path)
-save(r0, file = "r0.Rdata")
+save(r0, file = "data/r0.Rdata")
 
 r0 %>%
   filter(method != "TD")

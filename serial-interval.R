@@ -4,14 +4,6 @@
 
 ## Intro
 rm(list = ls())
-ifelse(grepl("wrz741", getwd()),
-       data.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1",
-       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1")
-ifelse(grepl("wrz741", getwd()),
-       plot.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/output",
-       plot.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/output")
-
-setwd(data.path)
 
 library(MASS)
 library(fitdistrplus)
@@ -73,9 +65,9 @@ lines(d_range, quants[1, ], col = "red", lwd=1.5, lty=2)
 lines(d_range, quants[2, ], col = "red", lwd=1.5, lty=2)
 lines(d_range, quants[3, ], col = "red", lwd=1.5, lty=2)
 
-setwd(plot.path)
+
 dev.copy(png,
-         file = "F-10 - serial interval.jpg",
+         file = "output/F-10 - serial interval.jpg",
          width = 20,
          height = 20,
          res = 300,
