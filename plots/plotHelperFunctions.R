@@ -226,28 +226,29 @@ mortPlotStyle <- function(base_chol_mort, txt_size){
 }
 
 
-cholProportionDeaths <- function() {
+cholProportionDeaths <- function(line_size) {
   ggplot() +
     geom_line(data = cho_pct[1:8, ], aes(x = age_range, y = mortality, group = 1),
-              size = 1.1) +
+              size = line_size) +
     geom_point(data = cho_pct[1:8, ],
                color = "white",
                aes(x = age_range, y = mortality),
                size = 5.9) +
+    
     geom_point(data = cho_pct[1:8, ], aes(x = age_range, y = mortality),
                size = 2.8) +
-    
     
     geom_errorbar(data = cho_pct[cho_pct$age_range !="Total", ],
                   limits,
                   width = 0.2,
-                  size = 0.8) +
+                  size = 0.7) +
     geom_point(data = cho_pct[9, ], aes(x = age_range, y = mortality),
-               size = 3.5, color = "red3") +
+               size = 3.0, color = "red3") +
+    
     geom_errorbar(data = cho_pct[cho_pct$age_range =="Total", ],
                   limits,
                   width = 0.2,
-                  size = 0.8, color = "red3") 
+                  size = 0.7, color = "red3") 
 }
 
 proportionDeathStyle <- function(base_prop_death, txt_size){
@@ -347,17 +348,17 @@ rrAgeGenderStyle <- function(base_plot, txt_size, ylabel,
   return(out)
 }
 
-r0Plot <- function(r0_data, pd){
+r0Plot <- function(r0_data, pd, line_size){
   r0_data
   pd <- position_dodge(pd)
   
   ggplot(data = r0_data,
          aes(x = city, y = pe, color = method)) +
     geom_point(position = pd, aes(shape = method),
-               size = 3.5) +
+               size = 3) +
     geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
                   width = 0.15,
-                  size = 1.1,
+                  size = line_size,
                   position = pd) +
     coord_cartesian(ylim = c(0, max(r0_data$ci_u)))
 }

@@ -115,13 +115,13 @@ Monthly number of recorded deaths in Copenhagen due to cholera, diarrhea, and al
 # Remove time-dependent
 r0 <- r0[r0$method != "TD", ]
 R0 <- r0 %>%
-  r0Plot(pd = 0.4) %>%
+  r0Plot(pd = 0.4, line_size = 0.7) %>%
   r0PlotStyle(txt_size = 12)
 R0
 ```
 
 ## Figure 3  
-Comparing the reproductive number (R0) in three Danish locations using two different methods to estimate R0.
+The reproductive number (R0) in three Danish locations using two different methods to estimate R0.
 \newpage
 
 
@@ -159,7 +159,7 @@ limits = aes(ymax = hi95, ymin = low95, x = age_range)
 
 
 
-chol_proportion_death_plot <- cholProportionDeaths() %>%
+chol_proportion_death_plot <- cholProportionDeaths(line_size = 1) %>%
   proportionDeathStyle(txt_size = 12)
 chol_proportion_death_plot
 
@@ -167,7 +167,7 @@ chol_proportion_death_plot
 ```
 
 ## Figure 5  
-Proportion of all deaths in Copenhagen, 1853 attributed to cholera disaggregated by age.
+Proportion of all deaths in Copenhagen, 1853, attributed to cholera disaggregated by age.
 \newpage
 
 
