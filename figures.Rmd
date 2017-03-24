@@ -1,7 +1,22 @@
-# Author: Matthew Phelps
-# Desc: Comparing the 3 cities' outbreals
-# Output datasets: Rdata in local directory
+---
+title: "Figures"
+output: pdf_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# knitr::opts_chunk$set(root.dir = normalizePath('..'))
+# knitr::opts_knit$set(root.dir = normalizePath('..'))
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r load}
 # INTRO -------------------------------------------------------------------
 rm(list = ls())
 graphics.off()
@@ -29,25 +44,20 @@ attack <- cph_age_attack_rate
 cases <- cholera_daily_data_towns
 cen <- census
 dead_all_cause <- all_cause_1852_1854
-
 rownames(cen) <- NULL
-
-# CHECK DATA SUMMATIONS ---------------------------------------------------
-cen %>%
-  filter(place == "korsoer", year == "1857") %>%
-  select(total) %>%
-  sum()
-
 
 # Re-order levels of factor so that plotting works: http://goo.gl/CD2fEC
 age_char <- as.character(mort$age_range)
 mort$age_range <- factor(age_char, levels = c(age_char))
 
-# To long format data
-mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
-                      key = gender,
-                      value = mort_rate,
-                      c(male_mort2, female_mort2))
+```
+
+```{r allcause}
+# # To long format data
+# mort_gender <- gather(mort[, c("age_range", "male_mort2", "female_mort2")],
+#                       key = gender,
+#                       value = mort_rate,
+#                       c(male_mort2, female_mort2))
 
 # 1 - ALL_CAUSE MORTALITY  ---------------------------------
 
@@ -64,27 +74,9 @@ all_cause_plot <- all_cause %>%
   deathPoints(p_size = 2.2, space = FALSE) %>%
   deathsStyles()
 all_cause_plot
+```
 
-
-ggsave(filename = "Output/2-monthly-all-cause-mort.jpg",
-       plot = all_cause_plot,
-       width = 26,
-       height = 20,
-       units = 'cm',
-       dpi = 300)
-
-
-allcause_plot <- all_monthly_mort[all_monthly_mort$age != "total" & all_monthly_mort$area=="Copenhagen", ] %>%
-  deathsBasePlot() %>%
-  deathsStyles()
-allcause_plot
-
-
-
-
-
-
-# 2 - DAILY INCIDENCE PER 10K ----------------------------------------------------
+```{r}
 all_cases <- all_cases_temp %>%
   arrange(city, date) %>%
   filter(city != "brandholm")
@@ -106,6 +98,11 @@ lab_x <- min(all_cases$season)
 plot_season <- all_cases %>%
   plotSeason(lab_x = lab_x, broad_street = TRUE, broad_street_data = broad_st)
 plot_season
+```
+
+
+# 2 - DAILY INCIDENCE PER 10K ----------------------------------------------------
+
 
 ggsave(filename = "Output/1-seasonality-temp.jpg",
        plot = plot_season,
@@ -453,3 +450,18 @@ ggsave(filename = "Output/S1 - quarters.tiff",
        height = 20,
        units = 'cm',
        dpi = 300)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```
+
