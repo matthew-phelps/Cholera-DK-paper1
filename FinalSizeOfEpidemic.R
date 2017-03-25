@@ -1,13 +1,7 @@
 # INTRO -------------------------------------------------------------------
 rm(list = ls())
 graphics.off()
-
-ifelse(grepl("wrz741", getwd()),
-       data.path <- "C:/Users/wrz741/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data",
-       data.path <-"/Users/Matthew/Google Drive/Copenhagen/DK Cholera/Cholera-DK-paper1/data")
-setwd(data.path)
-
-load("r0.Rdata")
+load("data/r0.Rdata")
 
 # root equation factory for the final size of an epidemic
 rootEquation <- function(R){
@@ -34,35 +28,36 @@ rootsOut <- function(minR0, maxR0, partitions = 1000){
   return(out)
 }
 
-r0
-
 # CPH
-cph<- r0 %>%
-    filter(city=="Copenhagen", method == "EG")
-rootsOut(min(cph$ci_l), max(cph$ci_u))
 
-# CFR adjusted
-truSick <- c(.79 * 138030, .67*138030)
-4737 / truSick * 100
+finalSize <- function(x, city_f, method_f = "TD"){
+  # browser()
+  out <- x %>%
+    filter(city==city_f, method!=method_f)
+  out <- rootsOut(min(out$ci_l), max(out$ci_u))
+  return(out)
+}
+
+cfrAdjusted <- function(final_size, city_pop, num_dead){
+  true_sick <- c(final_size$max * city_pop, final_size$min * city_pop)
+  num_dead / true_sick * 100
+}
+
+finalSize(r0, "Copenhagen")
+r0 %>%
+  finalSize("Copenhagen") %>%
+  cfrAdjusted(city_pop = 138030, num_dead = 4737)
+
+finalSize(r0, "Åalborg")
+r0 %>%
+  finalSize("Åalborg") %>%
+  cfrAdjusted(city_pop = 8621, num_dead = 409)
+
+finalSize(r0, "Korsør")
+r0 %>%
+  finalSize("Korsør") %>%
+  cfrAdjusted(city_pop = 2258, num_dead = 201)
 
 
-cph<- r0 %>%
-  filter(city=="Copenhagen", method != "TD")
-rootsOut(min(cph$ci_l), max(cph$ci_u))
 
 
-
-aal<- r0 %>%
-  filter(city=="Åalborg", method != "TD")
-rootsOut(min(aal$ci_l), max(aal$ci_u))
-# CFR adjusted
-truSick <- c(.84 * 8621, .64*8621)
-409 / truSick * 100
-
-
-
-kor<- r0 %>%
-  filter(city=="Korsør", method != "TD")
-rootsOut(min(kor$ci_l), max(kor$ci_u))
-truSick <- c(.95 * 2258, 0.74*2258)
-201 / truSick * 100

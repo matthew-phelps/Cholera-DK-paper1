@@ -99,7 +99,7 @@ end_53 <- as.Date("1853-10-01") # End of shading
 
 all_cause_plot <- all_cause %>%
   deathsBasePlot(l_size = 0.7)%>%
-  deathPoints(p_size = 2, space = FALSE) %>%
+  deathPoints(p_size = 1.5, space = FALSE) %>%
   deathsStyles(txt_size = 12)
 all_cause_plot
 ```
@@ -145,7 +145,7 @@ chol_burden$plot_var2 <- factor(chol_burden$plot_var2,
                                            "cph.total_attack",
                                            "cph.total_mort_rate"))
 
-plot_chol_mort <- cholMortPlot(p_size = 2, line_size = 0.7) %>%
+plot_chol_mort <- cholMortPlot(p_size = 1.8, line_size = 0.7) %>%
   mortPlotStyle(txt_size = 11)
 plot_chol_mort
 ```
@@ -213,7 +213,7 @@ plot_grid(plot_attack, plot_mort, nrow = 2, labels = c("A", "B"))
 ```
 
 ## Figure S2  
-Relative risk of cholera (A) morbidity and (B) mortality by age and gender. Values above 1.0 indicates a greater risk in females as compared to males.
+Relative risk of cholera morbidity (A) and mortality (B) by age and gender. Values above 1.0 indicates a greater risk in females as compared to males.
 
 
 
