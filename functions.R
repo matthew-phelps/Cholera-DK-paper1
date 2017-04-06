@@ -103,3 +103,23 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
     }
   }
 }
+
+
+parishDataPrep <- function(x, thresholdAR){
+  # Take parish data and make it usable to calculate probability of seeing an
+  # outbreak given an index case
+  x[, 3:5] <- lapply(x[, 3:5], as.numeric)
+  
+  out <- x %>%
+    select(parish_sogn, Cases, deaths, pop) %>%
+    filter(Cases >0 | deaths > 0) %>%
+    mutate(AR = round(Cases / pop*100, digits = 1)) %>%
+    mutate(outbreak = FALSE)
+  
+  
+  out[["outbreak"]] <- out$AR > thresholdAR
+  
+  # Outbreak occured in Taarby 
+  out[["outbreak"]][1] <- TRUE
+  return(out)
+}

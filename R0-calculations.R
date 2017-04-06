@@ -24,7 +24,7 @@ si <- c(2,2,9,1,1,1,3,3,5,4,4,4,6,2,2,3,5,6,10)
 mGT <- est.GT(serial.interval = si) 
 
 # We use our own estimate, but the parameters match closely to in-package est.
-mGT <- generation.time("weibull", c(3.75, 2.24))
+mGT <- generation.time("weibull", c(3.73, 2.38))
 # Check generation time
 # plot(mGT)
 

@@ -151,7 +151,7 @@ plot_chol_mort
 ```
 
 ## Figure 4  
-Cholera morbidity and mortality per 100 people disaggregated by age for three cities.
+Cholera morbidity and mortality per 1,000 people disaggregated by age for three cities.
 \newpage
 
 ```{r choleraDeaths, fig.height=4.5, fig.width=8}
