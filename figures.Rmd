@@ -214,6 +214,33 @@ plot_grid(plot_attack, plot_mort, nrow = 2, labels = c("A", "B"))
 
 ## Figure S2  
 Relative risk of cholera morbidity (A) and mortality (B) by age and gender. Values above 1.0 indicates a greater risk in females as compared to males.
+\newpage
+
+```{r outbreakProb, fig.height=4.5, fig.width=8}
+load("data/r0.Rdata")
 
 
+par_cases <- CholeraDataDK::parish_cases
+par_cases <- parishDataPrep(par_cases)
+thresh <- seq(0.1, 5, length.out = 100)
+obs_prob <- unlist(lapply(thresh, probOutbreak, par_cases)) %>%
+  cbind(thresh, .) %>%
+  data.frame() %>%
+  `colnames<-`(c("AR", "prob"))
+problem_data <- par_cases %>%
+  filter(is.na(AR) & Cases > 10)
 
+
+expProb <- function(r0) {
+  1 - 1 / r0
+}
+
+r0 <- r0[r0[["method"]]!="TD", ]
+r0_vec <- seq(min(r0$ci_l), max(r0$ci_u), length.out = 100)
+r0_prob <- expProb(r0_vec)
+
+plotOutbreakPr(obs_prob, r0_prob)
+```
+
+## Figure S3  
+Using data from all obsereved index cases from the islands of Zealand, Fuen, Lolland, Fester and Moen, we calculated the probability the presence of an index case resulting in a large outbreak, black. We varied the attack-rate threshold for what is considered a "large" outbreak (x axis). The red shadded region is the expected probability of an outbreak calculated from the 95% CI range of R0 values from Aalborg, Korsør, and Copenhagen.

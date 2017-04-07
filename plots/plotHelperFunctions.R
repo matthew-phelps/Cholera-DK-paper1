@@ -413,3 +413,20 @@ quarterPanelIncidence <- function(combined) {
           axis.title.y = element_text(size = 12, vjust = 0.5),
           strip.background = element_rect(color = '#F0F0F0', fill = '#F0F0F0')) 
 }
+
+
+plotOutbreakPr <- function(obs_prob, r0_prob) {
+  
+  # grey rectangle for r0 prob region - annotate is easier for some reasons:
+  # http://goo.gl/7snZ8T
+  ggplot() +
+    geom_line(data = obs_prob,
+              aes(x = AR, y = prob)) +
+    annotate("rect", fill = "red", alpha = 0.3,
+             xmin = -Inf, xmax = Inf,
+             ymin = min(r0_prob), ymax = max(r0_prob)) +
+    ylab("Probability of outbreak") +
+    xlab("Attack rate threshold to be considered an outbreak") +
+    theme_classic()
+  
+}
