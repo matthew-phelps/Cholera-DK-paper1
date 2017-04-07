@@ -105,7 +105,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 }
 
 
-parishDataPrep <- function(x, thresholdAR){
+parishDataPrep <- function(x){
   # Take parish data and make it usable to calculate probability of seeing an
   # outbreak given an index case
   x[, 3:5] <- lapply(x[, 3:5], as.numeric)
@@ -113,13 +113,24 @@ parishDataPrep <- function(x, thresholdAR){
   out <- x %>%
     select(parish_sogn, Cases, deaths, pop) %>%
     filter(Cases >0 | deaths > 0) %>%
-    mutate(AR = round(Cases / pop*100, digits = 1)) %>%
-    mutate(outbreak = FALSE)
-  
-  
-  out[["outbreak"]] <- out$AR > thresholdAR
-  
-  # Outbreak occured in Taarby 
-  out[["outbreak"]][1] <- TRUE
+    mutate(AR = round(Cases / pop*100, digits = 1))
   return(out)
+  
+}
+
+detectOutbreak <- function(x, thresholdAR){
+  x$outbreak <- FALSE
+  x[["outbreak"]] <- x$AR > thresholdAR
+  # Outbreak occured in Taarby 
+  x[["outbreak"]][1] <- TRUE
+  return(x)
+}
+
+probOutbreak <- function(thresh, x) {
+  # takes data on cases and vector of threshold levels
+  # browser()
+  out <- detectOutbreak(x, thresh)
+  out <- out[!is.na(out[["outbreak"]]), ]
+  sum(out[["outbreak"]]) / nrow(out)
+  
 }

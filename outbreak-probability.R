@@ -6,26 +6,20 @@ library(CholeraDataDK)
 library(tidyverse)
 source("functions.R")
 load("data/r0.Rdata")
+
+
 par_cases <- CholeraDataDK::parish_cases
-
-par_cases <- parishDataPrep(par_cases, 0.5)
-
+par_cases <- parishDataPrep(par_cases)
+thresh <- seq(0.1, 5, length.out = 100)
+obs_prob <- unlist(lapply(thresh, probOutbreak, par_cases))
 prob_data <- par_cases %>%
   filter(is.na(AR) & Cases > 10)
 
-par_cases <- par_cases[!is.na(par_cases[["outbreak"]]),] 
-
-prob_outbreak <- sum(par_cases[["outbreak"]]) / nrow(par_cases)
 
 expProb <- function(r0) {
   1 - 1 / r0
 }
 
 r0 <- r0[r0[["method"]]!="TD", ]
-r0_lng <- gather(r0, est, value, 1:3)
-prob_expected <- expProb(r0_lng$value)
-
-min(prob_expected)
-max(prob_expected)
-
-hist(prob_expected)
+r0_vec <- seq(min(r0$ci_l), max(r0$ci_u), length.out = 100)
+prob_expected <- expProb(r0_vec)
