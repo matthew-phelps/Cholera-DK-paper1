@@ -243,4 +243,4 @@ plotOutbreakPr(obs_prob, r0_prob)
 ```
 
 ## Figure S3  
-Using data from all obsereved index cases from the islands of Zealand, Fuen, Lolland, Fester and Moen, we calculated the probability the presence of an index case resulting in a large outbreak, black. We varied the attack-rate threshold for what is considered a "large" outbreak (x axis). The red shadded region is the expected probability of an outbreak calculated from the 95% CI range of R0 values from Aalborg, Korsør, and Copenhagen.
+Using data from church parishes where at least one cholera case was recorded (n=53) from the islands of Zealand, Fuen, Lolland, Fester and Moen, we calculated the probability that the outbreak "succeeded" and progressed to a large outbreak (black line) while varying the attack-rate threshold required to be considered a large outbreak (x-axis). The red shaded region is the expected probability of an outbreak  succeeding as calculated from the 95% CI range of R0 values from Aalborg, Korsør, and Copenhagen. R0 is related to Pr(outbreak) via: $$Pr(outbreak) = 1 - 1/R_{0}$$

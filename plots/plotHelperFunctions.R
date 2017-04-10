@@ -366,7 +366,7 @@ r0Plot <- function(r0_data, pd, line_size){
 r0PlotStyle <- function(base_plot, txt_size){
   base_plot + 
     xlab("Town") + 
-    ylab(expression(Repdocutive~number~"("*R[0]*")")) +
+    ylab(expression(Reproductive~number~"("*R[0]*")")) +
     theme_classic() +
     theme(legend.title = element_blank(),
           legend.position = c(0.15, 0.89),
