@@ -426,7 +426,7 @@ plotOutbreakPr <- function(obs_prob, r0_prob) {
              xmin = -Inf, xmax = Inf,
              ymin = min(r0_prob), ymax = max(r0_prob)) +
     ylab("Probability of outbreak") +
-    xlab("Attack rate threshold to be considered an outbreak") +
+    xlab("Attack rate (%) threshold to be considered an outbreak") +
     theme_classic()
   
 }
