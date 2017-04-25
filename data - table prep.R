@@ -292,3 +292,32 @@ u5_pp <- 25518
 
 pander(r0 %>%
   filter(method=="EG"))
+
+
+
+# ODDS RATIO --------------------------------------------------------------
+
+or <- function(a,b,c,d) {
+  or_pe <- (a * d) / (b * c)
+  or_se <- sqrt(1/a + 1/b + 1/c + 1/d)
+  or_min <- exp(log(or_pe) - 1.96 * or_se)
+  or_max <- exp(log(or_pe) + 1.96 * or_se)
+  
+  return(list(or = or_pe,
+              or_min = or_min,
+              or_max = or_max))
+}
+
+a <- 74
+c <- 58
+b <- 359-a
+d <-717-c
+or(a,b,c,d)
+
+a <- 59
+b <- 348-a
+or(a,b,c,d)
+
+a <- 80
+b <- 589-a
+or(a,b,c,d)
