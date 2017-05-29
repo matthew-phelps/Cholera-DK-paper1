@@ -188,5 +188,9 @@ save(r0, file = "data/r0.Rdata")
 r0 %>%
   filter(method != "TD")
 
-# R0 plots for cities -----------------------------------------------------
 
+# R0 from transmission narrative data -------------------------------------
+
+num_sec_infections <- c(1,2,1,3,1,2,1,1,1,3,2,4,2,2,1)
+mean(num_sec_infections)
+t.test(num_sec_infections)
