@@ -119,10 +119,10 @@ SeasonPlot <- function(cases_all, lab_size = 6, lab_x, txt_size, line_size,
   base_plot <- base_plot +
     geom_line(data = cases_all,
               aes(x = season, y = cases_norm,
-                  group = city, color = city),
+                  group = city_fac, color = city_fac),
               size= line_size) +
     annotate("text", x = lab_x + 15, y = 14,
-             color="#E69F00", label="Copenhagen", size = lab_size) + 
+             color="white", label="Copenhagen", size = lab_size) + 
     annotate("text", x = lab_x + 56, y = 28,
              color="#006DDB", label="Aalborg", size = lab_size) +
     annotate("text", x = lab_x + 105, y = 125,
@@ -142,7 +142,7 @@ SeasonPlot <- function(cases_all, lab_size = 6, lab_x, txt_size, line_size,
     scale_y_continuous("Incidence per 10,000 people",
                        sec.axis = sec_axis(~. * 1, name = "Mortality counts (London)")) +
     scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                       values = c("#006DDB", "#E69F00", "green4"))
+                       values = c("white", "#006DDB", "green4"))
   return(base_plot)
 }
 
@@ -398,13 +398,13 @@ r0PlotStyle <- function(base_plot, txt_size){
 quarterPanelIncidence <- function(combined) {
   ggplot (combined,
           aes( x = week.id,
-               y = sick.total.week / est.pop.1853*1000,
+               y = (sick.total.week / est.pop.1853*10000)/7,
                group = quarter))+
     geom_line(size = 1) +
     geom_vline( xintercept = 5, linetype = 2, color = "black", alpha = 0.5) +
     facet_wrap(~quarter) +
     xlab("Week index") +
-    ylab("Incidence per 1000 people") +
+    ylab("Incidence per 10,000 people") +
     theme_classic() +
     theme(legend.position = 'none',
           axis.text.x = element_text(size = 12),
