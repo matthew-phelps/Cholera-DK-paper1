@@ -77,57 +77,36 @@ plot_season2 <- plot_season +
   geom_line(data = st_annae_oe,
             aes(x = season, y = daily_ar * 10000),
             size = 0.8,
-            color = "#E69F00") +
-  annotate("text", x = lab_x + 9 , y = 17,
-           color="#E69F00", label="St. Annae Oester \n (Copenhagen)", size = 4)
-
+            color = "#cd8d00") +
+  annotate("text", x = lab_x + 9 , y = 28,
+           color="#cd8d00", label="St. Annae Oester \n (Copenhagen 1853)", size = 4)
+plot_season2
 
 ggsave(paste(figure_path, "/PhelpsFig1.tiff", sep=""),
-       plot_season2, dpi = 400,
+       plot_season2, dpi = 400, compression = "lzw",
        width = 8, height = 4, units = "in")
+
+
 
 
 
 # FIG 2 -------------------------------------------------------------------
-# To shade 1853, need a rectangle that covers only this year for all y
-all_cause <- gather(dead_all_cause, cause, dead, 4:6)
-yrng <- range(0:4000)
-start_53 <- as.Date("1853-06-01") # start of shading
-end_53 <- as.Date("1853-10-01") # End of shading
-
-
-
-all_cause_plot <- all_cause %>%
-  deathsBasePlot(l_size = 0.7)%>%
-  deathPoints(p_size = 1.5, space = FALSE) %>%
-  deathsStyles(txt_size = 12)
-all_cause_plot
-
-ggsave(paste(figure_path, "/PhelpsFig2.tiff", sep=""),
-       all_cause_plot, dpi = 400,
-       width = 8, height = 4, units = "in")
-
-
-
-
-# FIG 3 -------------------------------------------------------------------
 # Remove time-dependent
 r0 <- r0[r0$method != "TD", ]
 R0 <- r0 %>%
   r0Plot(pd = 0.4, line_size = 0.7) %>%
   r0PlotStyle(txt_size = 12)
-ggsave(paste(figure_path, "/PhelpsFig3.tiff", sep=""),
-       R0, dpi = 400,
+ggsave(paste(figure_path, "/PhelpsFig2.tiff", sep=""),
+       R0, dpi = 400,  compression = "lzw",
        width = 7, height = 5, units = "in")
 
 
 
-# FIG 4 -------------------------------------------------------------------
+# FIG 3 -------------------------------------------------------------------
 
 
 # DF with cholera mort as % of total mort & cholera mort rates in 1 df
-limits <- aes(ymax = upper95, ymin = lower95,
-              x= age_range, color = plot_var2)
+
 dodge <- position_dodge(width=- 0.3)
 dodge2 <- position_dodge(width=- 0.5)
 
@@ -144,22 +123,36 @@ chol_burden$plot_var2 <- factor(chol_burden$plot_var2,
                                            "cph.total_attack",
                                            "cph.total_mort_rate"))
 
+
+
+
+
+
 plot_chol_mort <- cholMortPlot(p_size = 1.8, line_size = 0.7) %>%
   mortPlotStyle(txt_size = 11)
-ggsave(file = paste(figure_path, "/PhelpsFig4.tiff", sep=""),
-       dpi = 400,
-       plot_chol_mort, width = 8, height = 4.5)
 
 
-# FIG 5 -------------------------------------------------------------------
+limits <- aes(ymax = upper95, ymin = lower95, group = plot_var2,
+              color = plot_var2,
+              x= age_range)
+
+
+  
+plot_chol_mort <- addError(plot_chol_mort)
+
+
 
 
 limits = aes(ymax = hi95, ymin = low95, x = age_range)
 chol_proportion_death_plot <- cholProportionDeaths(line_size = 1) %>%
   proportionDeathStyle(txt_size = 12)
-ggsave(file = paste(figure_path, "/PhelpsFig5.tiff", sep=""),
-       dpi = 400,
-       chol_proportion_death_plot, width = 8, height = 4.5)
+
+pan1 <- cowplot::plot_grid(plot_chol_mort, chol_proportion_death_plot,
+                   labels = c("A", "B"), nrow = 2)
+
+ggsave(file = paste(figure_path, "/PhelpsFig3.tiff", sep=""),
+       dpi = 400,compression = "lzw",
+       pan1, width = 7, height = 8)
 
 
 
@@ -178,6 +171,27 @@ ggsave(file = paste(figure_path, "/PhelpsSuppFig1.tiff", sep=""),
 
 
 # Supp FIG 2 --------------------------------------------------------------
+# To shade 1853, need a rectangle that covers only this year for all y
+all_cause <- gather(dead_all_cause, cause, dead, 4:6)
+yrng <- range(0:4000)
+start_53 <- as.Date("1853-06-01") # start of shading
+end_53 <- as.Date("1853-10-01") # End of shading
+
+
+
+all_cause_plot <- all_cause %>%
+  deathsBasePlot(l_size = 0.7)%>%
+  deathPoints(p_size = 1.5, space = FALSE) %>%
+  deathsStyles(txt_size = 12)
+all_cause_plot
+
+ggsave(paste(figure_path, "/PhelpsSuppFig2.tiff", sep=""),
+       all_cause_plot, dpi = 400,
+       width = 8, height = 4, units = "in")
+
+
+
+# FIG SUPP 3 --------------------------------------------------------------
 
 title <- "Relative risk of cholera morbidity by age & gender \n"
 notes <- "*male is reference group"
@@ -199,7 +213,7 @@ plot_mort <- rr_mrt %>%
 
 # MULTIPLOT 
 plot_mort2 <- plot_grid(plot_attack, plot_mort, nrow = 2, labels = c("A", "B"))
-cowplot::ggsave(file = paste(figure_path, "/PhelpsSuppFig2.tiff", sep=""),
+cowplot::ggsave(file = paste(figure_path, "/PhelpsSuppFig3.tiff", sep=""),
                 plot = plot_mort2,
                 dpi = 400,
                 width = 8, height = 7)

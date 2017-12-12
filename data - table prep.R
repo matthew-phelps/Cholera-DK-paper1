@@ -136,8 +136,8 @@ d <- (717-c)
 or_sick <- (a*d)/(b*c)
 
 se_ln <- sqrt(1/a + 1/b + 1/c + 1/d)
-exp(log(or) - 1.96*se_ln)
-exp(log(or) + 1.96*se_ln)
+exp(log(or_sick) - 1.96*se_ln)
+exp(log(or_sick) + 1.96*se_ln)
 
 
 # OR confidence interval of mortality

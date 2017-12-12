@@ -111,9 +111,10 @@ SeasonPlot <- function(cases_all, lab_size = 6, lab_x, txt_size, line_size,
                 aes(x = season, y = deaths),
                 group = 1,
                 size = line_size,
-                color = "grey") +
+                color = "grey31",
+                linetype = 2) +
       annotate("text", x = lab_x + 67, y = 110,
-               color="gray", label="London 1854 \n (mortality counts)", size = lab_size) 
+               color="gray31", label="London 1854 \n (mortality counts)", size = lab_size) 
   }
   
   base_plot <- base_plot +
@@ -124,9 +125,9 @@ SeasonPlot <- function(cases_all, lab_size = 6, lab_x, txt_size, line_size,
     annotate("text", x = lab_x + 15, y = 14,
              color="white", label="Copenhagen", size = lab_size) + 
     annotate("text", x = lab_x + 56, y = 28,
-             color="#006DDB", label="Aalborg", size = lab_size) +
-    annotate("text", x = lab_x + 105, y = 125,
-             color="green4", label="Korsoer 1857", size = lab_size) +
+             color="#006DDB", label="Aalborg \n 1853", size = lab_size) +
+    annotate("text", x = lab_x + 105, y = 129,
+             color="#076507", label="Korsoer 1857", size = lab_size) +
     xlab("Date") +
     theme_classic() +
     theme(legend.title = element_blank(),
@@ -139,19 +140,21 @@ SeasonPlot <- function(cases_all, lab_size = 6, lab_x, txt_size, line_size,
                                       margin = margin(0,10,0,0)),
           plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines')) +
     coord_cartesian(ylim = c(5,max(all_cases$cases_norm))) +
-    scale_y_continuous("Incidence per 10,000 people",
+    scale_y_continuous("Incidence per 10,000 population",
                        sec.axis = sec_axis(~. * 1, name = "Mortality counts (London)")) +
     scale_color_manual(breaks = c('copenhagen', 'aalborg', 'korsoer'),
-                       values = c("white", "#006DDB", "green4"))
+                       values = c("white", "#006DDB", "#076507"))
   return(base_plot)
 }
 
 cholMortPlot <- function(p_size, line_size){
   ggplot() +
     # Style the age 0 - 70 +. Will style the "total" group separately
+    
     geom_line(data = chol_burden[chol_burden$age_range != "Total", ],
               position = dodge,
-              aes(x = age_range, y = pe, group = plot_var2, color = plot_var2),
+              aes(x = age_range, y = pe, group = plot_var2, color = plot_var2,
+                  linetype = plot_var2),
               size = line_size, alpha = 0.9) +
     
     # geom_point(data = chol_burden[chol_burden$age_range != "Total", ], 
@@ -164,22 +167,35 @@ cholMortPlot <- function(p_size, line_size){
                position = dodge,
                aes(x = age_range, y = pe, group = plot_var2, color = plot_var2,
                    shape = plot_var2),  size = p_size) +
-    geom_errorbar(data = chol_burden[chol_burden$age_range != "Total", ],
-                  limits, position = dodge, width = 0.2) +
+   
     
     # Same but only for the "Total" group
     geom_point(data = chol_burden[chol_burden$age_range == "Total", ], 
                position = dodge2,
                aes(x = age_range, y = pe, group = plot_var2, color = plot_var2,
-                   shape = plot_var2),  size = 3) +
-    geom_errorbar(data = chol_burden[chol_burden$age_range == "Total", ],
-                  limits, position = dodge2, size = 1.0, width = 0.4)
+                   shape = plot_var2),
+               size = 3)
+   
 }
 
 mortPlotStyle <- function(base_chol_mort, txt_size){
   # Create symbology
   base_chol_mort + 
+   
+    scale_shape_manual(drop = FALSE, # stops R gropping empty "dummy" factors
+                       
+                       values = c(16, 17, 33,
+                                  16, 17, 32,
+                                  16, 17),
+                       breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate', "a",
+                                  'aalborg.total_attack', 'aalborg.total_mort_rate', "b",
+                                  'cph.total_attack', 'cph.total_mort_rate'),
+                       labels = c('Korsoer morbidity rate', 'Korsoer mortality rate', " ",
+                                  'Aalborg morbidity rate', 'Aalborg mortality rate', "",
+                                  'Copenhagen morbidity rate', 'Copenhagen mortality rate'))+
+    
     scale_color_manual(drop = FALSE, # stops R gropping empty "dummy" factors
+                       
                        values = c("green3",  "green4", "grey100",
                                   "steelblue1", "royalblue4", "grey100",
                                   "#f4a700" , "#af7a07"),
@@ -191,17 +207,21 @@ mortPlotStyle <- function(base_chol_mort, txt_size){
                        labels = c('Korsoer morbidity rate', 'Korsoer mortality rate', " ",
                                   'Aalborg morbidity rate', 'Aalborg mortality rate', "",
                                   'Copenhagen morbidity rate', 'Copenhagen mortality rate'))+
+    scale_linetype_manual(drop = FALSE, # stops R gropping empty "dummy" factors
+                          
+                          values = c("solid",  "solid", "solid",
+                                     "dotted", "dotted", "solid",
+                                     "longdash" , "longdash"),
+                          breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate', 
+                                     "a",
+                                     'aalborg.total_attack', 'aalborg.total_mort_rate',
+                                     "b",
+                                     'cph.total_attack', 'cph.total_mort_rate'),
+                          labels = c('Korsoer morbidity rate', 'Korsoer mortality rate', " ",
+                                     'Aalborg morbidity rate', 'Aalborg mortality rate', "",
+                                     'Copenhagen morbidity rate', 'Copenhagen mortality rate')) +
     
-    scale_shape_manual(drop = FALSE, # stops R gropping empty "dummy" factors
-                       values = c(16, 17, 33,
-                                  16, 17, 32,
-                                  16, 17),
-                       breaks = c('korsoer.total_attack', 'korsoer.total_mort_rate', "a",
-                                  'aalborg.total_attack', 'aalborg.total_mort_rate', "b",
-                                  'cph.total_attack', 'cph.total_mort_rate'),
-                       labels = c('Korsoer morbidity rate', 'Korsoer mortality rate', " ",
-                                  'Aalborg morbidity rate', 'Aalborg mortality rate', "",
-                                  'Copenhagen morbidity rate', 'Copenhagen mortality rate'))+
+  
     
     # guides(shape = guide_legend(keywidth = 2.5,
     #                             keyheight = 3)) + # Removes color part of legend
@@ -214,6 +234,7 @@ mortPlotStyle <- function(base_chol_mort, txt_size){
           legend.position = c(x = 0.25, y = .74),
           legend.text = element_text(size = txt_size),
           legend.key.height = unit(0.6, "cm"),
+          legend.key.width = unit(1.4, "cm"),
           axis.text.x = element_text(size = txt_size,
                                      angle = 45, vjust = .8, hjust = 1.0,
                                      margin = margin(0,0,0,0)),
@@ -225,6 +246,14 @@ mortPlotStyle <- function(base_chol_mort, txt_size){
           plot.margin = unit(c(1.9,0.3,0.2,1.0), 'lines'))
 }
 
+
+addError <- function(chol_mrt){
+  chol_mrt +
+    geom_errorbar(data = chol_burden[chol_burden$age_range != "Total", ],
+                  limits, position = dodge, width = 0.2, show.legend = FALSE) +
+    geom_errorbar(data = chol_burden[chol_burden$age_range == "Total", ],
+                  limits, position = dodge2, size = 1.0, width = 0.4, show.legend = FALSE)
+}
 
 cholProportionDeaths <- function(line_size) {
   ggplot() +
